@@ -161,19 +161,13 @@
     background: linear-gradient(180deg, #FFB36B 0%, #FF8A3D 100%);
   }
   .glass {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.92);
   }
   .glass-strong {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.96);
   }
   .glass-nav {
-    background: rgba(255, 255, 255, 0.60);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.92);
   }
 }
 
