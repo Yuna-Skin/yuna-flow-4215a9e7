@@ -53,7 +53,7 @@
   --radius: 1.25rem;
 
   /* Yuna — wellness feminine soft-premium */
-  --background: oklch(0.985 0.012 60);            /* #FFF9F5 */
+  --background: oklch(1 0 0);                     /* white outside mobile shell */
   --foreground: oklch(0.18 0 0);                  /* #1A1A1A */
 
   --surface: oklch(1 0 0);                        /* #FFFFFF */
