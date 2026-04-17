@@ -31,7 +31,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1" },
       { title: "Yuna — Yoga Coreano em 28 dias" },
       { name: "description", content: "Protocolo de yoga coreano em 28 dias. Construa o hábito da sua prática diária." },
-      { name: "theme-color", content: "#FAF6F0" },
+      { name: "theme-color", content: "#FFF9F5" },
       { property: "og:title", content: "Yuna — Yoga Coreano em 28 dias" },
       { name: "twitter:title", content: "Yuna — Yoga Coreano em 28 dias" },
       { property: "og:description", content: "Protocolo de yoga coreano em 28 dias. Construa o hábito da sua prática diária." },
@@ -45,7 +45,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap",
       },
     ],
   }),
