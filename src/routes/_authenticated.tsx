@@ -13,7 +13,7 @@ function AuthenticatedLayout() {
 
   useEffect(() => {
     if (!loading && !session) {
-      navigate({ to: "/auth" });
+      navigate({ to: "/auth", replace: true });
     }
   }, [loading, session, navigate]);
 
@@ -25,7 +25,19 @@ function AuthenticatedLayout() {
     );
   }
 
-  if (!session) return null;
+  if (!session) {
+    return (
+      <div className="mobile-shell flex flex-col items-center justify-center gap-4 p-6 text-center">
+        <p className="text-sm text-muted-foreground">Você precisa entrar para continuar.</p>
+        <button
+          onClick={() => navigate({ to: "/auth", replace: true })}
+          className="rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground"
+        >
+          Ir para login
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mobile-shell pb-24">
