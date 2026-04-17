@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
@@ -17,28 +17,57 @@ type Day = { id: string; day_number: number; title: string };
 function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [name, setName] = useState("Praticante");
-  const [days, setDays] = useState<Day[]>([]);
-  const [completedSet, setCompletedSet] = useState<Set<string>>(new Set());
-  const [streak, setStreak] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const userId = user?.id;
 
-  useEffect(() => {
-    if (!user) return;
-    (async () => {
-      const [{ data: profile }, { data: ds }, { data: prog }, { data: st }] = await Promise.all([
-        supabase.from("profiles").select("name").eq("id", user.id).maybeSingle(),
-        supabase.from("days").select("id, day_number, title").order("day_number"),
-        supabase.from("user_progress").select("day_id").eq("user_id", user.id).eq("completed", true),
-        supabase.from("user_streak").select("current_streak").eq("user_id", user.id).maybeSingle(),
-      ]);
-      if (profile?.name) setName(profile.name);
-      setDays(ds ?? []);
-      setCompletedSet(new Set((prog ?? []).map((p) => p.day_id)));
-      setStreak(st?.current_streak ?? 0);
-      setLoading(false);
-    })();
-  }, [user]);
+  const daysQ = useQuery({
+    queryKey: ["days"],
+    queryFn: async (): Promise<Day[]> => {
+      const { data, error } = await supabase
+        .from("days")
+        .select("id, day_number, title")
+        .order("day_number");
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 10 * 60_000,
+  });
+
+  const profileQ = useQuery({
+    queryKey: ["profile", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("name").eq("id", userId!).maybeSingle();
+      return data?.name ?? "Praticante";
+    },
+  });
+
+  const progressQ = useQuery({
+    queryKey: ["user_progress", userId],
+    enabled: !!userId,
+    queryFn: async (): Promise<Set<string>> => {
+      const { data } = await supabase
+        .from("user_progress")
+        .select("day_id")
+        .eq("user_id", userId!)
+        .eq("completed", true);
+      return new Set((data ?? []).map((p) => p.day_id));
+    },
+  });
+
+  const streakQ = useQuery({
+    queryKey: ["user_streak", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_streak")
+        .select("current_streak")
+        .eq("user_id", userId!)
+        .maybeSingle();
+      return data?.current_streak ?? 0;
+    },
+  });
+
+  const loading = daysQ.isLoading || profileQ.isLoading || progressQ.isLoading;
 
   if (loading) {
     return (
@@ -48,6 +77,11 @@ function HomePage() {
     );
   }
 
+  const days = daysQ.data ?? [];
+  const completedSet = progressQ.data ?? new Set<string>();
+  const name = profileQ.data ?? "Praticante";
+  const streak = streakQ.data ?? 0;
+
   const completedCount = days.filter((d) => completedSet.has(d.id)).length;
   const currentDay = days.find((d) => !completedSet.has(d.id)) ?? days[days.length - 1];
   const isAllDone = completedCount === 28;
@@ -56,7 +90,6 @@ function HomePage() {
 
   return (
     <div className="px-5 pb-6 pt-8">
-      {/* Header */}
       <div className="flex items-start justify-between">
         <div>
           <p className="text-sm text-muted-foreground">Olá,</p>
@@ -68,7 +101,6 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Progress card */}
       <Card className="mt-6 overflow-hidden border-0 bg-gradient-to-br from-primary to-[oklch(0.55_0.13_30)] p-6 text-primary-foreground shadow-md">
         <p className="text-xs uppercase tracking-widest opacity-80">Sua jornada</p>
         <p className="mt-2 text-4xl font-display">
@@ -90,7 +122,6 @@ function HomePage() {
         </Button>
       </Card>
 
-      {/* Week */}
       <div className="mt-8">
         <h2 className="text-sm font-semibold text-muted-foreground">Semana {currentWeek}</h2>
         <div className="mt-3 grid grid-cols-7 gap-1.5">
@@ -118,15 +149,10 @@ function HomePage() {
         </div>
       </div>
 
-      {/* Today preview */}
       {currentDay && !isAllDone && (
         <div className="mt-8">
           <h2 className="text-sm font-semibold text-muted-foreground">Sua prática de hoje</h2>
-          <Link
-            to="/day/$dayNumber"
-            params={{ dayNumber: String(currentDay.day_number) }}
-            className="mt-3 block"
-          >
+          <Link to="/day/$dayNumber" params={{ dayNumber: String(currentDay.day_number) }} className="mt-3 block">
             <Card className="overflow-hidden border-border bg-card p-0 shadow-sm transition-shadow hover:shadow-md">
               <div className="flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-accent to-warm/40">
                 <Play className="h-10 w-10 fill-primary-foreground text-primary-foreground/90" />
