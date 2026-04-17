@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
@@ -17,98 +18,82 @@ export const Route = createFileRoute("/_authenticated/day/$dayNumber")({
   component: DayPage,
 });
 
-type Movement = { id: string; title: string; description: string | null };
-type Exercise = { id: string; title: string; movements: Movement[] };
-type DayData = {
-  id: string;
-  day_number: number;
-  title: string;
-  video_url: string | null;
-  respiration_text: string | null;
-  reflection_text: string | null;
-  exercises: Exercise[];
-};
+type Movement = { id: string; title: string; description: string | null; order_index: number };
+type ExerciseRow = { id: string; title: string; order_index: number; movements: Movement[] | null };
 
 function DayPage() {
   const { dayNumber } = Route.useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [day, setDay] = useState<DayData | null>(null);
-  const [completed, setCompleted] = useState(false);
-  const [allowed, setAllowed] = useState(true);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
+  const target = parseInt(dayNumber, 10);
 
-  useEffect(() => {
-    if (!user) return;
-    const target = parseInt(dayNumber, 10);
-    (async () => {
-      // load day with exercises and movements
-      const { data: dayRow } = await supabase
+  const dayQ = useQuery({
+    queryKey: ["day", target],
+    queryFn: async () => {
+      const { data: dayRow, error } = await supabase
         .from("days")
         .select("id, day_number, title, video_url, respiration_text, reflection_text")
         .eq("day_number", target)
         .maybeSingle();
-
-      if (!dayRow) {
-        toast.error("Dia não encontrado");
-        navigate({ to: "/" });
-        return;
-      }
-
+      if (error) throw error;
+      if (!dayRow) return null;
       const { data: exs } = await supabase
         .from("exercises")
         .select("id, title, order_index, movements(id, title, description, order_index)")
         .eq("day_id", dayRow.id)
         .order("order_index");
+      return {
+        ...dayRow,
+        exercises: ((exs as ExerciseRow[] | null) ?? []).map((e) => ({
+          id: e.id,
+          title: e.title,
+          movements: (e.movements ?? []).slice().sort((a, b) => a.order_index - b.order_index),
+        })),
+      };
+    },
+    staleTime: 10 * 60_000,
+  });
 
-      // Determine allowed: user must have completed all previous days
-      const { data: prog } = await supabase
+  const progressQ = useQuery({
+    queryKey: ["user_progress_full", user?.id],
+    enabled: !!user,
+    queryFn: async (): Promise<Set<number>> => {
+      const { data } = await supabase
         .from("user_progress")
-        .select("day_id, days!inner(day_number)")
-        .eq("user_id", user.id)
+        .select("days!inner(day_number)")
+        .eq("user_id", user!.id)
         .eq("completed", true);
-      const completedNumbers = new Set(
-        (prog ?? []).map((p: { days: { day_number: number } | { day_number: number }[] }) => {
+      return new Set(
+        (data ?? []).map((p: { days: { day_number: number } | { day_number: number }[] }) => {
           const days = Array.isArray(p.days) ? p.days[0] : p.days;
           return days.day_number;
         }),
       );
+    },
+  });
 
-      const isCompleted = completedNumbers.has(target);
-      let firstAvailable = 1;
-      for (let i = 1; i <= 28; i++) {
-        if (!completedNumbers.has(i)) {
-          firstAvailable = i;
-          break;
-        }
-        if (i === 28) firstAvailable = 28;
-      }
-      const ok = target <= firstAvailable;
+  const loading = dayQ.isLoading || progressQ.isLoading;
+  const day = dayQ.data;
+  const completedNumbers = progressQ.data ?? new Set<number>();
 
-      setAllowed(ok);
-      setCompleted(isCompleted);
-      setDay({
-        ...dayRow,
-        exercises: (exs ?? []).map((e) => ({
-          id: e.id,
-          title: e.title,
-          movements: ((e.movements as Movement[] | null) ?? []).sort(
-            (a, b) => ((a as unknown as { order_index: number }).order_index) - ((b as unknown as { order_index: number }).order_index),
-          ),
-        })),
-      });
-      setLoading(false);
+  const isCompleted = completedNumbers.has(target);
+  let firstAvailable = 28;
+  for (let i = 1; i <= 28; i++) {
+    if (!completedNumbers.has(i)) { firstAvailable = i; break; }
+  }
+  const allowed = target <= firstAvailable;
 
-      if (!ok) {
-        toast.error("Complete os dias anteriores primeiro");
-        setTimeout(() => navigate({ to: "/" }), 600);
-      }
-    })();
-  }, [dayNumber, user, navigate]);
+  useEffect(() => {
+    if (!loading && !allowed) {
+      toast.error("Complete os dias anteriores primeiro");
+      navigate({ to: "/" });
+    }
+  }, [loading, allowed, navigate]);
 
   const handleComplete = async () => {
-    if (!day || !user) return;
+    if (!day) return;
     setSubmitting(true);
     const { error } = await supabase.rpc("complete_day", { p_day_id: day.id });
     setSubmitting(false);
@@ -116,6 +101,11 @@ function DayPage() {
       toast.error(error.message);
       return;
     }
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["user_progress"] }),
+      queryClient.invalidateQueries({ queryKey: ["user_progress_full"] }),
+      queryClient.invalidateQueries({ queryKey: ["user_streak"] }),
+    ]);
     toast.success("Dia concluído! 🌸");
     navigate({ to: "/" });
   };
@@ -130,7 +120,6 @@ function DayPage() {
 
   return (
     <div className="pb-32">
-      {/* Video header */}
       <div className="relative">
         <div className="aspect-[16/10] w-full overflow-hidden bg-black">
           {day.video_url ? (
@@ -159,7 +148,6 @@ function DayPage() {
           {day.title.replace(/^Dia \d+ — /, "")}
         </h1>
 
-        {/* Exercises */}
         <h2 className="mt-7 text-sm font-semibold text-muted-foreground">Exercícios</h2>
         <Accordion type="multiple" className="mt-2">
           {day.exercises.map((ex, idx) => (
@@ -188,7 +176,6 @@ function DayPage() {
           ))}
         </Accordion>
 
-        {/* Breathing */}
         {day.respiration_text && (
           <Card className="mt-6 border-0 bg-accent/40 p-5 shadow-none">
             <div className="flex items-center gap-2 text-primary">
@@ -199,7 +186,6 @@ function DayPage() {
           </Card>
         )}
 
-        {/* Reflection */}
         {day.reflection_text && (
           <Card className="mt-4 border-0 bg-warm/20 p-5 shadow-none">
             <div className="flex items-center gap-2 text-primary">
@@ -213,14 +199,13 @@ function DayPage() {
         )}
       </div>
 
-      {/* Sticky CTA */}
       <div className="fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] -translate-x-1/2 border-t border-border bg-background/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
         <Button
           onClick={handleComplete}
-          disabled={submitting || completed}
+          disabled={submitting || isCompleted}
           className="h-12 w-full rounded-full text-base"
         >
-          {completed ? (
+          {isCompleted ? (
             <><Check className="h-4 w-4" /> Dia concluído</>
           ) : submitting ? "Salvando..." : "Concluir dia"}
         </Button>
