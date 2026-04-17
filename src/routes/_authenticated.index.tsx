@@ -89,41 +89,60 @@ function HomePage() {
   const weekDays = days.filter((d) => Math.ceil(d.day_number / 7) === currentWeek);
 
   return (
-    <div className="px-5 pb-6 pt-8">
+    <div className="px-4 pb-6 pt-8">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-muted-foreground">Olá,</p>
-          <h1 className="text-3xl font-display text-foreground">{name}</h1>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Olá,</p>
+          <h1 className="mt-1 font-display text-[28px] leading-tight text-foreground">{name}</h1>
         </div>
-        <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-primary">
-          <Flame className="h-4 w-4" />
-          <span className="text-sm font-semibold">{streak}</span>
+        <div className="flex items-center gap-1.5 rounded-full glass border border-black/5 px-3 py-1.5">
+          <Flame className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold text-foreground">{streak}</span>
         </div>
       </div>
 
-      <Card className="mt-6 overflow-hidden border-0 bg-gradient-to-br from-primary to-[oklch(0.55_0.13_30)] p-6 text-primary-foreground shadow-md">
-        <p className="text-xs uppercase tracking-widest opacity-80">Sua jornada</p>
-        <p className="mt-2 text-4xl font-display">
-          Dia {currentDay?.day_number ?? 28}
-          <span className="text-xl opacity-70"> / 28</span>
-        </p>
+      <Card className="mt-6 overflow-hidden border-0 bg-cta-dark p-5 text-white shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.18em] opacity-70">Sua jornada</p>
+            <p className="mt-2 font-display text-4xl">
+              Dia {currentDay?.day_number ?? 28}
+              <span className="text-xl opacity-60"> / 28</span>
+            </p>
+          </div>
+          <div className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium">
+            Semana {currentWeek}
+          </div>
+        </div>
         <div className="mt-5">
-          <Progress value={(completedCount / 28) * 100} className="h-2 bg-white/20" />
-          <p className="mt-2 text-xs opacity-80">{completedCount} dias concluídos</p>
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/15">
+            <div
+              className="h-full bg-progress-accent rounded-full transition-all duration-500"
+              style={{ width: `${(completedCount / 28) * 100}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs opacity-70">{completedCount} dias concluídos</p>
         </div>
 
         <Button
           onClick={() => currentDay && navigate({ to: "/day/$dayNumber", params: { dayNumber: String(currentDay.day_number) } })}
           disabled={isAllDone}
-          className="mt-5 h-12 w-full rounded-full bg-white text-primary hover:bg-white/90"
+          variant="primary"
+          size="lg"
+          className="mt-5 w-full bg-white text-foreground hover:bg-white/95 hover:brightness-100"
         >
-          <Play className="h-4 w-4 fill-primary" />
+          <Play className="h-4 w-4 fill-foreground" />
           {isAllDone ? "Programa concluído 🎉" : "Continuar prática"}
         </Button>
       </Card>
 
-      <div className="mt-8">
-        <h2 className="text-sm font-semibold text-muted-foreground">Semana {currentWeek}</h2>
+      <div className="mt-7">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Semana {currentWeek}
+          </h2>
+          <span className="text-[11px] text-muted-foreground">{weekDays.length} dias</span>
+        </div>
         <div className="mt-3 grid grid-cols-7 gap-1.5">
           {weekDays.map((d) => {
             const done = completedSet.has(d.id);
@@ -136,13 +155,13 @@ function HomePage() {
                 params={{ dayNumber: String(d.day_number) }}
                 disabled={locked}
                 className={cn(
-                  "flex aspect-square flex-col items-center justify-center rounded-2xl text-xs font-medium transition-colors",
-                  done && "bg-primary text-primary-foreground",
-                  isCurrent && !done && "bg-accent text-accent-foreground ring-2 ring-primary",
-                  locked && "bg-muted text-muted-foreground pointer-events-none",
+                  "flex aspect-square flex-col items-center justify-center rounded-2xl text-xs font-semibold transition-all",
+                  done && "bg-progress-accent text-white shadow-sm",
+                  isCurrent && !done && "glass border-2 border-primary text-foreground",
+                  locked && "bg-white/40 text-muted-foreground pointer-events-none border border-black/[0.04]",
                 )}
               >
-                {done ? <Check className="h-4 w-4" /> : locked ? <Lock className="h-3.5 w-3.5" /> : d.day_number}
+                {done ? <Check className="h-4 w-4" strokeWidth={2.5} /> : locked ? <Lock className="h-3.5 w-3.5" strokeWidth={1.75} /> : d.day_number}
               </Link>
             );
           })}
@@ -150,16 +169,24 @@ function HomePage() {
       </div>
 
       {currentDay && !isAllDone && (
-        <div className="mt-8">
-          <h2 className="text-sm font-semibold text-muted-foreground">Sua prática de hoje</h2>
+        <div className="mt-7">
+          <h2 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Sua prática de hoje
+          </h2>
           <Link to="/day/$dayNumber" params={{ dayNumber: String(currentDay.day_number) }} className="mt-3 block">
-            <Card className="overflow-hidden border-border bg-card p-0 shadow-sm transition-shadow hover:shadow-md">
-              <div className="flex aspect-[16/9] items-center justify-center bg-gradient-to-br from-accent to-warm/40">
-                <Play className="h-10 w-10 fill-primary-foreground text-primary-foreground/90" />
+            <Card className="overflow-hidden p-0 transition-all hover:shadow-md active:scale-[0.99]">
+              <div className="relative flex aspect-[16/9] items-center justify-center bg-primary-soft">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 shadow-md">
+                  <Play className="h-5 w-5 fill-foreground text-foreground ml-0.5" />
+                </div>
               </div>
               <div className="p-4">
-                <p className="text-xs uppercase tracking-widest text-muted-foreground">Dia {currentDay.day_number}</p>
-                <p className="mt-1 font-display text-xl text-foreground">{currentDay.title.replace(/^Dia \d+ — /, "")}</p>
+                <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  Dia {currentDay.day_number}
+                </p>
+                <p className="mt-1 font-display text-lg leading-snug text-foreground">
+                  {currentDay.title.replace(/^Dia \d+ — /, "")}
+                </p>
               </div>
             </Card>
           </Link>
