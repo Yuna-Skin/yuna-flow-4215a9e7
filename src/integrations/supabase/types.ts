@@ -242,6 +242,7 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          duration: string | null
           exercise_id: string
           id: string
           order_index: number
@@ -251,6 +252,7 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
+          duration?: string | null
           exercise_id: string
           id?: string
           order_index: number
@@ -260,6 +262,7 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string | null
+          duration?: string | null
           exercise_id?: string
           id?: string
           order_index?: number
