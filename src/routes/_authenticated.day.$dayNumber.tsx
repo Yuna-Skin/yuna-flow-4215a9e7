@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/day/$dayNumber")({
   component: DayPage,
 });
 
-type Movement = { id: string; title: string; description: string | null; video_url: string | null; order_index: number };
+type Movement = { id: string; title: string; description: string | null; video_url: string | null; duration: string | null; order_index: number };
 type ExerciseRow = { id: string; title: string; order_index: number; movements: Movement[] | null };
 
 function DayPage() {
@@ -43,7 +43,7 @@ function DayPage() {
       if (!dayRow) return null;
       const { data: exs } = await supabase
         .from("exercises")
-        .select("id, title, order_index, movements(id, title, description, video_url, order_index)")
+        .select("id, title, order_index, movements(id, title, description, video_url, duration, order_index)")
         .eq("day_id", dayRow.id)
         .order("order_index");
       return {
@@ -170,6 +170,11 @@ function DayPage() {
                         <p className="text-sm font-medium text-foreground">{m.title}</p>
                         {m.description && (
                           <p className="mt-0.5 text-sm text-muted-foreground">{m.description}</p>
+                        )}
+                        {m.duration && (
+                          <p className="mt-1 text-xs font-medium uppercase tracking-wider text-primary">
+                            Duração · {m.duration}
+                          </p>
                         )}
                       </div>
                       {m.video_url && (
