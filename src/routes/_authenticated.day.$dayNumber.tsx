@@ -11,7 +11,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ArrowLeft, Wind, Sparkles, Check } from "lucide-react";
+import { ArrowLeft, Wind, Sparkles, Check, Play } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/day/$dayNumber")({
@@ -27,6 +29,7 @@ function DayPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
+  const [activeVideo, setActiveVideo] = useState<{ url: string; title: string } | null>(null);
   const target = parseInt(dayNumber, 10);
 
   const dayQ = useQuery({
@@ -163,33 +166,22 @@ function DayPage() {
               <AccordionContent>
                 <ul className="ml-11 space-y-3 pb-2">
                   {ex.movements.map((m) => (
-                    <li key={m.id} className="space-y-2">
-                      <div>
+                    <li key={m.id} className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-foreground">{m.title}</p>
                         {m.description && (
                           <p className="mt-0.5 text-sm text-muted-foreground">{m.description}</p>
                         )}
                       </div>
                       {m.video_url && (
-                        <div className="overflow-hidden rounded-xl border border-border bg-black">
-                          {/\.(mp4|webm|mov)(\?|$)/i.test(m.video_url) ? (
-                            <video
-                              src={m.video_url}
-                              controls
-                              playsInline
-                              preload="metadata"
-                              className="aspect-video w-full"
-                            />
-                          ) : (
-                            <iframe
-                              src={m.video_url}
-                              className="aspect-video w-full"
-                              allow="autoplay; encrypted-media; picture-in-picture"
-                              allowFullScreen
-                              title={m.title}
-                            />
-                          )}
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setActiveVideo({ url: m.video_url!, title: m.title })}
+                          aria-label={`Ver vídeo de ${m.title}`}
+                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition hover:scale-105 active:scale-95"
+                        >
+                          <Play className="h-4 w-4 fill-current" />
+                        </button>
                       )}
                     </li>
                   ))}
