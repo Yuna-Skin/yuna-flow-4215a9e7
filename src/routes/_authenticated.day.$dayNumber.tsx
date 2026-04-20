@@ -226,7 +226,7 @@ function DayPage() {
       </div>
 
       <Dialog open={!!activeVideo} onOpenChange={(o) => !o && setActiveVideo(null)}>
-        <DialogContent className="max-w-2xl overflow-hidden border-0 bg-black p-0 sm:rounded-2xl">
+        <DialogContent className="w-[min(92vw,420px)] overflow-hidden border-0 bg-black p-0 sm:rounded-2xl">
           <DialogHeader className="sr-only">
             <DialogTitle>{activeVideo?.title ?? "Vídeo"}</DialogTitle>
           </DialogHeader>
@@ -239,13 +239,13 @@ function DayPage() {
                 loop
                 controls
                 playsInline
-                className="aspect-video w-full bg-black"
+                className="aspect-[9/16] w-full bg-black object-cover"
               />
             ) : (
               <iframe
                 key={activeVideo.url}
                 src={activeVideo.url}
-                className="aspect-video w-full bg-black"
+                className="aspect-[9/16] w-full bg-black"
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen
                 title={activeVideo.title}
