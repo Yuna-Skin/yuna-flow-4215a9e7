@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/day/$dayNumber")({
   component: DayPage,
 });
 
-type Movement = { id: string; title: string; description: string | null; order_index: number };
+type Movement = { id: string; title: string; description: string | null; video_url: string | null; order_index: number };
 type ExerciseRow = { id: string; title: string; order_index: number; movements: Movement[] | null };
 
 function DayPage() {
@@ -41,7 +41,7 @@ function DayPage() {
       if (!dayRow) return null;
       const { data: exs } = await supabase
         .from("exercises")
-        .select("id, title, order_index, movements(id, title, description, order_index)")
+        .select("id, title, order_index, movements(id, title, description, video_url, order_index)")
         .eq("day_id", dayRow.id)
         .order("order_index");
       return {
@@ -163,10 +163,33 @@ function DayPage() {
               <AccordionContent>
                 <ul className="ml-11 space-y-3 pb-2">
                   {ex.movements.map((m) => (
-                    <li key={m.id}>
-                      <p className="text-sm font-medium text-foreground">{m.title}</p>
-                      {m.description && (
-                        <p className="mt-0.5 text-sm text-muted-foreground">{m.description}</p>
+                    <li key={m.id} className="space-y-2">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{m.title}</p>
+                        {m.description && (
+                          <p className="mt-0.5 text-sm text-muted-foreground">{m.description}</p>
+                        )}
+                      </div>
+                      {m.video_url && (
+                        <div className="overflow-hidden rounded-xl border border-border bg-black">
+                          {/\.(mp4|webm|mov)(\?|$)/i.test(m.video_url) ? (
+                            <video
+                              src={m.video_url}
+                              controls
+                              playsInline
+                              preload="metadata"
+                              className="aspect-video w-full"
+                            />
+                          ) : (
+                            <iframe
+                              src={m.video_url}
+                              className="aspect-video w-full"
+                              allow="autoplay; encrypted-media; picture-in-picture"
+                              allowFullScreen
+                              title={m.title}
+                            />
+                          )}
+                        </div>
                       )}
                     </li>
                   ))}
