@@ -190,6 +190,18 @@ function DayPage() {
           ))}
         </Accordion>
 
+        <div className="mt-6">
+          <Button
+            onClick={handleComplete}
+            disabled={submitting || isCompleted}
+            className="h-12 w-full rounded-full text-base"
+          >
+            {isCompleted ? (
+              <><Check className="h-4 w-4" /> Dia concluído</>
+            ) : submitting ? "Salvando..." : "Concluir dia"}
+          </Button>
+        </div>
+
         {day.respiration_text && (
           <Card className="mt-6 border-0 bg-accent/40 p-5 shadow-none">
             <div className="flex items-center gap-2 text-primary">
@@ -211,18 +223,6 @@ function DayPage() {
             </p>
           </Card>
         )}
-      </div>
-
-      <div className="fixed bottom-[calc(72px+env(safe-area-inset-bottom))] left-1/2 z-50 w-full max-w-[430px] -translate-x-1/2 px-5">
-        <Button
-          onClick={handleComplete}
-          disabled={submitting || isCompleted}
-          className="h-12 w-full rounded-full text-base"
-        >
-          {isCompleted ? (
-            <><Check className="h-4 w-4" /> Dia concluído</>
-          ) : submitting ? "Salvando..." : "Concluir dia"}
-        </Button>
       </div>
 
       <Dialog open={!!activeVideo} onOpenChange={(o) => !o && setActiveVideo(null)}>
