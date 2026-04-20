@@ -213,7 +213,7 @@ function DayPage() {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-1/2 z-30 w-full max-w-[430px] -translate-x-1/2 border-t border-border bg-background/95 px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+      <div className="fixed bottom-[calc(72px+env(safe-area-inset-bottom))] left-1/2 z-50 w-full max-w-[430px] -translate-x-1/2 px-5">
         <Button
           onClick={handleComplete}
           disabled={submitting || isCompleted}
