@@ -169,7 +169,10 @@ function DayPage() {
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-foreground">{m.title}</p>
                         {m.description && (
-                          <p className="mt-0.5 text-sm text-muted-foreground">{m.description}</p>
+                          <div
+                            className="prose prose-sm mt-1 max-w-none text-sm text-muted-foreground prose-p:my-1 prose-strong:font-semibold prose-strong:text-foreground prose-headings:text-foreground prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5"
+                            dangerouslySetInnerHTML={{ __html: m.description }}
+                          />
                         )}
                         {m.duration && (
                           <p className="mt-1 text-xs font-medium uppercase tracking-wider text-primary">
