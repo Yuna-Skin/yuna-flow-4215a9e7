@@ -244,36 +244,48 @@ function DayPage() {
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <ul className="ml-11 space-y-3 pb-2">
-                  {ex.movements.map((m) => (
-                    <li key={m.id} className="flex items-start justify-between gap-3">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-foreground">{m.title}</p>
-                        {m.description && (
-                          <div
-                            className="prose prose-sm mt-1 max-w-none text-sm text-muted-foreground prose-p:my-1 prose-strong:font-semibold prose-strong:text-foreground prose-headings:text-foreground prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5"
-                            dangerouslySetInnerHTML={{ __html: m.description }}
-                          />
-                        )}
-                        {m.duration && (
-                          <p className="mt-1 text-xs font-medium uppercase tracking-wider text-primary">
-                            Duração · {m.duration}
+                <ol className="ml-11 space-y-4 pb-2">
+                  {ex.movements.map((m, mIdx) => (
+                    <li key={m.id} className="rounded-2xl border border-border/60 bg-card/60 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                              Movimento {mIdx + 1}
+                            </span>
+                            {m.duration && (
+                              <>
+                                <span className="text-muted-foreground/40">·</span>
+                                <span className="text-[11px] font-semibold uppercase tracking-widest text-primary">
+                                  {m.duration}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                          <p className="mt-1 font-display text-lg leading-tight text-foreground">
+                            {m.title}
                           </p>
+                        </div>
+                        {m.video_url && (
+                          <button
+                            type="button"
+                            onClick={() => setActiveVideo({ url: m.video_url!, title: m.title })}
+                            aria-label={`Ver vídeo de ${m.title}`}
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-transform hover:bg-primary/90 hover:scale-105 active:scale-95"
+                          >
+                            <Play className="h-4 w-4 fill-current" />
+                          </button>
                         )}
                       </div>
-                      {m.video_url && (
-                        <button
-                          type="button"
-                          onClick={() => setActiveVideo({ url: m.video_url!, title: m.title })}
-                          aria-label={`Ver vídeo de ${m.title}`}
-                          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-95"
-                        >
-                          <Play className="h-4 w-4 fill-current" />
-                        </button>
+                      {m.description && (
+                        <div
+                          className="prose prose-sm mt-3 max-w-none border-t border-border/60 pt-3 text-sm leading-relaxed text-muted-foreground prose-p:my-1.5 prose-strong:font-semibold prose-strong:text-foreground prose-headings:mt-3 prose-headings:mb-1 prose-headings:text-xs prose-headings:font-semibold prose-headings:uppercase prose-headings:tracking-widest prose-headings:text-foreground/80 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5"
+                          dangerouslySetInnerHTML={{ __html: m.description }}
+                        />
                       )}
                     </li>
                   ))}
-                </ul>
+                </ol>
               </AccordionContent>
             </AccordionItem>
           ))}
