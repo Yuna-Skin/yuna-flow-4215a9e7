@@ -74,7 +74,7 @@ function MinimalVideoPlayer({ src }: { src: string }) {
             type="button"
             onClick={toggleMute}
             aria-label={muted ? "Ativar som" : "Silenciar"}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/80 text-foreground shadow-md backdrop-blur-sm transition-transform hover:scale-105 hover:bg-white"
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-md transition-transform hover:scale-105 hover:bg-white/30"
           >
             {muted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
           </button>
