@@ -244,10 +244,10 @@ function DayPage() {
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <ol className="ml-11 space-y-4 pb-2">
+                <ol className="ml-11 space-y-3 pb-2">
                   {ex.movements.map((m, mIdx) => (
-                    <li key={m.id} className="rounded-2xl border border-border/60 bg-card/60 p-4">
-                      <div className="flex items-start justify-between gap-3">
+                    <li key={m.id} className="overflow-hidden rounded-2xl border border-border/60 bg-card/60">
+                      <div className="flex items-start justify-between gap-3 p-4">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2">
                             <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
@@ -278,10 +278,19 @@ function DayPage() {
                         )}
                       </div>
                       {m.description && (
-                        <div
-                          className="prose prose-sm mt-3 max-w-none border-t border-border/60 pt-3 text-sm leading-relaxed text-muted-foreground prose-p:my-1.5 prose-strong:font-semibold prose-strong:text-foreground prose-headings:mt-3 prose-headings:mb-1 prose-headings:text-xs prose-headings:font-semibold prose-headings:uppercase prose-headings:tracking-widest prose-headings:text-foreground/80 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5"
-                          dangerouslySetInnerHTML={{ __html: m.description }}
-                        />
+                        <Accordion type="single" collapsible className="border-t border-border/60">
+                          <AccordionItem value={`desc-${m.id}`} className="border-0">
+                            <AccordionTrigger className="px-4 py-3 text-xs font-semibold uppercase tracking-widest text-muted-foreground no-underline hover:no-underline hover:text-foreground">
+                              Descrição
+                            </AccordionTrigger>
+                            <AccordionContent className="px-4 pb-4">
+                              <div
+                                className="prose prose-sm max-w-none text-sm leading-relaxed text-muted-foreground prose-p:my-1.5 prose-strong:font-semibold prose-strong:text-foreground prose-headings:mt-3 prose-headings:mb-1 prose-headings:text-xs prose-headings:font-semibold prose-headings:uppercase prose-headings:tracking-widest prose-headings:text-foreground/80 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5"
+                                dangerouslySetInnerHTML={{ __html: m.description }}
+                              />
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
                       )}
                     </li>
                   ))}
