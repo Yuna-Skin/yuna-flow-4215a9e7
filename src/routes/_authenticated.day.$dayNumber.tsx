@@ -64,7 +64,7 @@ function MinimalVideoPlayer({ src }: { src: string }) {
         onPause={() => setPlaying(false)}
         className="aspect-[9/16] w-full bg-black object-cover"
       />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-black/60 to-transparent p-4">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/60 to-transparent p-4">
         <div
           className="pointer-events-auto flex items-center gap-2"
           onMouseEnter={() => setShowVolume(true)}
@@ -94,9 +94,9 @@ function MinimalVideoPlayer({ src }: { src: string }) {
           type="button"
           onClick={togglePlay}
           aria-label={playing ? "Pausar" : "Reproduzir"}
-          className="pointer-events-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg ring-4 ring-primary/20 transition-transform hover:scale-105"
+          className="pointer-events-auto -mr-1 -mb-1 flex h-20 w-20 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl ring-4 ring-primary/25 transition-transform hover:scale-105"
         >
-          {playing ? <Pause className="h-7 w-7 fill-current" /> : <Play className="h-7 w-7 fill-current" />}
+          {playing ? <Pause className="h-8 w-8 fill-current" /> : <Play className="h-8 w-8 fill-current" />}
         </button>
       </div>
     </div>
