@@ -64,20 +64,20 @@ function MinimalVideoPlayer({ src }: { src: string }) {
         onPause={() => setPlaying(false)}
         className="aspect-[9/16] w-full bg-black object-cover"
       />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-black/70 to-transparent p-4">
-        <button
-          type="button"
-          onClick={togglePlay}
-          aria-label={playing ? "Pausar" : "Reproduzir"}
-          className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur transition-colors hover:bg-white/25"
-        >
-          {playing ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current" />}
-        </button>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-gradient-to-t from-black/60 to-transparent p-4">
         <div
           className="pointer-events-auto flex items-center gap-2"
           onMouseEnter={() => setShowVolume(true)}
           onMouseLeave={() => setShowVolume(false)}
         >
+          <button
+            type="button"
+            onClick={toggleMute}
+            aria-label={muted ? "Ativar som" : "Silenciar"}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-surface text-foreground shadow-md transition-transform hover:scale-105"
+          >
+            {muted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+          </button>
           {showVolume && (
             <input
               type="range"
@@ -86,142 +86,17 @@ function MinimalVideoPlayer({ src }: { src: string }) {
               step={0.05}
               value={muted ? 0 : volume}
               onChange={(e) => onVolume(parseFloat(e.target.value))}
-              className="h-1 w-24 cursor-pointer accent-white"
+              className="h-1 w-24 cursor-pointer accent-primary"
             />
-          )}
-          <button
-            type="button"
-            onClick={toggleMute}
-            aria-label={muted ? "Ativar som" : "Silenciar"}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur transition-colors hover:bg-white/25"
-          >
-            {muted || volume === 0 ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DayPage() {
-  const { dayNumber } = Route.useParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const [submitting, setSubmitting] = useState(false);
-  const [activeVideo, setActiveVideo] = useState<{ url: string; title: string } | null>(null);
-  const target = parseInt(dayNumber, 10);
-
-  const dayQ = useQuery({
-    queryKey: ["day", target],
-    queryFn: async () => {
-      const { data: dayRow, error } = await supabase
-        .from("days")
-        .select("id, day_number, title, video_url, respiration_text, reflection_text")
-        .eq("day_number", target)
-        .maybeSingle();
-      if (error) throw error;
-      if (!dayRow) return null;
-      const { data: exs } = await supabase
-        .from("exercises")
-        .select("id, title, order_index, movements(id, title, description, video_url, duration, order_index)")
-        .eq("day_id", dayRow.id)
-        .order("order_index");
-      return {
-        ...dayRow,
-        exercises: ((exs as ExerciseRow[] | null) ?? []).map((e) => ({
-          id: e.id,
-          title: e.title,
-          movements: (e.movements ?? []).slice().sort((a, b) => a.order_index - b.order_index),
-        })),
-      };
-    },
-    staleTime: 10 * 60_000,
-  });
-
-  const progressQ = useQuery({
-    queryKey: ["user_progress_full", user?.id],
-    enabled: !!user,
-    queryFn: async (): Promise<Set<number>> => {
-      const { data } = await supabase
-        .from("user_progress")
-        .select("days!inner(day_number)")
-        .eq("user_id", user!.id)
-        .eq("completed", true);
-      return new Set(
-        (data ?? []).map((p: { days: { day_number: number } | { day_number: number }[] }) => {
-          const days = Array.isArray(p.days) ? p.days[0] : p.days;
-          return days.day_number;
-        }),
-      );
-    },
-  });
-
-  const loading = dayQ.isLoading || progressQ.isLoading;
-  const day = dayQ.data;
-  const completedNumbers = progressQ.data ?? new Set<number>();
-
-  const isCompleted = completedNumbers.has(target);
-  let firstAvailable = 28;
-  for (let i = 1; i <= 28; i++) {
-    if (!completedNumbers.has(i)) { firstAvailable = i; break; }
-  }
-  const allowed = target <= firstAvailable;
-
-  useEffect(() => {
-    if (!loading && !allowed) {
-      toast.error("Complete os dias anteriores primeiro");
-      navigate({ to: "/" });
-    }
-  }, [loading, allowed, navigate]);
-
-  const handleComplete = async () => {
-    if (!day) return;
-    setSubmitting(true);
-    const { error } = await supabase.rpc("complete_day", { p_day_id: day.id });
-    setSubmitting(false);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ["user_progress"] }),
-      queryClient.invalidateQueries({ queryKey: ["user_progress_full"] }),
-      queryClient.invalidateQueries({ queryKey: ["user_streak"] }),
-    ]);
-    toast.success("Dia concluído! 🌸");
-    navigate({ to: "/" });
-  };
-
-  if (loading || !day || !allowed) {
-    return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    );
-  }
-
-  return (
-    <div className="pb-32">
-      <div className="relative">
-        <div className="aspect-[16/10] w-full overflow-hidden bg-black">
-          {day.video_url ? (
-            <iframe
-              src={day.video_url}
-              className="h-full w-full"
-              allow="autoplay; encrypted-media; picture-in-picture"
-              allowFullScreen
-              title={day.title}
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-white/60">Sem vídeo</div>
           )}
         </div>
         <button
-          onClick={() => navigate({ to: "/" })}
-          className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-background/80 backdrop-blur"
+          type="button"
+          onClick={togglePlay}
+          aria-label={playing ? "Pausar" : "Reproduzir"}
+          className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-transform hover:scale-105"
         >
-          <ArrowLeft className="h-5 w-5" />
+          {playing ? <Pause className="h-5 w-5 fill-current" /> : <Play className="h-5 w-5 fill-current" />}
         </button>
       </div>
 
