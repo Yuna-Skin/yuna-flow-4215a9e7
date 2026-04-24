@@ -238,6 +238,95 @@ export type Database = {
           },
         ]
       }
+      media_asset_links: {
+        Row: {
+          asset_id: string
+          created_at: string
+          entity_column: string
+          entity_id: string
+          entity_table: string
+          id: string
+          label: string | null
+          updated_at: string
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          entity_column: string
+          entity_id: string
+          entity_table: string
+          id?: string
+          label?: string | null
+          updated_at?: string
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          entity_column?: string
+          entity_id?: string
+          entity_table?: string
+          id?: string
+          label?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_asset_links_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media_assets: {
+        Row: {
+          bucket: string
+          content_type: string | null
+          created_at: string
+          file_name: string
+          folder: string | null
+          id: string
+          linked_column: string | null
+          linked_id: string | null
+          linked_table: string | null
+          path: string
+          public_url: string
+          size_bytes: number
+          updated_at: string
+        }
+        Insert: {
+          bucket?: string
+          content_type?: string | null
+          created_at?: string
+          file_name: string
+          folder?: string | null
+          id?: string
+          linked_column?: string | null
+          linked_id?: string | null
+          linked_table?: string | null
+          path: string
+          public_url: string
+          size_bytes?: number
+          updated_at?: string
+        }
+        Update: {
+          bucket?: string
+          content_type?: string | null
+          created_at?: string
+          file_name?: string
+          folder?: string | null
+          id?: string
+          linked_column?: string | null
+          linked_id?: string | null
+          linked_table?: string | null
+          path?: string
+          public_url?: string
+          size_bytes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       movements: {
         Row: {
           created_at: string
@@ -471,6 +560,25 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      link_media_asset: {
+        Args: {
+          _linked_column: string
+          _linked_id: string
+          _linked_table: string
+          _url: string
+        }
+        Returns: undefined
+      }
+      media_path_from_url: { Args: { _url: string }; Returns: string }
+      unlink_media_asset: {
+        Args: {
+          _linked_column: string
+          _linked_id: string
+          _linked_table: string
+          _url: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
