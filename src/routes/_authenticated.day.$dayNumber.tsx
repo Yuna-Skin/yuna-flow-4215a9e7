@@ -236,7 +236,7 @@ function DayPage() {
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <ol className="ml-11 space-y-3 pb-2">
+                <ol className="space-y-3 pb-2">
                   {ex.movements.map((m, mIdx) => (
                     <li key={m.id} className="overflow-hidden rounded-2xl border border-border/60 bg-card/60">
                       <div className="flex items-start justify-between gap-3 p-4">
