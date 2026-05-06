@@ -14,6 +14,7 @@ import {
 import { ArrowLeft, Wind, Sparkles, Check, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import DOMPurify from "dompurify";
 
 export const Route = createFileRoute("/_authenticated/day/$dayNumber")({
   component: DayPage,
@@ -278,7 +279,7 @@ function DayPage() {
                             <AccordionContent className="px-4 pb-4">
                               <div
                                 className="prose prose-sm max-w-none text-sm leading-relaxed text-muted-foreground prose-p:my-1.5 prose-strong:font-semibold prose-strong:text-foreground prose-headings:mt-3 prose-headings:mb-1 prose-headings:text-xs prose-headings:font-semibold prose-headings:uppercase prose-headings:tracking-widest prose-headings:text-foreground/80 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5"
-                                dangerouslySetInnerHTML={{ __html: m.description }}
+                                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(m.description) }}
                               />
                             </AccordionContent>
                           </AccordionItem>
