@@ -14,6 +14,7 @@ import {
 import { ArrowLeft, Wind, Sparkles, Check, Play, Pause, Volume2, VolumeX } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import DOMPurify from "dompurify";
 
 export const Route = createFileRoute("/_authenticated/day/$dayNumber")({
   component: DayPage,
