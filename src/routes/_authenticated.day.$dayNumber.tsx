@@ -329,7 +329,7 @@ function DayPage() {
       </div>
 
       <Dialog open={!!activeVideo} onOpenChange={(o) => !o && setActiveVideo(null)}>
-        <DialogContent className="w-[min(92vw,420px)] overflow-hidden rounded-md border-0 bg-black p-0 sm:rounded-md">
+        <DialogContent className="w-[min(92vw,420px)] overflow-hidden rounded-sm border-0 bg-black p-0 sm:rounded-sm">
           <DialogHeader className="sr-only">
             <DialogTitle>{activeVideo?.title ?? "Vídeo"}</DialogTitle>
           </DialogHeader>
