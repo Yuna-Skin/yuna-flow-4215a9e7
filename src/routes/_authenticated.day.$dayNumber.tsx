@@ -198,19 +198,7 @@ function DayPage() {
   return (
     <div className="pb-32">
       <div className="relative">
-        <div className="aspect-[16/10] w-full overflow-hidden bg-black">
-          {day.video_url ? (
-            <iframe
-              src={day.video_url}
-              className="h-full w-full"
-              allow="autoplay; encrypted-media; picture-in-picture"
-              allowFullScreen
-              title={day.title}
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-white/60">Sem vídeo</div>
-          )}
-        </div>
+        <AudioModulePlayer audioUrl={day.audio_url ?? null} />
         <button
           onClick={() => navigate({ to: "/" })}
           className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-background/80 backdrop-blur"
