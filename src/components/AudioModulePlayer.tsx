@@ -49,7 +49,7 @@ export function AudioModulePlayer({ audioUrl, ambientVideoUrl = "/ambient-loop.m
       const analyser = analyserRef.current;
       const data = dataRef.current;
       if (playing && analyser && data) {
-        analyser.getByteFrequencyData(data);
+        analyser.getByteFrequencyData(data as Uint8Array<ArrayBuffer>);
         const next = Array.from({ length: BAR_COUNT }, (_, i) => {
           const bin = data[i % data.length] / 255;
           return Math.max(0.08, bin);
