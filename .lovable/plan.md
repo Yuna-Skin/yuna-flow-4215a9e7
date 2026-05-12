@@ -1,88 +1,58 @@
+## Objetivo
 
-# Yuna — MVP Protocolo de Yoga Coreano (28 dias)
+Na tela de cada dia (`/day/$dayNumber`), trocar o player de vídeo principal por uma experiência de áudio-guiado:
+- Vídeo ambiente em **loop, mudo, autoplay**, ocupando o card como background.
+- Sobreposto: um **botão único de play/pause** central, **waveform animada reagindo ao áudio real**, e **controle de velocidade** (1x / 1.5x / 2x).
+- O mesmo vídeo de loop é usado em **todos os dias** (asset único).
+- Áudio explicativo é **upload manual por dia** (novo campo `audio_url`).
 
-App mobile-first de hábito guiado. Visual coreano moderno (creme + terracota), seed de 28 dias com placeholders, acesso liberado por padrão.
+## Mudanças no banco
 
-## 1. Banco de dados (Supabase)
+Migration única adicionando:
+- `days.audio_url TEXT NULL` — URL do áudio do módulo (upload via admin, igual ao `video_url` hoje).
+- Trigger `sync_day_audio_asset` análogo a `sync_day_video_asset`, para registrar/desvincular o áudio em `media_assets` quando o campo mudar.
 
-Tabelas:
-- `profiles` (id, nome, avatar_url, created_at) — auto-criada via trigger no signup
-- `access_control` (user_id, has_access default `true`, source)
-- `programs` (id, title, description, is_active)
-- `weeks` (id, program_id, title, order_index)
-- `days` (id, week_id, day_number, title, video_url, respiration_text, reflection_text)
-- `exercises` (id, day_id, title, order_index)
-- `movements` (id, exercise_id, title, description, video_url, order_index)
-- `user_progress` (id, user_id, day_id, completed, completed_at) — UNIQUE(user_id, day_id)
-- `user_streak` (user_id PK, current_streak, last_completed_date)
-- `community_posts` (id, user_id, content, created_at, likes_count)
-- `post_likes` (post_id, user_id) — para likes únicos
-- `comments` (id, post_id, user_id, content, created_at)
-- `feed_items` (id, type ['video'|'tip'|'text'], title, content, media_url, created_at, likes_count)
-- `feed_likes` (feed_item_id, user_id)
+Não é necessário criar tabela nova nem mexer em RLS — herda das políticas existentes de `days`.
 
-**RLS:** conteúdo (programs/weeks/days/exercises/movements/feed) leitura pública para autenticados; user_progress/streak/access_control restritos ao próprio usuário; posts e comments leitura para todos autenticados, escrita apenas pelo dono.
+## Asset do vídeo de fundo
 
-**Seed:** 1 programa "Yuna 28 dias" → 4 semanas → 28 dias com títulos genéricos, 2-3 exercícios cada, movimentos exemplo, vídeo placeholder do YouTube, textos de respiração e reflexão. ~6 itens iniciais no feed.
+- O usuário enviará 1 arquivo de vídeo curto (loop ambiente).
+- Salvo em `src/assets/ambient-loop.mp4` e importado como módulo (mesmo loop em todos os dias, sem campo no banco).
 
-## 2. Autenticação
+## Mudanças no frontend
 
-- Tela `/auth` com Login + Signup (email/senha), `emailRedirectTo` configurado
-- Trigger SQL cria `profiles` + `access_control(has_access=true)` + `user_streak` no signup
-- Layout `_authenticated` protege rotas internas
+### `src/routes/_authenticated.day.$dayNumber.tsx`
+Substituir o bloco do player de vídeo atual por um novo componente `AudioModulePlayer` que recebe `audioUrl` e renderiza:
+- `<video>` ambiente em loop/muted/autoplay/playsInline cobrindo todo o card (`absolute inset-0 object-cover`), com leve overlay escuro para contraste.
+- Camada de conteúdo sobreposta (`relative z-10`) contendo:
+  - **Botão central play/pause** (círculo grande, ícone Play/Pause de `lucide-react`).
+  - **Waveform reativa** abaixo do botão.
+  - **Pílula de velocidade** (1x / 1.5x / 2x) que cicla ao clicar e ajusta `audio.playbackRate`.
+- Estado vazio: se `audio_url` for nulo, mostrar texto "Áudio em breve" sobre o loop.
 
-## 3. Telas (mobile-first, max-width 430px centralizado)
+### Novo componente `src/components/AudioModulePlayer.tsx`
+- `<audio>` controlado por ref.
+- Web Audio API: `AudioContext` + `MediaElementAudioSourceNode` + `AnalyserNode` (fftSize 64) para extrair `getByteFrequencyData` em tempo real.
+- 24 barras renderizadas em SVG/divs, altura proporcional ao bin de frequência, animadas via `requestAnimationFrame`.
+- Quando pausado: barras voltam suavemente a uma altura mínima animada (respiração).
+- Cleanup de RAF e disconnect de nodes no unmount.
 
-**Bottom nav fixo:** Início · Feed · Comunidade · Perfil
+### Admin
+- Adicionar campo "URL do áudio" no formulário de edição de dia (mesma UI do `video_url`, com upload pro bucket `videos` reutilizado — ou criar bucket `audios` se preferir; **proposta: reusar `videos`** para não multiplicar buckets/políticas).
 
-### Início (`/`)
-- Saudação "Olá, {nome}"
-- Card grande: progresso "Dia X de 28" + barra
-- Botão principal "Continuar prática" → vai para o dia atual (primeiro não concluído)
-- Linha da semana atual (7 bolinhas: concluído / atual / bloqueado)
-- Preview do dia (thumb + título)
+## O que NÃO muda
 
-### Dia (`/day/$dayNumber`)
-- Bloqueado se day_number > primeiro não concluído → redireciona
-- Player de vídeo (top)
-- Lista de exercícios em accordion (expande movimentos)
-- Card de respiração
-- Card de reflexão
-- Botão fixo no rodapé "Concluir dia" → grava progress, atualiza streak (+1 ou reset se gap), libera próximo, volta pra Início com toast
+- Tabelas existentes (exceto a nova coluna).
+- Fluxo de "completar dia", streak, navegação, exercícios, reflexão, respiração.
+- Vídeo do dia (`video_url`) **continua existindo** para os exercícios/movimentos — só o player principal do topo deixa de ser de vídeo.
 
-### Feed (`/feed`)
-- Lista vertical de cards (vídeo curto / dica / texto)
-- Botão coração + contador
+## Pendências do usuário
 
-### Comunidade (`/community`)
-- Input para criar post no topo
-- Lista de posts: avatar, nome, texto, like, comentar
-- `/community/$postId` ou modal para comentários
+1. Enviar o arquivo do vídeo de loop ambiente.
+2. Após implementação, subir o `audio_url` de cada dia no admin.
 
-### Perfil (`/profile`)
-- Avatar + nome
-- Stats: dias concluídos, streak atual, progresso %
-- Botão sair
+## Fora do escopo
 
-## 4. Lógica de progressão
-- "Dia atual" = menor `day_number` sem `user_progress.completed=true`
-- Streak: se `last_completed_date` = ontem → +1; se = hoje → mantém; se >1 dia gap → reset para 1
-
-## 5. Design system
-- Fundo creme `#FAF6F0`, cards branco, terracota `#C97B5A` como primária, texto `#2A2420`
-- Tipografia: serif suave para títulos (Cormorant), sans para corpo (Inter)
-- Bordas arredondadas 16-24px, sombras sutis, muito espaço em branco
-- Ícones lucide-react, transições suaves
-
-## 6. Fora do escopo (fase 2)
-Notificações push, gamificação avançada, ranking, webhook real Ticto, multi-programas.
-
-## Ordem de implementação
-1. Migrations + RLS + seed dos 28 dias  
-2. Auth + trigger profiles  
-3. Layout + bottom nav + tema  
-4. Tela Início  
-5. Tela Dia + lógica concluir/streak  
-6. Feed  
-7. Comunidade  
-8. Perfil
+- Geração TTS automática (descartada — upload manual).
+- Scrub bar / tempo visível (descartado — só botão + waveform + velocidade).
+- Player flutuante persistente entre rotas.

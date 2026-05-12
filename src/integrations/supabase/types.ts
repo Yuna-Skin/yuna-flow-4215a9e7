@@ -111,6 +111,7 @@ export type Database = {
       }
       days: {
         Row: {
+          audio_url: string | null
           created_at: string
           day_number: number
           id: string
@@ -121,6 +122,7 @@ export type Database = {
           week_id: string
         }
         Insert: {
+          audio_url?: string | null
           created_at?: string
           day_number: number
           id?: string
@@ -131,6 +133,7 @@ export type Database = {
           week_id: string
         }
         Update: {
+          audio_url?: string | null
           created_at?: string
           day_number?: number
           id?: string
