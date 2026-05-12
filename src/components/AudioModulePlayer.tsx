@@ -167,23 +167,16 @@ export function AudioModulePlayer({ audioUrl, ambientVideoUrl = "/ambient-loop.m
           disabled={disabled}
           aria-label={playing ? "Pausar áudio" : "Reproduzir áudio"}
           className={cn(
-            "group relative flex h-[88px] w-[88px] items-center justify-center rounded-full",
-            "bg-white/95 text-zinc-900 shadow-[0_10px_40px_-8px_rgba(0,0,0,0.7)] ring-1 ring-white/40",
-            "transition-all duration-300 hover:scale-[1.06] active:scale-95",
+            "group relative flex h-[96px] w-[96px] items-center justify-center",
+            "text-white/95 transition-all duration-300 hover:scale-[1.08] active:scale-95",
+            "drop-shadow-[0_6px_20px_rgba(0,0,0,0.55)]",
             "disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100",
           )}
         >
-          {/* Outer glow rings when playing */}
-          {playing && (
-            <>
-              <span className="pointer-events-none absolute inset-[-12px] rounded-full ring-1 ring-white/30 animate-ping" />
-              <span className="pointer-events-none absolute inset-[-22px] rounded-full ring-1 ring-white/15 animate-ping [animation-duration:2.4s]" />
-            </>
-          )}
           {playing ? (
-            <Pause className="h-8 w-8 fill-current" strokeWidth={0} />
+            <Pause className="h-16 w-16 fill-current" strokeWidth={0} />
           ) : (
-            <Play className="ml-1 h-8 w-8 fill-current" strokeWidth={0} />
+            <Play className="ml-1 h-16 w-16 fill-current" strokeWidth={0} />
           )}
         </button>
       </div>
