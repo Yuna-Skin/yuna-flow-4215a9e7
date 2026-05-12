@@ -271,7 +271,7 @@ function DayPage() {
                             type="button"
                             onClick={() => setActiveVideo({ url: m.video_url!, title: m.title })}
                             aria-label={`Ver vídeo de ${m.title}`}
-                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/40 text-primary-foreground shadow-sm backdrop-blur-sm transition-transform hover:bg-primary/60 hover:scale-105 active:scale-95"
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/80 text-primary-foreground shadow-sm backdrop-blur-sm transition-transform hover:bg-primary hover:scale-105 active:scale-95"
                           >
                             <Play className="h-4 w-4 fill-current" />
                           </button>
