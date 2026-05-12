@@ -1,12 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const STORAGE_PUBLIC_URL_MARKER = "/storage/v1/object/public/videos/";
+const STORAGE_SIGN_URL_MARKER = "/storage/v1/object/sign/videos/";
 
 function extractStoragePath(audioUrl: string) {
-  if (!audioUrl.includes(STORAGE_PUBLIC_URL_MARKER)) return null;
-  return audioUrl.split(STORAGE_PUBLIC_URL_MARKER)[1]?.split("?")[0] ?? null;
+  const marker = audioUrl.includes(STORAGE_PUBLIC_URL_MARKER)
+    ? STORAGE_PUBLIC_URL_MARKER
+    : audioUrl.includes(STORAGE_SIGN_URL_MARKER)
+      ? STORAGE_SIGN_URL_MARKER
+      : null;
+  if (!marker) return null;
+  return audioUrl.split(marker)[1]?.split("?")[0] ?? null;
 }
 
 function extractFileName(audioUrl: string) {
@@ -16,16 +22,18 @@ function extractFileName(audioUrl: string) {
 }
 
 export const getPlayableDayAudioUrl = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data) => z.object({ dayId: z.string().uuid(), audioUrl: z.string().nullable() }).parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     if (!data.audioUrl) return null;
 
-    const directPath = extractStoragePath(data.audioUrl);
+    const { supabase } = context;
 
+    const directPath = extractStoragePath(data.audioUrl);
     let storagePath = directPath;
 
     if (!storagePath) {
-      const { data: linkedAsset } = await supabaseAdmin
+      const { data: linkedAsset } = await supabase
         .from("media_assets")
         .select("path")
         .eq("bucket", "videos")
@@ -39,9 +47,8 @@ export const getPlayableDayAudioUrl = createServerFn({ method: "GET" })
 
     if (!storagePath) {
       const fileName = extractFileName(data.audioUrl);
-
       if (fileName) {
-        const { data: filenameMatch } = await supabaseAdmin
+        const { data: filenameMatch } = await supabase
           .from("media_assets")
           .select("path")
           .eq("bucket", "videos")
@@ -54,7 +61,7 @@ export const getPlayableDayAudioUrl = createServerFn({ method: "GET" })
 
     if (!storagePath) return data.audioUrl;
 
-    const { data: signed, error } = await supabaseAdmin.storage
+    const { data: signed, error } = await supabase.storage
       .from("videos")
       .createSignedUrl(storagePath, 60 * 60);
 
