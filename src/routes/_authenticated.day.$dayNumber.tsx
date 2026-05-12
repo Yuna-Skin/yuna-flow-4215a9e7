@@ -107,6 +107,7 @@ function DayPage() {
   const [submitting, setSubmitting] = useState(false);
   const [activeVideo, setActiveVideo] = useState<{ url: string; title: string } | null>(null);
   const target = parseInt(dayNumber, 10);
+  const fetchPlayableAudio = useServerFn(getPlayableDayAudioUrl);
 
   const dayQ = useQuery({
     queryKey: ["day", target],
@@ -119,7 +120,7 @@ function DayPage() {
       if (error) throw error;
       if (!dayRow) return null;
 
-      const playableAudioUrl = await getPlayableDayAudioUrl({
+      const playableAudioUrl = await fetchPlayableAudio({
         data: { dayId: dayRow.id, audioUrl: dayRow.audio_url },
       });
 
