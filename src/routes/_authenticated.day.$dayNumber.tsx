@@ -11,10 +11,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ArrowLeft, Wind, Sparkles, Check, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, Wind, Sparkles, Check, Play, Volume2, VolumeX } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
+import { AudioModulePlayer } from "@/components/AudioModulePlayer";
 
 export const Route = createFileRoute("/_authenticated/day/$dayNumber")({
   component: DayPage,
