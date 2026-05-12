@@ -120,9 +120,17 @@ function DayPage() {
       if (error) throw error;
       if (!dayRow) return null;
 
-      const playableAudioUrl = await fetchPlayableAudio({
-        data: { dayId: dayRow.id, audioUrl: dayRow.audio_url },
-      });
+      let playableAudioUrl = dayRow.audio_url;
+
+      if (dayRow.audio_url) {
+        try {
+          playableAudioUrl = await fetchPlayableAudio({
+            data: { dayId: dayRow.id, audioUrl: dayRow.audio_url },
+          });
+        } catch (audioError) {
+          console.error("Failed to resolve playable audio URL", audioError);
+        }
+      }
 
       const { data: exs } = await supabase
         .from("exercises")
