@@ -102,7 +102,7 @@ function MinimalVideoPlayer({ src }: { src: string }) {
 function DayPage() {
   const { dayNumber } = Route.useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
   const [activeVideo, setActiveVideo] = useState<{ url: string; title: string } | null>(null);
@@ -110,7 +110,8 @@ function DayPage() {
   const fetchPlayableAudio = useServerFn(getPlayableDayAudioUrl);
 
   const dayQ = useQuery({
-    queryKey: ["day", target],
+    queryKey: ["day", target, user?.id],
+    enabled: !authLoading && !!user,
     queryFn: async () => {
       const { data: dayRow, error } = await supabase
         .from("days")
@@ -152,7 +153,7 @@ function DayPage() {
 
   const progressQ = useQuery({
     queryKey: ["user_progress_full", user?.id],
-    enabled: !!user,
+    enabled: !authLoading && !!user,
     queryFn: async (): Promise<Set<number>> => {
       const { data } = await supabase
         .from("user_progress")
@@ -168,7 +169,7 @@ function DayPage() {
     },
   });
 
-  const loading = dayQ.isLoading || progressQ.isLoading;
+  const loading = authLoading || dayQ.isLoading || progressQ.isLoading;
   const day = dayQ.data;
   const completedNumbers = progressQ.data ?? new Set<number>();
 
