@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
@@ -106,6 +107,7 @@ function DayPage() {
   const [submitting, setSubmitting] = useState(false);
   const [activeVideo, setActiveVideo] = useState<{ url: string; title: string } | null>(null);
   const target = parseInt(dayNumber, 10);
+  const fetchPlayableAudio = useServerFn(getPlayableDayAudioUrl);
 
   const dayQ = useQuery({
     queryKey: ["day", target],
@@ -118,7 +120,7 @@ function DayPage() {
       if (error) throw error;
       if (!dayRow) return null;
 
-      const playableAudioUrl = await getPlayableDayAudioUrl({
+      const playableAudioUrl = await fetchPlayableAudio({
         data: { dayId: dayRow.id, audioUrl: dayRow.audio_url },
       });
 
