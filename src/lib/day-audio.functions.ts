@@ -9,6 +9,12 @@ function extractStoragePath(audioUrl: string) {
   return audioUrl.split(STORAGE_PUBLIC_URL_MARKER)[1]?.split("?")[0] ?? null;
 }
 
+function extractFileName(audioUrl: string) {
+  const cleanUrl = audioUrl.split("?")[0] ?? audioUrl;
+  const parts = cleanUrl.split("/").filter(Boolean);
+  return parts.at(-1) ?? null;
+}
+
 export const getPlayableDayAudioUrl = createServerFn({ method: "GET" })
   .inputValidator((data) => z.object({ dayId: z.string().uuid(), audioUrl: z.string().nullable() }).parse(data))
   .handler(async ({ data }) => {
@@ -29,6 +35,21 @@ export const getPlayableDayAudioUrl = createServerFn({ method: "GET" })
         .maybeSingle();
 
       storagePath = linkedAsset?.path ?? null;
+    }
+
+    if (!storagePath) {
+      const fileName = extractFileName(data.audioUrl);
+
+      if (fileName) {
+        const { data: filenameMatch } = await supabaseAdmin
+          .from("media_assets")
+          .select("path")
+          .eq("bucket", "videos")
+          .eq("file_name", fileName)
+          .maybeSingle();
+
+        storagePath = filenameMatch?.path ?? null;
+      }
     }
 
     if (!storagePath) return data.audioUrl;
