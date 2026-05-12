@@ -24,6 +24,27 @@ export const Route = createFileRoute("/_authenticated/day/$dayNumber")({
 type Movement = { id: string; title: string; description: string | null; video_url: string | null; duration: string | null; order_index: number };
 type ExerciseRow = { id: string; title: string; order_index: number; movements: Movement[] | null };
 
+const STORAGE_PUBLIC_URL_MARKER = "/storage/v1/object/public/videos/";
+
+async function resolvePlayableAudioUrl(audioUrl: string | null) {
+  if (!audioUrl) return null;
+  if (!audioUrl.includes(STORAGE_PUBLIC_URL_MARKER)) return audioUrl;
+
+  const storagePath = audioUrl.split(STORAGE_PUBLIC_URL_MARKER)[1]?.split("?")[0];
+  if (!storagePath) return audioUrl;
+
+  const { data, error } = await supabase.storage
+    .from("videos")
+    .createSignedUrl(storagePath, 60 * 60);
+
+  if (error || !data?.signedUrl) {
+    console.error("Failed to create signed audio URL", error);
+    return audioUrl;
+  }
+
+  return data.signedUrl;
+}
+
 function MinimalVideoPlayer({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(true);
@@ -116,6 +137,9 @@ function DayPage() {
         .maybeSingle();
       if (error) throw error;
       if (!dayRow) return null;
+
+      const playableAudioUrl = await resolvePlayableAudioUrl(dayRow.audio_url);
+
       const { data: exs } = await supabase
         .from("exercises")
         .select("id, title, order_index, movements(id, title, description, video_url, duration, order_index)")
@@ -123,6 +147,7 @@ function DayPage() {
         .order("order_index");
       return {
         ...dayRow,
+        audio_url: playableAudioUrl,
         exercises: ((exs as ExerciseRow[] | null) ?? []).map((e) => ({
           id: e.id,
           title: e.title,
