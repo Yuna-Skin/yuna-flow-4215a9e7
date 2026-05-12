@@ -1,4 +1,4 @@
-import { createServerFn } from "@tanstack/react-start";
+import { createMiddleware, createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -21,8 +21,31 @@ function extractFileName(audioUrl: string) {
   return parts.at(-1) ?? null;
 }
 
+const attachSupabaseAuthHeader = createMiddleware({ type: "function" })
+  .client(async ({ next }) => {
+    if (typeof window === "undefined") {
+      return next();
+    }
+
+    const { supabase } = await import("@/integrations/supabase/client");
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      return next();
+    }
+
+    return next({
+      headers: {
+        authorization: `Bearer ${session.access_token}`,
+      },
+    });
+  })
+  .server(async ({ next }) => next());
+
 export const getPlayableDayAudioUrl = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([attachSupabaseAuthHeader, requireSupabaseAuth])
   .inputValidator((data) => z.object({ dayId: z.string().uuid(), audioUrl: z.string().nullable() }).parse(data))
   .handler(async ({ data, context }) => {
     if (!data.audioUrl) return null;
