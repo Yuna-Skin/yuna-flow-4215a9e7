@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Flame, Play, Check, Lock } from "lucide-react";
+import { Flame, Play, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -158,21 +158,21 @@ function HomePage() {
           {weekDays.map((d) => {
             const done = completedSet.has(d.id);
             const isCurrent = currentDay?.id === d.id;
-            const locked = !done && !isCurrent;
             return (
               <Link
                 key={d.id}
                 to="/day/$dayNumber"
                 params={{ dayNumber: String(d.day_number) }}
-                disabled={locked}
                 className={cn(
                   "flex h-12 w-12 items-center justify-center rounded-2xl text-sm font-semibold transition-all",
-                  done && "bg-progress-accent text-white shadow-sm",
-                  isCurrent && !done && "glass border-2 border-primary text-foreground",
-                  locked && "bg-white/40 text-muted-foreground pointer-events-none border border-black/[0.04]",
+                  done
+                    ? "bg-progress-accent text-white shadow-sm"
+                    : isCurrent
+                      ? "glass border-2 border-primary text-foreground"
+                      : "bg-white/60 text-muted-foreground border border-black/[0.04] hover:bg-white",
                 )}
               >
-                {done ? <Check className="h-4 w-4" strokeWidth={2.5} /> : locked ? <Lock className="h-3.5 w-3.5" strokeWidth={1.75} /> : d.day_number}
+                {done ? <Check className="h-4 w-4" strokeWidth={2.5} /> : d.day_number}
               </Link>
             );
           })}
