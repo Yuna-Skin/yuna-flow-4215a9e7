@@ -160,7 +160,7 @@ function HomePage() {
           </Select>
           <span className="text-[11px] text-muted-foreground">{weekDays.length} dias</span>
         </div>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3 grid gap-2" style={{ gridTemplateColumns: `repeat(${weekDays.length}, minmax(0, 1fr))` }}>
           {weekDays.map((d) => {
             const done = completedSet.has(d.id);
             const isCurrent = currentDay?.id === d.id;
@@ -170,7 +170,7 @@ function HomePage() {
                 to="/day/$dayNumber"
                 params={{ dayNumber: String(d.day_number) }}
                 className={cn(
-                  "flex h-12 w-12 items-center justify-center rounded-2xl text-sm font-semibold transition-all",
+                  "flex aspect-square w-full items-center justify-center rounded-full text-sm font-semibold transition-all",
                   done
                     ? "bg-progress-accent text-white shadow-sm"
                     : isCurrent
