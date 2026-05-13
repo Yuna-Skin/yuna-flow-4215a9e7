@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Flame, Play, Check, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,7 @@ function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const userId = user?.id;
+  const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
 
   const daysQ = useQuery({
     queryKey: ["days"],
@@ -86,7 +88,9 @@ function HomePage() {
   const currentDay = days.find((d) => !completedSet.has(d.id)) ?? days[days.length - 1];
   const isAllDone = completedCount === 28;
   const currentWeek = currentDay ? Math.ceil(currentDay.day_number / 7) : 1;
-  const weekDays = days.filter((d) => Math.ceil(d.day_number / 7) === currentWeek);
+  const totalWeeks = days.length ? Math.ceil(days[days.length - 1].day_number / 7) : 1;
+  const activeWeek = selectedWeek ?? currentWeek;
+  const weekDays = days.filter((d) => Math.ceil(d.day_number / 7) === activeWeek);
 
   return (
     <div className="px-4 pb-6 pt-8">
@@ -137,13 +141,20 @@ function HomePage() {
       </Card>
 
       <div className="mt-7">
-        <div className="flex items-center justify-between">
-          <h2 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Semana {currentWeek}
-          </h2>
+        <div className="flex items-center justify-between gap-3">
+          <Select value={String(activeWeek)} onValueChange={(v) => setSelectedWeek(Number(v))}>
+            <SelectTrigger className="h-9 w-auto min-w-[140px] gap-2 rounded-full border-black/10 bg-white text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: totalWeeks }, (_, i) => i + 1).map((w) => (
+                <SelectItem key={w} value={String(w)}>Semana {w}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <span className="text-[11px] text-muted-foreground">{weekDays.length} dias</span>
         </div>
-        <div className="mt-3 grid grid-cols-7 gap-1.5">
+        <div className="mt-3 flex flex-wrap gap-2">
           {weekDays.map((d) => {
             const done = completedSet.has(d.id);
             const isCurrent = currentDay?.id === d.id;
@@ -155,7 +166,7 @@ function HomePage() {
                 params={{ dayNumber: String(d.day_number) }}
                 disabled={locked}
                 className={cn(
-                  "flex aspect-square flex-col items-center justify-center rounded-2xl text-xs font-semibold transition-all",
+                  "flex h-12 w-12 items-center justify-center rounded-2xl text-sm font-semibold transition-all",
                   done && "bg-progress-accent text-white shadow-sm",
                   isCurrent && !done && "glass border-2 border-primary text-foreground",
                   locked && "bg-white/40 text-muted-foreground pointer-events-none border border-black/[0.04]",
