@@ -163,7 +163,16 @@ function DayPage() {
     },
   });
 
-  const loading = authLoading || dayQ.isLoading || progressQ.isLoading;
+  const weeksQ = useQuery({
+    queryKey: ["weeks-order"],
+    queryFn: async (): Promise<{ id: string; order_index: number }[]> => {
+      const { data } = await supabase.from("weeks").select("id, order_index").order("order_index");
+      return data ?? [];
+    },
+    staleTime: 10 * 60_000,
+  });
+
+
   const day = dayQ.data;
   const completedSet = progressQ.data ?? new Set<string>();
   const isCompleted = day ? completedSet.has(day.id) : false;
