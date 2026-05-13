@@ -190,7 +190,7 @@ function HomePage() {
           <h2 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
             Sua prática de hoje
           </h2>
-          <Link to="/day/$dayNumber" params={{ dayNumber: String(currentDay.day_number) }} className="mt-3 block">
+          <Link to="/day/$dayId" params={{ dayId: currentDay.id }} className="mt-3 block">
             <Card className="overflow-hidden p-0 transition-all hover:shadow-md active:scale-[0.99]">
               <div className="relative flex aspect-[16/9] items-center justify-center bg-primary-soft">
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 shadow-md">
