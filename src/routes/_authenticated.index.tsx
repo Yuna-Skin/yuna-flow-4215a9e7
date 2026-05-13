@@ -141,13 +141,20 @@ function HomePage() {
       </Card>
 
       <div className="mt-7">
-        <div className="flex items-center justify-between">
-          <h2 className="text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Semana {currentWeek}
-          </h2>
+        <div className="flex items-center justify-between gap-3">
+          <Select value={String(activeWeek)} onValueChange={(v) => setSelectedWeek(Number(v))}>
+            <SelectTrigger className="h-9 w-auto min-w-[140px] gap-2 rounded-full border-black/10 bg-white text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: totalWeeks }, (_, i) => i + 1).map((w) => (
+                <SelectItem key={w} value={String(w)}>Semana {w}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <span className="text-[11px] text-muted-foreground">{weekDays.length} dias</span>
         </div>
-        <div className="mt-3 grid grid-cols-7 gap-1.5">
+        <div className="mt-3 flex flex-wrap gap-2">
           {weekDays.map((d) => {
             const done = completedSet.has(d.id);
             const isCurrent = currentDay?.id === d.id;
@@ -159,7 +166,7 @@ function HomePage() {
                 params={{ dayNumber: String(d.day_number) }}
                 disabled={locked}
                 className={cn(
-                  "flex aspect-square flex-col items-center justify-center rounded-2xl text-xs font-semibold transition-all",
+                  "flex h-12 w-12 items-center justify-center rounded-2xl text-sm font-semibold transition-all",
                   done && "bg-progress-accent text-white shadow-sm",
                   isCurrent && !done && "glass border-2 border-primary text-foreground",
                   locked && "bg-white/40 text-muted-foreground pointer-events-none border border-black/[0.04]",
