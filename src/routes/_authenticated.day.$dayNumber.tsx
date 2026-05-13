@@ -323,12 +323,13 @@ function DayPage() {
           <Button
             onClick={handleComplete}
             disabled={submitting}
-            variant={isCompleted ? "secondary" : "default"}
             className="h-12 w-full rounded-full text-base"
           >
-            {submitting ? "Salvando..." : isCompleted ? (
-              <><Check className="h-4 w-4" /> Dia concluído · tocar para desmarcar</>
-            ) : "Concluir dia"}
+            {submitting
+              ? "Salvando..."
+              : isCompleted
+                ? (<><Check className="h-4 w-4" /> Concluído</>)
+                : "Concluir dia"}
           </Button>
         </div>
 
