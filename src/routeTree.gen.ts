@@ -15,7 +15,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated.
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated.feed'
 import { Route as AuthenticatedCommunityRouteImport } from './routes/_authenticated.community'
-import { Route as AuthenticatedDayDayNumberRouteImport } from './routes/_authenticated.day.$dayNumber'
+import { Route as AuthenticatedDayDayIdRouteImport } from './routes/_authenticated.day.$dayId'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -46,12 +46,11 @@ const AuthenticatedCommunityRoute = AuthenticatedCommunityRouteImport.update({
   path: '/community',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedDayDayNumberRoute =
-  AuthenticatedDayDayNumberRouteImport.update({
-    id: '/day/$dayNumber',
-    path: '/day/$dayNumber',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
+const AuthenticatedDayDayIdRoute = AuthenticatedDayDayIdRouteImport.update({
+  id: '/day/$dayId',
+  path: '/day/$dayId',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -59,7 +58,7 @@ export interface FileRoutesByFullPath {
   '/community': typeof AuthenticatedCommunityRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/day/$dayNumber': typeof AuthenticatedDayDayNumberRoute
+  '/day/$dayId': typeof AuthenticatedDayDayIdRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -67,7 +66,7 @@ export interface FileRoutesByTo {
   '/feed': typeof AuthenticatedFeedRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/': typeof AuthenticatedIndexRoute
-  '/day/$dayNumber': typeof AuthenticatedDayDayNumberRoute
+  '/day/$dayId': typeof AuthenticatedDayDayIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,19 +76,13 @@ export interface FileRoutesById {
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/day/$dayNumber': typeof AuthenticatedDayDayNumberRoute
+  '/_authenticated/day/$dayId': typeof AuthenticatedDayDayIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/auth'
-    | '/community'
-    | '/feed'
-    | '/profile'
-    | '/day/$dayNumber'
+  fullPaths: '/' | '/auth' | '/community' | '/feed' | '/profile' | '/day/$dayId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/community' | '/feed' | '/profile' | '/' | '/day/$dayNumber'
+  to: '/auth' | '/community' | '/feed' | '/profile' | '/' | '/day/$dayId'
   id:
     | '__root__'
     | '/_authenticated'
@@ -98,7 +91,7 @@ export interface FileRouteTypes {
     | '/_authenticated/feed'
     | '/_authenticated/profile'
     | '/_authenticated/'
-    | '/_authenticated/day/$dayNumber'
+    | '/_authenticated/day/$dayId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -150,11 +143,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommunityRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/day/$dayNumber': {
-      id: '/_authenticated/day/$dayNumber'
-      path: '/day/$dayNumber'
-      fullPath: '/day/$dayNumber'
-      preLoaderRoute: typeof AuthenticatedDayDayNumberRouteImport
+    '/_authenticated/day/$dayId': {
+      id: '/_authenticated/day/$dayId'
+      path: '/day/$dayId'
+      fullPath: '/day/$dayId'
+      preLoaderRoute: typeof AuthenticatedDayDayIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
@@ -165,7 +158,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedDayDayNumberRoute: typeof AuthenticatedDayDayNumberRoute
+  AuthenticatedDayDayIdRoute: typeof AuthenticatedDayDayIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -173,7 +166,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedDayDayNumberRoute: AuthenticatedDayDayNumberRoute,
+  AuthenticatedDayDayIdRoute: AuthenticatedDayDayIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -187,3 +180,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
