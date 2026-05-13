@@ -19,7 +19,7 @@ import DOMPurify from "dompurify";
 import { AudioModulePlayer } from "@/components/AudioModulePlayer";
 import { getPlayableDayAudioUrl } from "@/lib/day-audio.functions";
 
-export const Route = createFileRoute("/_authenticated/day/$dayNumber")({
+export const Route = createFileRoute("/_authenticated/day/$dayId")({
   component: DayPage,
 });
 
