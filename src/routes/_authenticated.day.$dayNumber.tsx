@@ -188,8 +188,27 @@ function DayPage() {
   }, [loading, allowed, navigate]);
 
   const handleComplete = async () => {
-    if (!day) return;
+    if (!day || !user) return;
     setSubmitting(true);
+    if (isCompleted) {
+      const { error } = await supabase
+        .from("user_progress")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("day_id", day.id);
+      setSubmitting(false);
+      if (error) {
+        toast.error(error.message);
+        return;
+      }
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["user_progress"] }),
+        queryClient.invalidateQueries({ queryKey: ["user_progress_full"] }),
+        queryClient.invalidateQueries({ queryKey: ["user_streak"] }),
+      ]);
+      toast.success("Marcado como não concluído");
+      return;
+    }
     const { error } = await supabase.rpc("complete_day", { p_day_id: day.id });
     setSubmitting(false);
     if (error) {
@@ -303,12 +322,13 @@ function DayPage() {
         <div className="mt-6">
           <Button
             onClick={handleComplete}
-            disabled={submitting || isCompleted}
+            disabled={submitting}
+            variant={isCompleted ? "secondary" : "default"}
             className="h-12 w-full rounded-full text-base"
           >
-            {isCompleted ? (
-              <><Check className="h-4 w-4" /> Dia concluído</>
-            ) : submitting ? "Salvando..." : "Concluir dia"}
+            {submitting ? "Salvando..." : isCompleted ? (
+              <><Check className="h-4 w-4" /> Dia concluído · tocar para desmarcar</>
+            ) : "Concluir dia"}
           </Button>
         </div>
 
