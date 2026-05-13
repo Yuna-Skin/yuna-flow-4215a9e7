@@ -19,7 +19,7 @@ import DOMPurify from "dompurify";
 import { AudioModulePlayer } from "@/components/AudioModulePlayer";
 import { getPlayableDayAudioUrl } from "@/lib/day-audio.functions";
 
-export const Route = createFileRoute("/_authenticated/day/$dayNumber")({
+export const Route = createFileRoute("/_authenticated/day/$dayId")({
   component: DayPage,
 });
 
@@ -100,23 +100,22 @@ function MinimalVideoPlayer({ src }: { src: string }) {
 }
 
 function DayPage() {
-  const { dayNumber } = Route.useParams();
+  const { dayId } = Route.useParams();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
   const [activeVideo, setActiveVideo] = useState<{ url: string; title: string } | null>(null);
-  const target = parseInt(dayNumber, 10);
   const fetchPlayableAudio = useServerFn(getPlayableDayAudioUrl);
 
   const dayQ = useQuery({
-    queryKey: ["day", target, user?.id],
+    queryKey: ["day", dayId, user?.id],
     enabled: !authLoading && !!user,
     queryFn: async () => {
       const { data: dayRow, error } = await supabase
         .from("days")
         .select("id, day_number, title, video_url, audio_url, respiration_text, reflection_text")
-        .eq("day_number", target)
+        .eq("id", dayId)
         .maybeSingle();
       if (error) throw error;
       if (!dayRow) return null;
@@ -152,40 +151,29 @@ function DayPage() {
   });
 
   const progressQ = useQuery({
-    queryKey: ["user_progress_full", user?.id],
+    queryKey: ["user_progress", user?.id],
     enabled: !authLoading && !!user,
-    queryFn: async (): Promise<Set<number>> => {
+    queryFn: async (): Promise<Set<string>> => {
       const { data } = await supabase
         .from("user_progress")
-        .select("days!inner(day_number)")
+        .select("day_id")
         .eq("user_id", user!.id)
         .eq("completed", true);
-      return new Set(
-        (data ?? []).map((p: { days: { day_number: number } | { day_number: number }[] }) => {
-          const days = Array.isArray(p.days) ? p.days[0] : p.days;
-          return days.day_number;
-        }),
-      );
+      return new Set((data ?? []).map((p) => p.day_id));
     },
   });
 
   const loading = authLoading || dayQ.isLoading || progressQ.isLoading;
   const day = dayQ.data;
-  const completedNumbers = progressQ.data ?? new Set<number>();
-
-  const isCompleted = completedNumbers.has(target);
-  let firstAvailable = 28;
-  for (let i = 1; i <= 28; i++) {
-    if (!completedNumbers.has(i)) { firstAvailable = i; break; }
-  }
-  const allowed = target <= firstAvailable;
+  const completedSet = progressQ.data ?? new Set<string>();
+  const isCompleted = day ? completedSet.has(day.id) : false;
 
   useEffect(() => {
-    if (!loading && !allowed) {
-      toast.error("Complete os dias anteriores primeiro");
+    if (!loading && !day) {
+      toast.error("Dia não encontrado");
       navigate({ to: "/" });
     }
-  }, [loading, allowed, navigate]);
+  }, [loading, day, navigate]);
 
   const handleComplete = async () => {
     if (!day || !user) return;
@@ -224,7 +212,7 @@ function DayPage() {
     navigate({ to: "/" });
   };
 
-  if (loading || !day || !allowed) {
+  if (loading || !day) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
