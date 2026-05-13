@@ -244,7 +244,9 @@ function DayPage() {
       </div>
 
       <div className="px-5 pt-5">
-        <p className="text-xs uppercase tracking-widest text-primary">Dia {day.day_number}</p>
+        <p className="text-xs uppercase tracking-widest text-primary">
+          {weekNumber > 0 ? `Semana ${weekNumber} · ` : ""}Dia {day.day_number}
+        </p>
         <h1 className="mt-1 font-display text-3xl text-foreground">
           {day.title.replace(/^Dia \d+ — /, "")}
         </h1>
