@@ -14,22 +14,24 @@ export const Route = createFileRoute("/_authenticated/")({
 });
 
 type Day = { id: string; day_number: number; title: string };
+type Week = { id: string; title: string; order_index: number; days: Day[] };
 
 function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const userId = user?.id;
-  const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
+  const [selectedWeekId, setSelectedWeekId] = useState<string | null>(null);
 
-  const daysQ = useQuery({
-    queryKey: ["days"],
-    queryFn: async (): Promise<Day[]> => {
+  const weeksQ = useQuery({
+    queryKey: ["weeks-with-days"],
+    queryFn: async (): Promise<Week[]> => {
       const { data, error } = await supabase
-        .from("days")
-        .select("id, day_number, title")
-        .order("day_number");
+        .from("weeks")
+        .select("id, title, order_index, days(id, day_number, title)")
+        .order("order_index", { ascending: true })
+        .order("day_number", { foreignTable: "days", ascending: true });
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as Week[];
     },
     staleTime: 10 * 60_000,
   });
@@ -69,7 +71,7 @@ function HomePage() {
     },
   });
 
-  const loading = daysQ.isLoading || profileQ.isLoading || progressQ.isLoading;
+  const loading = weeksQ.isLoading || profileQ.isLoading || progressQ.isLoading;
 
   if (loading) {
     return (
@@ -79,18 +81,22 @@ function HomePage() {
     );
   }
 
-  const days = daysQ.data ?? [];
+  const weeks = weeksQ.data ?? [];
+  const allDays = weeks.flatMap((w) => w.days);
+  const totalDays = allDays.length;
   const completedSet = progressQ.data ?? new Set<string>();
   const name = profileQ.data ?? "Praticante";
   const streak = streakQ.data ?? 0;
 
-  const completedCount = days.filter((d) => completedSet.has(d.id)).length;
-  const currentDay = days.find((d) => !completedSet.has(d.id)) ?? days[days.length - 1];
-  const isAllDone = completedCount === 28;
-  const currentWeek = currentDay ? Math.ceil(currentDay.day_number / 7) : 1;
-  const totalWeeks = days.length ? Math.ceil(days[days.length - 1].day_number / 7) : 1;
-  const activeWeek = selectedWeek ?? currentWeek;
-  const weekDays = days.filter((d) => Math.ceil(d.day_number / 7) === activeWeek);
+  const completedCount = allDays.filter((d) => completedSet.has(d.id)).length;
+  const currentDay = allDays.find((d) => !completedSet.has(d.id)) ?? allDays[allDays.length - 1];
+  const isAllDone = totalDays > 0 && completedCount === totalDays;
+
+  const currentWeek = weeks.find((w) => w.days.some((d) => d.id === currentDay?.id)) ?? weeks[0];
+  const currentWeekIndex = currentWeek ? weeks.indexOf(currentWeek) : 0;
+  const activeWeek = weeks.find((w) => w.id === selectedWeekId) ?? currentWeek;
+  const activeWeekIndex = activeWeek ? weeks.indexOf(activeWeek) : 0;
+  const weekDays = activeWeek?.days ?? [];
 
   return (
     <div className="px-4 pb-6 pt-8">
@@ -110,19 +116,19 @@ function HomePage() {
           <div>
             <p className="text-[11px] uppercase tracking-[0.18em] opacity-70">Sua jornada</p>
             <p className="mt-2 font-display text-4xl">
-              Dia {currentDay?.day_number ?? 28}
-              <span className="text-xl opacity-60"> / 28</span>
+              Dia {currentDay?.day_number ?? totalDays}
+              <span className="text-xl opacity-60"> / {totalDays}</span>
             </p>
           </div>
           <div className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium">
-            Semana {currentWeek}
+            Semana {currentWeekIndex + 1}
           </div>
         </div>
         <div className="mt-5">
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/15">
             <div
               className="h-full bg-progress-accent rounded-full transition-all duration-500"
-              style={{ width: `${(completedCount / 28) * 100}%` }}
+              style={{ width: `${totalDays ? (completedCount / totalDays) * 100 : 0}%` }}
             />
           </div>
           <p className="mt-2 text-xs opacity-70">{completedCount} dias concluídos</p>
@@ -142,13 +148,13 @@ function HomePage() {
 
       <div className="mt-7">
         <div className="flex items-center justify-between gap-3">
-          <Select value={String(activeWeek)} onValueChange={(v) => setSelectedWeek(Number(v))}>
+          <Select value={activeWeek?.id ?? ""} onValueChange={(v) => setSelectedWeekId(v)}>
             <SelectTrigger className="h-9 w-auto min-w-[140px] gap-2 rounded-full border-black/10 bg-white text-[13px] font-semibold uppercase tracking-wider text-muted-foreground">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {Array.from({ length: totalWeeks }, (_, i) => i + 1).map((w) => (
-                <SelectItem key={w} value={String(w)}>Semana {w}</SelectItem>
+              {weeks.map((w, i) => (
+                <SelectItem key={w.id} value={w.id}>{w.title || `Semana ${i + 1}`}</SelectItem>
               ))}
             </SelectContent>
           </Select>
