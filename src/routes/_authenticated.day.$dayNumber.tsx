@@ -219,7 +219,7 @@ function DayPage() {
         <AudioModulePlayer audioUrl={day.audio_url ?? null} />
         <button
           onClick={() => navigate({ to: "/" })}
-          className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-background/80 backdrop-blur"
+          className="absolute left-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-background/80 backdrop-blur"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
