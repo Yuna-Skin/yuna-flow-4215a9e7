@@ -114,7 +114,7 @@ function DayPage() {
     queryFn: async () => {
       const { data: dayRow, error } = await supabase
         .from("days")
-        .select("id, day_number, title, video_url, audio_url, respiration_text, reflection_text")
+        .select("id, day_number, title, video_url, audio_url, respiration_text, reflection_text, week_id, weeks(title, order_index)")
         .eq("id", dayId)
         .maybeSingle();
       if (error) throw error;
