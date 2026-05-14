@@ -168,29 +168,31 @@ function CommunityPage() {
             </div>
             <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{p.content}</p>
 
-            <div className="mt-3 flex gap-2">
-              <button
-                onClick={() => toggleLike(p)}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors",
-                  liked.has(p.id) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <Heart className={cn("h-4 w-4", liked.has(p.id) && "fill-primary")} />
-                {p.likes_count}
-              </button>
-              <button
-                onClick={() => {
-                  const next = openComments === p.id ? null : p.id;
-                  setOpenComments(next);
-                  if (next) loadComments(p.id);
-                }}
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground"
-              >
-                <MessageCircle className="h-4 w-4" />
-                {p.comment_count}
-              </button>
-            </div>
+            {p.status === "approved" && (
+              <div className="mt-3 flex gap-2">
+                <button
+                  onClick={() => toggleLike(p)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors",
+                    liked.has(p.id) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <Heart className={cn("h-4 w-4", liked.has(p.id) && "fill-primary")} />
+                  {p.likes_count}
+                </button>
+                <button
+                  onClick={() => {
+                    const next = openComments === p.id ? null : p.id;
+                    setOpenComments(next);
+                    if (next) loadComments(p.id);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  {p.comment_count}
+                </button>
+              </div>
+            )}
 
             {openComments === p.id && (
               <div className="mt-3 border-t border-border pt-3">
