@@ -112,6 +112,22 @@ function HomePage() {
     staleTime: 30 * 60_000,
   });
 
+  const fetchThumb = useServerFn(getSignedWeekThumbnailUrl);
+  const thumbQ = useQuery({
+    queryKey: ["week-thumb", currentWeek?.id, currentWeek?.thumbnail_url],
+    enabled: !!currentWeek?.thumbnail_url,
+    queryFn: async () => {
+      if (!currentWeek?.thumbnail_url) return null;
+      try {
+        return await fetchThumb({ data: { thumbnailUrl: currentWeek.thumbnail_url } });
+      } catch (e) {
+        console.error("Failed to sign thumbnail", e);
+        return currentWeek.thumbnail_url;
+      }
+    },
+    staleTime: 30 * 60_000,
+  });
+
   useEffect(() => {
     setIsPlaying(false);
     if (audioRef.current) {
