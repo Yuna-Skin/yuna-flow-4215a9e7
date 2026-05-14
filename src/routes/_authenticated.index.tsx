@@ -372,7 +372,7 @@ function HomePage() {
                   Dia {currentDay.day_number}
                 </p>
                 <p className="mt-1 font-display text-2xl leading-tight text-foreground">
-                  {currentWeek?.title ?? ""}
+                  {currentDay.title ?? currentWeek?.title ?? ""}
                 </p>
               </div>
             </Card>
