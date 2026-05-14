@@ -13,7 +13,7 @@ const items: NavItem[] = [
 export function BottomNav() {
   const { pathname } = useLocation();
   return (
-    <nav className="fixed bottom-0 left-1/2 z-40 w-full max-w-[430px] -translate-x-1/2 border-t border-black/[0.04] glass-nav">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 mx-auto w-full max-w-[430px] border-t border-black/[0.04] glass-nav">
       <ul className="flex items-stretch justify-around px-5 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
         {items.map((it) => {
           const active = it.exact ? pathname === it.to : pathname.startsWith(it.to);

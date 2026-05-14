@@ -125,9 +125,6 @@
 
 @layer base {
   * { border-color: var(--color-border); }
-  html {
-    scrollbar-gutter: stable;
-  }
   html, body {
     background-color: var(--color-background);
     color: var(--color-foreground);
