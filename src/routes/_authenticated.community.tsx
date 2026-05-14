@@ -1,11 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, MessageCircle, Send } from "lucide-react";
+import { Heart, MessageCircle, Send, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -13,12 +13,15 @@ export const Route = createFileRoute("/_authenticated/community")({
   component: CommunityPage,
 });
 
+type Status = "pending" | "approved" | "rejected";
+
 type Post = {
   id: string;
   user_id: string;
   content: string;
   likes_count: number;
   created_at: string;
+  status: Status;
   author_name: string;
   comment_count: number;
 };
@@ -32,18 +35,29 @@ function CommunityPage() {
   const [openComments, setOpenComments] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, { id: string; content: string; author_name: string }[]>>({});
   const [commentInput, setCommentInput] = useState("");
+  const [isModerator, setIsModerator] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .in("role", ["admin", "moderator"])
+      .then(({ data }) => setIsModerator((data ?? []).length > 0));
+  }, [user]);
 
   const load = async () => {
     if (!user) return;
     const [{ data: list }, { data: likes }] = await Promise.all([
       supabase
         .from("community_posts")
-        .select("id, user_id, content, likes_count, created_at, profiles!community_posts_profile_fk(name), comments(id)")
+        .select("id, user_id, content, likes_count, created_at, status, profiles!community_posts_profile_fk(name), comments(id)")
         .order("created_at", { ascending: false }),
       supabase.from("post_likes").select("post_id").eq("user_id", user.id),
     ]);
     type Row = {
-      id: string; user_id: string; content: string; likes_count: number; created_at: string;
+      id: string; user_id: string; content: string; likes_count: number; created_at: string; status: Status;
       profiles: { name: string } | { name: string }[] | null;
       comments: { id: string }[] | null;
     };
@@ -55,6 +69,7 @@ function CommunityPage() {
         content: p.content,
         likes_count: p.likes_count,
         created_at: p.created_at,
+        status: p.status,
         author_name: prof?.name ?? "Praticante",
         comment_count: p.comments?.length ?? 0,
       };
@@ -72,7 +87,7 @@ function CommunityPage() {
     setPosting(false);
     if (error) { toast.error(error.message); return; }
     setContent("");
-    toast.success("Post publicado");
+    toast.success("Mensagem enviada para revisão");
     load();
   };
 
@@ -115,8 +130,21 @@ function CommunityPage() {
 
   return (
     <div className="px-5 pb-6 pt-8">
-      <h1 className="font-display text-3xl text-foreground">Comunidade</h1>
-      <p className="text-sm text-muted-foreground">Compartilhe sua jornada</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl text-foreground">Comunidade</h1>
+          <p className="text-sm text-muted-foreground">Compartilhe sua jornada</p>
+        </div>
+        {isModerator && (
+          <Link
+            to="/admin/moderation"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
+          >
+            <Shield className="h-3.5 w-3.5" />
+            Moderar
+          </Link>
+        )}
+      </div>
 
       <Card className="mt-6 p-4">
         <Textarea
@@ -126,54 +154,69 @@ function CommunityPage() {
           rows={3}
           className="resize-none border-0 bg-transparent p-0 shadow-none focus-visible:ring-0"
         />
-        <div className="mt-2 flex justify-end">
+        <div className="mt-2 flex items-center justify-between gap-2">
+          <p className="text-[11px] text-muted-foreground">
+            Sua mensagem passará por revisão antes de aparecer
+          </p>
           <Button onClick={submitPost} disabled={posting || !content.trim()} size="sm" className="rounded-full">
             <Send className="h-4 w-4" />
-            Publicar
+            Enviar
           </Button>
         </div>
       </Card>
 
       <div className="mt-5 space-y-3">
         {posts.length === 0 && (
-          <p className="py-8 text-center text-sm text-muted-foreground">Seja o primeiro a postar 🌸</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">Seja a primeira a postar 🌸</p>
         )}
         {posts.map((p) => (
-          <Card key={p.id} className="p-4">
+          <Card key={p.id} className={cn("p-4", p.status === "pending" && "border-dashed border-primary/40 bg-primary/5")}>
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-sm font-medium text-accent-foreground">
                 {p.author_name[0]?.toUpperCase()}
               </div>
-              <div>
+              <div className="flex-1">
                 <p className="text-sm font-medium text-foreground">{p.author_name}</p>
                 <p className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString("pt-BR")}</p>
               </div>
+              {p.status === "pending" && (
+                <span className="rounded-full bg-primary/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">
+                  Em revisão
+                </span>
+              )}
+              {p.status === "rejected" && (
+                <span className="rounded-full bg-destructive/15 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-destructive">
+                  Rejeitado
+                </span>
+              )}
             </div>
             <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-foreground">{p.content}</p>
 
-            <div className="mt-3 flex gap-2">
-              <button
-                onClick={() => toggleLike(p)}
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors",
-                  liked.has(p.id) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground",
-                )}
-              >
-                <Heart className={cn("h-4 w-4", liked.has(p.id) && "fill-primary")} />
-                {p.likes_count}
-              </button>
-              <button
-                onClick={() => {
-                  const next = openComments === p.id ? null : p.id;
-                  setOpenComments(next);
-                  if (next) loadComments(p.id);
-                }}
-                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground"
-              >
-                <MessageCircle className="h-4 w-4" />
-                {p.comment_count}
-              </button>
-            </div>
+            {p.status === "approved" && (
+              <div className="mt-3 flex gap-2">
+                <button
+                  onClick={() => toggleLike(p)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors",
+                    liked.has(p.id) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground",
+                  )}
+                >
+                  <Heart className={cn("h-4 w-4", liked.has(p.id) && "fill-primary")} />
+                  {p.likes_count}
+                </button>
+                <button
+                  onClick={() => {
+                    const next = openComments === p.id ? null : p.id;
+                    setOpenComments(next);
+                    if (next) loadComments(p.id);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  {p.comment_count}
+                </button>
+              </div>
+            )}
 
             {openComments === p.id && (
               <div className="mt-3 border-t border-border pt-3">

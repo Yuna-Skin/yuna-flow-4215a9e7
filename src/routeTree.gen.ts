@@ -16,6 +16,7 @@ import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated.feed'
 import { Route as AuthenticatedCommunityRouteImport } from './routes/_authenticated.community'
 import { Route as AuthenticatedDayDayIdRouteImport } from './routes/_authenticated.day.$dayId'
+import { Route as AuthenticatedAdminModerationRouteImport } from './routes/_authenticated.admin.moderation'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -51,6 +52,12 @@ const AuthenticatedDayDayIdRoute = AuthenticatedDayDayIdRouteImport.update({
   path: '/day/$dayId',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAdminModerationRoute =
+  AuthenticatedAdminModerationRouteImport.update({
+    id: '/admin/moderation',
+    path: '/admin/moderation',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/community': typeof AuthenticatedCommunityRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/admin/moderation': typeof AuthenticatedAdminModerationRoute
   '/day/$dayId': typeof AuthenticatedDayDayIdRoute
 }
 export interface FileRoutesByTo {
@@ -66,6 +74,7 @@ export interface FileRoutesByTo {
   '/feed': typeof AuthenticatedFeedRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/': typeof AuthenticatedIndexRoute
+  '/admin/moderation': typeof AuthenticatedAdminModerationRoute
   '/day/$dayId': typeof AuthenticatedDayDayIdRoute
 }
 export interface FileRoutesById {
@@ -76,13 +85,28 @@ export interface FileRoutesById {
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/admin/moderation': typeof AuthenticatedAdminModerationRoute
   '/_authenticated/day/$dayId': typeof AuthenticatedDayDayIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/community' | '/feed' | '/profile' | '/day/$dayId'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/community'
+    | '/feed'
+    | '/profile'
+    | '/admin/moderation'
+    | '/day/$dayId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/auth' | '/community' | '/feed' | '/profile' | '/' | '/day/$dayId'
+  to:
+    | '/auth'
+    | '/community'
+    | '/feed'
+    | '/profile'
+    | '/'
+    | '/admin/moderation'
+    | '/day/$dayId'
   id:
     | '__root__'
     | '/_authenticated'
@@ -91,6 +115,7 @@ export interface FileRouteTypes {
     | '/_authenticated/feed'
     | '/_authenticated/profile'
     | '/_authenticated/'
+    | '/_authenticated/admin/moderation'
     | '/_authenticated/day/$dayId'
   fileRoutesById: FileRoutesById
 }
@@ -150,6 +175,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDayDayIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/admin/moderation': {
+      id: '/_authenticated/admin/moderation'
+      path: '/admin/moderation'
+      fullPath: '/admin/moderation'
+      preLoaderRoute: typeof AuthenticatedAdminModerationRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -158,6 +190,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedAdminModerationRoute: typeof AuthenticatedAdminModerationRoute
   AuthenticatedDayDayIdRoute: typeof AuthenticatedDayDayIdRoute
 }
 
@@ -166,6 +199,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedAdminModerationRoute: AuthenticatedAdminModerationRoute,
   AuthenticatedDayDayIdRoute: AuthenticatedDayDayIdRoute,
 }
 
