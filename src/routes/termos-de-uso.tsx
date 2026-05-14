@@ -1,6 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPageLayout } from "@/components/LegalPageLayout";
-import { TERMS_VERSION, TERMS_UPDATED_AT } from "@/lib/legal-versions";
+import {
+  TERMS_VERSION,
+  TERMS_UPDATED_AT,
+  COMPANY_LEGAL_NAME,
+  COMPANY_CNPJ,
+  CONTACT_EMAIL,
+  FORO,
+} from "@/lib/legal-versions";
 
 export const Route = createFileRoute("/termos-de-uso")({
   head: () => ({
@@ -16,93 +23,119 @@ function TermsPage() {
   return (
     <LegalPageLayout title="Termos de Uso" version={TERMS_VERSION} updatedAt={TERMS_UPDATED_AT}>
       <p>
-        Bem-vinda ao Yuna. Estes Termos regem o uso do aplicativo e do conteúdo
-        digital oferecidos pelo Yuna. Ao criar uma conta, você concorda com tudo
-        que está descrito abaixo.
+        Bem-vinda ao Yuna. Estes Termos de Uso regem o acesso e a utilização do
+        aplicativo Yuna. Ao criar uma conta, você declara ter lido, compreendido
+        e concordado integralmente com as condições abaixo.
       </p>
 
-      <h2>1. Sobre o Yuna</h2>
+      <h2>1. Identificação</h2>
       <p>
-        O Yuna é um aplicativo digital de práticas guiadas de yoga facial coreano,
-        respiração e autocuidado. O conteúdo é entregue em formato de vídeo, áudio
-        e texto, organizado em uma jornada de prática.
+        O Yuna é uma plataforma digital de autocuidado e wellness facial,
+        operada por <strong>{COMPANY_LEGAL_NAME}</strong>, inscrita no CNPJ sob
+        o nº <strong>{COMPANY_CNPJ}</strong>.
+      </p>
+      <p>Contato oficial: {CONTACT_EMAIL}</p>
+
+      <h2>2. Sobre o Produto</h2>
+      <p>O Yuna oferece conteúdos digitais relacionados a:</p>
+      <ul>
+        <li>exercícios faciais guiados</li>
+        <li>drenagem facial estética</li>
+        <li>massagens faciais</li>
+        <li>rotinas de autocuidado</li>
+        <li>wellness facial</li>
+      </ul>
+      <p>
+        <strong>
+          O Yuna não constitui serviço médico, dermatológico, fisioterapêutico
+          ou terapêutico.
+        </strong>{" "}
+        Trata-se de plataforma educativa e de autocuidado estético.
       </p>
 
-      <h2>2. Elegibilidade</h2>
+      <h2>3. Elegibilidade</h2>
       <p>
-        Para usar o Yuna, você precisa ter no mínimo 18 anos e capacidade civil
-        plena. Ao criar uma conta, você declara que essas condições são verdadeiras.
+        O uso da plataforma é permitido apenas a pessoas maiores de 18 anos
+        com plena capacidade civil.
       </p>
 
-      <h2>3. Conta e responsabilidade</h2>
+      <h2>4. Cadastro</h2>
       <p>
-        Você é responsável por manter login e senha em sigilo. Toda atividade
-        feita através da sua conta é de sua responsabilidade.
+        A usuária compromete-se a fornecer dados verdadeiros, completos e
+        atualizados, bem como manter a confidencialidade de suas credenciais
+        de acesso. Toda atividade realizada através da conta é de
+        responsabilidade da titular.
       </p>
 
-      <h2>4. Pagamento e acesso</h2>
+      <h2>5. Licença de Uso</h2>
       <p>
-        O acesso ao conteúdo é vendido digitalmente. O pagamento é processado por
-        plataforma terceirizada (a definir, ex.: Ticto). Após confirmação, o acesso
-        é liberado conforme o plano contratado.
+        Concedemos à usuária uma licença <strong>pessoal, limitada,
+        revogável e intransferível</strong> para acesso ao conteúdo da
+        plataforma. É expressamente proibido:
+      </p>
+      <ul>
+        <li>copiar, gravar ou reproduzir conteúdos</li>
+        <li>redistribuir vídeos, áudios ou textos</li>
+        <li>revender materiais do Yuna</li>
+        <li>utilizar a marca ou identidade visual sem autorização escrita</li>
+      </ul>
+
+      <h2>6. Pagamento</h2>
+      <p>
+        O acesso ao conteúdo poderá ocorrer mediante pagamento processado
+        por plataformas terceiras, como a Ticto. Após confirmação do
+        pagamento, o acesso é liberado conforme o plano contratado.
       </p>
 
-      <h2>5. Licença de uso</h2>
+      <h2>7. Direito de Arrependimento</h2>
       <p>
-        Concedemos a você uma licença pessoal, intransferível e não exclusiva para
-        acessar o conteúdo. É proibido copiar, redistribuir, revender, gravar ou
-        compartilhar qualquer material do Yuna.
+        Conforme o art. 49 do Código de Defesa do Consumidor, a usuária
+        poderá solicitar o cancelamento da compra em até <strong>7 dias
+        corridos</strong> contados a partir da contratação, com restituição
+        integral dos valores pagos.
       </p>
 
-      <h2>6. Propriedade intelectual</h2>
+      <h2>8. Isenção Médica</h2>
       <p>
-        Todo o conteúdo, marca, identidade visual, vídeos, áudios e textos do Yuna
-        são protegidos por direitos autorais e pertencem ao Yuna ou aos seus
-        licenciadores.
+        O Yuna possui caráter <strong>exclusivamente educativo, informativo
+        e de autocuidado estético</strong>. Não substitui consulta,
+        diagnóstico ou orientação de profissionais de saúde habilitados.
+      </p>
+      <p>
+        Em caso de dúvida sobre sua condição de saúde, consulte um
+        profissional qualificado antes de iniciar qualquer prática.
       </p>
 
-      <h2>7. Isenção médica</h2>
+      <h2>9. Resultados</h2>
       <p>
-        <strong>O Yuna não constitui tratamento médico, dermatológico, estético
-        clínico ou fisioterapêutico.</strong> O conteúdo tem fins educativos e de
-        autocuidado. Em caso de dúvida sobre sua saúde, consulte um profissional
-        habilitado antes de iniciar a prática.
+        Resultados podem variar conforme fatores individuais como
+        constância, biotipo, idade, hábitos e estilo de vida. O Yuna não
+        garante resultados específicos.
       </p>
 
-      <h2>8. Resultados</h2>
+      <h2>10. Limitação de Responsabilidade</h2>
       <p>
-        Resultados variam de pessoa para pessoa e dependem de fatores individuais
-        como constância, biotipo, idade e estilo de vida. Não garantimos resultados
-        específicos.
-      </p>
-
-      <h2>9. Cancelamento e suporte</h2>
-      <p>
-        Solicitações de cancelamento e reembolso seguem a política da plataforma de
-        pagamento e a legislação brasileira aplicável (CDC, art. 49 — direito de
-        arrependimento em até 7 dias para compras online).
-      </p>
-
-      <h2>10. Limitação de responsabilidade</h2>
-      <p>
-        O Yuna não se responsabiliza por danos decorrentes do uso inadequado do
-        conteúdo, falhas técnicas pontuais ou indisponibilidade temporária do app.
+        O Yuna não se responsabiliza por danos decorrentes de uso inadequado
+        do conteúdo, falhas técnicas pontuais ou indisponibilidade
+        temporária do aplicativo.
       </p>
 
       <h2>11. Alterações</h2>
       <p>
-        Podemos atualizar estes Termos. Quando isso acontecer, você será notificada
-        no app e precisará aceitar a nova versão para continuar usando.
+        Estes Termos poderão ser atualizados periodicamente. Quando isso
+        ocorrer, a usuária será notificada no aplicativo e precisará aceitar
+        a nova versão para continuar utilizando o serviço.
       </p>
 
       <h2>12. Foro</h2>
       <p>
-        Estes Termos são regidos pela legislação brasileira. Fica eleito o foro da
-        comarca da sede do Yuna para dirimir quaisquer disputas.
+        Estes Termos são regidos pela legislação brasileira. Fica eleito o
+        foro da comarca de <strong>{FORO}</strong> para dirimir quaisquer
+        controvérsias.
       </p>
 
       <h2>13. Contato</h2>
-      <p>Para dúvidas: contato@yuna.app (a confirmar).</p>
+      <p>Para dúvidas e solicitações: {CONTACT_EMAIL}</p>
     </LegalPageLayout>
   );
 }

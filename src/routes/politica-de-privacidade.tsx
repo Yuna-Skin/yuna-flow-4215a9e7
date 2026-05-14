@@ -1,6 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPageLayout } from "@/components/LegalPageLayout";
-import { PRIVACY_VERSION, PRIVACY_UPDATED_AT } from "@/lib/legal-versions";
+import {
+  PRIVACY_VERSION,
+  PRIVACY_UPDATED_AT,
+  COMPANY_LEGAL_NAME,
+  COMPANY_CNPJ,
+  PRIVACY_EMAIL,
+} from "@/lib/legal-versions";
 
 export const Route = createFileRoute("/politica-de-privacidade")({
   head: () => ({
@@ -20,101 +26,138 @@ function PrivacyPage() {
       updatedAt={PRIVACY_UPDATED_AT}
     >
       <p>
-        Esta Política descreve como o Yuna coleta, usa, armazena e compartilha seus
-        dados pessoais, em conformidade com a Lei Geral de Proteção de Dados (Lei
-        nº 13.709/2018 — LGPD).
+        Esta Política descreve como o Yuna, operado por{" "}
+        <strong>{COMPANY_LEGAL_NAME}</strong> (CNPJ {COMPANY_CNPJ}), coleta,
+        utiliza, armazena e compartilha dados pessoais, em conformidade com a
+        Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD).
       </p>
 
-      <h2>1. Dados que coletamos</h2>
+      <h2>1. Dados Coletados</h2>
+      <h3>Dados cadastrais</h3>
       <ul>
-        <li>Nome e e-mail (no cadastro)</li>
-        <li>Senha (armazenada de forma criptografada)</li>
-        <li>Foto de avatar (opcional)</li>
-        <li>Progresso de prática (dias concluídos)</li>
-        <li>Registros de aceite dos Termos e desta Política</li>
-        <li>Dados técnicos: IP, navegador e horário do aceite</li>
+        <li>nome</li>
+        <li>e-mail</li>
+        <li>senha (armazenada de forma criptografada)</li>
       </ul>
 
-      <h2>2. Para que usamos</h2>
+      <h3>Dados técnicos</h3>
       <ul>
-        <li>Criar e manter sua conta</li>
-        <li>Entregar o conteúdo contratado</li>
-        <li>Acompanhar seu progresso na jornada</li>
-        <li>Melhorar a experiência do app</li>
-        <li>Cumprir obrigações legais</li>
+        <li>endereço IP</li>
+        <li>user-agent (navegador/dispositivo)</li>
+        <li>cookies essenciais</li>
+        <li>logs de acesso</li>
       </ul>
 
-      <h2>3. Base legal</h2>
-      <p>
-        Tratamos seus dados com base em: execução de contrato (art. 7º, V da LGPD),
-        consentimento (art. 7º, I) e cumprimento de obrigação legal (art. 7º, II).
-      </p>
+      <h3>Dados de uso</h3>
+      <ul>
+        <li>progresso na jornada</li>
+        <li>interações com o conteúdo</li>
+        <li>preferências da usuária</li>
+        <li>foto de avatar (opcional)</li>
+      </ul>
+
+      <h2>2. Finalidade</h2>
+      <p>Os dados são utilizados para:</p>
+      <ul>
+        <li>autenticação e manutenção da conta</li>
+        <li>entrega do serviço contratado</li>
+        <li>segurança e prevenção a fraudes</li>
+        <li>melhoria contínua da experiência</li>
+        <li>atendimento e suporte</li>
+        <li>cumprimento de obrigações legais</li>
+      </ul>
+
+      <h2>3. Bases Legais</h2>
+      <p>O tratamento de dados ocorre com base em:</p>
+      <ul>
+        <li>execução de contrato (art. 7º, V da LGPD)</li>
+        <li>legítimo interesse (art. 7º, IX)</li>
+        <li>consentimento da titular (art. 7º, I)</li>
+        <li>cumprimento de obrigação legal (art. 7º, II)</li>
+      </ul>
 
       <h2>4. Compartilhamento</h2>
-      <p>Seus dados podem ser compartilhados com:</p>
+      <p>Os dados poderão ser compartilhados, na medida necessária, com:</p>
       <ul>
         <li>
-          <strong>Supabase</strong> — infraestrutura de banco de dados, autenticação
-          e armazenamento de arquivos
+          <strong>Supabase</strong> — infraestrutura de banco de dados,
+          autenticação e armazenamento
         </li>
         <li>
-          <strong>Plataforma de pagamento</strong> (a definir, ex.: Ticto) — para
-          processar a compra
+          <strong>Serviços de hospedagem</strong> — entrega da aplicação
         </li>
         <li>
-          <strong>Autoridades públicas</strong>, quando exigido por lei
+          <strong>Gateways de pagamento</strong> (ex.: Ticto) — processamento
+          financeiro
+        </li>
+        <li>
+          <strong>Ferramentas de analytics</strong> — quando ativadas, mediante
+          consentimento
+        </li>
+        <li>
+          <strong>Autoridades públicas</strong> — quando exigido por lei
         </li>
       </ul>
-      <p>Não vendemos seus dados.</p>
+      <p>O Yuna não vende dados pessoais.</p>
 
-      <h2>5. Armazenamento</h2>
-      <p>
-        Seus dados são armazenados em servidores do Supabase. Mantemos seus dados
-        enquanto sua conta estiver ativa e pelo prazo legal aplicável após
-        encerramento.
-      </p>
-
-      <h2>6. Seus direitos (LGPD)</h2>
-      <p>Você pode, a qualquer momento, solicitar:</p>
+      <h2>5. Segurança</h2>
+      <p>O Yuna adota as seguintes medidas:</p>
       <ul>
-        <li>Acesso aos seus dados</li>
-        <li>Correção de dados incompletos ou desatualizados</li>
-        <li>Exclusão dos dados (anonimização ou eliminação)</li>
-        <li>Portabilidade</li>
-        <li>Revogação do consentimento</li>
-        <li>Informação sobre compartilhamentos realizados</li>
+        <li>criptografia em trânsito (HTTPS)</li>
+        <li>criptografia de senhas</li>
+        <li>controle de acesso por políticas (RLS)</li>
+        <li>autenticação segura</li>
+        <li>logs de auditoria com acesso restrito</li>
       </ul>
-      <p>Para exercer esses direitos, entre em contato pelo e-mail abaixo.</p>
 
-      <h2>7. Segurança</h2>
+      <h2>6. Direitos da Usuária</h2>
+      <p>Nos termos da LGPD, a usuária poderá solicitar a qualquer momento:</p>
+      <ul>
+        <li>acesso aos seus dados</li>
+        <li>correção de dados incompletos ou desatualizados</li>
+        <li>exclusão (anonimização ou eliminação)</li>
+        <li>portabilidade</li>
+        <li>revogação do consentimento</li>
+        <li>informação sobre compartilhamentos realizados</li>
+      </ul>
       <p>
-        Adotamos medidas técnicas e organizacionais para proteger seus dados,
-        incluindo criptografia em trânsito (HTTPS), criptografia de senhas e
-        controle de acesso baseado em políticas (RLS).
+        Contato do Encarregado: <strong>{PRIVACY_EMAIL}</strong>
       </p>
 
-      <h2>8. Cookies</h2>
+      <h2>7. Exclusão de Conta</h2>
       <p>
-        Atualmente o Yuna utiliza apenas cookies essenciais para manter sua sessão
-        autenticada. Mais detalhes na nossa Política de Cookies.
+        A usuária poderá solicitar a exclusão da conta a qualquer momento
+        diretamente pelo aplicativo, em <em>Perfil → Configurações →
+        Privacidade → Excluir conta</em>.
+      </p>
+      <p>
+        Após a exclusão, alguns dados poderão ser preservados pelo prazo
+        legal aplicável, especificamente:
+      </p>
+      <ul>
+        <li>logs jurídicos e de auditoria</li>
+        <li>comprovantes financeiros</li>
+        <li>registros antifraude</li>
+        <li>dados exigidos por lei ou ordem judicial</li>
+      </ul>
+
+      <h2>8. Crianças e Adolescentes</h2>
+      <p>
+        O Yuna não é destinado a menores de 18 anos e não coleta
+        intencionalmente dados de menores.
       </p>
 
-      <h2>9. Crianças e adolescentes</h2>
+      <h2>9. Atualizações</h2>
       <p>
-        O Yuna não é destinado a menores de 18 anos. Não coletamos intencionalmente
-        dados de menores.
+        Esta Política poderá ser atualizada periodicamente. Quando isso
+        ocorrer, a usuária será notificada no aplicativo e precisará aceitar
+        a nova versão para continuar.
       </p>
 
-      <h2>10. Alterações</h2>
+      <h2>10. Encarregado (DPO) e Contato</h2>
       <p>
-        Podemos atualizar esta Política. Você será notificada no app e precisará
-        aceitar a nova versão para continuar.
-      </p>
-
-      <h2>11. Encarregado (DPO) e contato</h2>
-      <p>
-        Para qualquer questão relacionada a dados pessoais: privacidade@yuna.app
-        (a confirmar).
+        Para qualquer questão relacionada a dados pessoais, entre em contato
+        pelo e-mail: <strong>{PRIVACY_EMAIL}</strong>
       </p>
     </LegalPageLayout>
   );

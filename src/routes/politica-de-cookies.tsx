@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LegalPageLayout } from "@/components/LegalPageLayout";
-import { COOKIES_UPDATED_AT } from "@/lib/legal-versions";
+import { COOKIES_UPDATED_AT, PRIVACY_EMAIL } from "@/lib/legal-versions";
 
 export const Route = createFileRoute("/politica-de-cookies")({
   head: () => ({
@@ -16,49 +16,70 @@ function CookiesPage() {
   return (
     <LegalPageLayout title="Política de Cookies" version="v1.0" updatedAt={COOKIES_UPDATED_AT}>
       <p>
-        Esta Política explica o que são cookies e como o Yuna os utiliza.
+        Esta Política explica o que são cookies e como o Yuna os utiliza para
+        garantir o funcionamento, a segurança e a melhor experiência possível.
       </p>
 
       <h2>1. O que são cookies</h2>
       <p>
-        Cookies são pequenos arquivos armazenados no seu dispositivo quando você
-        acessa um site ou aplicativo. Eles ajudam o serviço a lembrar de
-        informações, como o seu login.
+        Cookies são pequenos arquivos armazenados no dispositivo da usuária
+        para melhorar funcionalidades, desempenho e segurança da plataforma.
       </p>
 
-      <h2>2. Cookies que usamos</h2>
-      <p>Atualmente o Yuna utiliza apenas cookies <strong>estritamente necessários</strong>:</p>
+      <h2>2. Cookies Essenciais</h2>
+      <p>Necessários para:</p>
       <ul>
-        <li>
-          <strong>Sessão de autenticação</strong> — mantém você logada enquanto
-          navega no app
-        </li>
-        <li>
-          <strong>Preferências locais</strong> — guardam pequenas preferências de
-          uso no seu dispositivo
-        </li>
+        <li>login e autenticação</li>
+        <li>segurança da sessão</li>
+        <li>funcionamento básico da plataforma</li>
       </ul>
       <p>
-        Não utilizamos, neste momento, cookies de marketing, pixels de redes
-        sociais ou ferramentas de analytics de terceiros.
+        Sem esses cookies, funcionalidades como o login deixam de funcionar.
       </p>
 
-      <h2>3. Mudanças futuras</h2>
+      <h2>3. Cookies Analíticos</h2>
+      <p>Poderão ser utilizados, mediante consentimento, para:</p>
+      <ul>
+        <li>métricas de uso</li>
+        <li>analytics agregados</li>
+        <li>melhoria contínua da experiência</li>
+      </ul>
+
+      <h2>4. Cookies de Marketing</h2>
+      <p>Poderão ser utilizados futuramente para:</p>
+      <ul>
+        <li>remarketing</li>
+        <li>campanhas publicitárias</li>
+        <li>personalização de anúncios</li>
+      </ul>
+
+      <h2>5. Cookies de Terceiros</h2>
+      <p>O Yuna poderá utilizar serviços como:</p>
+      <ul>
+        <li>Google Analytics</li>
+        <li>Meta Pixel</li>
+        <li>plataformas de hospedagem e pagamento</li>
+      </ul>
       <p>
-        Caso passemos a utilizar cookies de analytics ou marketing (Google, Meta,
-        etc.), atualizaremos esta Política e exibiremos um banner solicitando seu
-        consentimento explícito antes de qualquer carregamento.
+        Quando esses serviços forem ativados, exibiremos um banner de
+        consentimento granular antes de qualquer carregamento.
       </p>
 
-      <h2>4. Como controlar</h2>
+      <h2>6. Gerenciamento</h2>
       <p>
-        Você pode bloquear ou apagar cookies a qualquer momento nas configurações
-        do seu navegador. Sem os cookies essenciais, porém, funcionalidades como
-        login podem deixar de funcionar.
+        A usuária poderá aceitar, rejeitar ou remover cookies a qualquer
+        momento nas configurações do navegador. A remoção de cookies
+        essenciais poderá impactar o funcionamento do app.
       </p>
 
-      <h2>5. Contato</h2>
-      <p>privacidade@yuna.app (a confirmar).</p>
+      <h2>7. Atualizações</h2>
+      <p>
+        Esta Política poderá ser atualizada periodicamente para refletir
+        mudanças tecnológicas ou regulatórias.
+      </p>
+
+      <h2>8. Contato</h2>
+      <p>Dúvidas sobre cookies ou privacidade: {PRIVACY_EMAIL}</p>
     </LegalPageLayout>
   );
 }
