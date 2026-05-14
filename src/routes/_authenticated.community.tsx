@@ -35,6 +35,17 @@ function CommunityPage() {
   const [openComments, setOpenComments] = useState<string | null>(null);
   const [comments, setComments] = useState<Record<string, { id: string; content: string; author_name: string }[]>>({});
   const [commentInput, setCommentInput] = useState("");
+  const [isModerator, setIsModerator] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .in("role", ["admin", "moderator"])
+      .then(({ data }) => setIsModerator((data ?? []).length > 0));
+  }, [user]);
 
   const load = async () => {
     if (!user) return;
