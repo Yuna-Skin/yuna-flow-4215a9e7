@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Flame, Play, Pause, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getPlayableDayAudioUrl } from "@/lib/day-audio.functions";
+import { getSignedWeekThumbnailUrl } from "@/lib/week-thumbnail.functions";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: HomePage,
