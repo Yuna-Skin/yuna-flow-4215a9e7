@@ -67,6 +67,10 @@ function MinimalVideoPlayer({ src }: { src: string }) {
         onClick={togglePlay}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
+        onError={() => {
+          // signed URL expirada — força re-fetch do day para renovar
+          queryClient.invalidateQueries({ queryKey: ["day"] });
+        }}
         className="aspect-[9/16] w-full bg-black object-cover"
       />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-gradient-to-t from-black/60 to-transparent p-4">
@@ -148,7 +152,7 @@ function DayPage() {
         })),
       };
     },
-    staleTime: 10 * 60_000,
+    staleTime: 45 * 60_000,
   });
 
   const progressQ = useQuery({
