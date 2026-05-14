@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Play, Pause, Check, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -142,8 +143,17 @@ function HomePage() {
 
   if (loading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="px-4 pb-6 pt-8">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-3 w-16" />
+            <Skeleton className="h-6 w-40" />
+          </div>
+        </div>
+        <Skeleton className="mt-6 h-[440px] w-full rounded-[40px]" />
+        <Skeleton className="mt-6 h-4 w-32" />
+        <Skeleton className="mt-3 aspect-[4/5] w-full rounded-3xl" />
       </div>
     );
   }
@@ -166,7 +176,7 @@ function HomePage() {
       <Link to="/profile" className="flex items-center gap-3 rounded-2xl -mx-1 px-1 py-1 transition-colors active:bg-black/5">
         <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-primary to-warm shadow-sm">
           {avatarUrl ? (
-            <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+            <img src={avatarUrl} alt={name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
           ) : (
             <span className="flex h-full w-full items-center justify-center text-lg font-display text-primary-foreground">
               {name[0]?.toUpperCase()}
@@ -184,6 +194,8 @@ function HomePage() {
           <img
             src={thumbQ.data}
             alt={activeWeek?.title ?? "Semana"}
+            decoding="async"
+            fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-1000 hover:scale-105"
           />
         ) : (
@@ -331,11 +343,12 @@ function HomePage() {
             <Card className="overflow-hidden p-0 transition-all hover:shadow-md active:scale-[0.99]">
               <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-black">
                 <video
-                  src="/ambient-loop.mp4"
+                  src="https://res.cloudinary.com/dqsuj0pjy/video/upload/v1778737301/Sorriso_leve_e_natural_202605121914_e9yfcu.mp4"
                   autoPlay
                   loop
                   muted
                   playsInline
+                  preload="metadata"
                   className="absolute inset-0 h-full w-full scale-105 object-cover"
                 />
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.55)_100%)]" />
