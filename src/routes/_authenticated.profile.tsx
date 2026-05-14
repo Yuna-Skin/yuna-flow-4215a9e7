@@ -1,11 +1,11 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, Camera, Loader2, Check, Pencil } from "lucide-react";
+import { LogOut, Camera, Loader2, Check, Pencil, Settings, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -188,10 +188,21 @@ function ProfilePage() {
         </p>
       </Card>
 
+      <Link
+        to="/settings"
+        className="mt-4 flex items-center justify-between rounded-2xl border border-border bg-card px-5 py-4 transition-colors hover:bg-muted/40"
+      >
+        <span className="flex items-center gap-3">
+          <Settings className="h-5 w-5 text-primary" />
+          <span className="text-sm font-medium text-foreground">Configurações</span>
+        </span>
+        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+      </Link>
+
       <Button
         onClick={handleLogout}
         variant="outline"
-        className="mt-8 h-12 w-full rounded-full border-border"
+        className="mt-4 h-12 w-full rounded-full border-border"
       >
         <LogOut className="h-4 w-4" />
         Sair

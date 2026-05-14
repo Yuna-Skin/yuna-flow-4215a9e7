@@ -1,0 +1,90 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ChevronRight, ArrowLeft, Shield, FileText, Cookie, Lock } from "lucide-react";
+
+export const Route = createFileRoute("/_authenticated/settings")({
+  component: SettingsPage,
+});
+
+function SettingsPage() {
+  return (
+    <div className="px-5 pb-6 pt-8">
+      <Link
+        to="/profile"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Voltar
+      </Link>
+
+      <h1 className="mt-4 font-display text-3xl text-foreground">Configurações</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        Privacidade, segurança e seus dados
+      </p>
+
+      <section className="mt-8">
+        <p className="px-1 text-xs uppercase tracking-widest text-muted-foreground">
+          Privacidade
+        </p>
+        <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card">
+          <Link
+            to="/settings/privacy"
+            className="flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-muted/40"
+          >
+            <span className="flex items-center gap-3">
+              <Lock className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-foreground">
+                Privacidade e dados
+              </span>
+            </span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <p className="px-1 text-xs uppercase tracking-widest text-muted-foreground">
+          Documentos legais
+        </p>
+        <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card divide-y divide-border">
+          <Link
+            to="/termos-de-uso"
+            target="_blank"
+            className="flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-muted/40"
+          >
+            <span className="flex items-center gap-3">
+              <FileText className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-foreground">Termos de Uso</span>
+            </span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
+          <Link
+            to="/politica-de-privacidade"
+            target="_blank"
+            className="flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-muted/40"
+          >
+            <span className="flex items-center gap-3">
+              <Shield className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-foreground">
+                Política de Privacidade
+              </span>
+            </span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
+          <Link
+            to="/politica-de-cookies"
+            target="_blank"
+            className="flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-muted/40"
+          >
+            <span className="flex items-center gap-3">
+              <Cookie className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-foreground">
+                Política de Cookies
+              </span>
+            </span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
+        </div>
+      </section>
+    </div>
+  );
+}

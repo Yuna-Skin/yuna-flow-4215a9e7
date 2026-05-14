@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { getLatestConsent, recordConsent } from "@/lib/consent.functions";
+import { logAuditEvent } from "@/lib/audit-log.functions";
 import { TERMS_VERSION, PRIVACY_VERSION } from "@/lib/legal-versions";
 import { supabase } from "@/integrations/supabase/client";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,6 +14,7 @@ import { toast } from "sonner";
 export function LegalGate({ children }: { children: React.ReactNode }) {
   const fetchLatest = useServerFn(getLatestConsent);
   const submitConsent = useServerFn(recordConsent);
+  const writeAuditLog = useServerFn(logAuditEvent);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -37,6 +39,13 @@ export function LegalGate({ children }: { children: React.ReactNode }) {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["latest-consent"] });
+      writeAuditLog({
+        data: {
+          event_type: "consent_accepted",
+          terms_version: TERMS_VERSION,
+          privacy_version: PRIVACY_VERSION,
+        },
+      }).catch((e) => console.warn("audit log consent failed", e));
       toast.success("Obrigado por aceitar 🌸");
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erro ao salvar"),

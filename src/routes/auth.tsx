@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Flower2 } from "lucide-react";
 import { recordConsent } from "@/lib/consent.functions";
+import { logAuditEvent } from "@/lib/audit-log.functions";
 import { TERMS_VERSION, PRIVACY_VERSION } from "@/lib/legal-versions";
 
 export const Route = createFileRoute("/auth")({
@@ -27,6 +28,7 @@ function AuthPage() {
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [busy, setBusy] = useState(false);
   const submitConsent = useServerFn(recordConsent);
+  const writeAuditLog = useServerFn(logAuditEvent);
 
   useEffect(() => {
     if (session) navigate({ to: "/" });
@@ -51,7 +53,7 @@ function AuthPage() {
         });
         if (error) throw error;
 
-        // Registra consentimento (best-effort; gate fará fallback se falhar)
+        // Registra consentimento + log jurídico (best-effort)
         try {
           await submitConsent({
             data: {
@@ -61,14 +63,25 @@ function AuthPage() {
               privacy_version: PRIVACY_VERSION,
             },
           });
+          await writeAuditLog({
+            data: {
+              event_type: "account_created",
+              terms_version: TERMS_VERSION,
+              privacy_version: PRIVACY_VERSION,
+            },
+          });
         } catch (err) {
-          console.warn("Falha ao registrar consentimento no signup", err);
+          console.warn("Falha ao registrar consentimento/log no signup", err);
         }
 
         toast.success("Conta criada! Bem-vinda ao Yuna 🌸");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        // Log jurídico de login (best-effort, não bloqueia o fluxo)
+        writeAuditLog({ data: { event_type: "login" } }).catch((e) =>
+          console.warn("audit log login failed", e),
+        );
         toast.success("Bom te ver de volta ✨");
       }
     } catch (err) {
