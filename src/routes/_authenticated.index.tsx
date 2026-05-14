@@ -73,16 +73,6 @@ function HomePage() {
     },
   });
 
-  const loading = weeksQ.isLoading || profileQ.isLoading || progressQ.isLoading;
-
-  if (loading) {
-    return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-      </div>
-    );
-  }
-
   const weeks = weeksQ.data ?? [];
   const allDays = weeks.flatMap((w) => w.days);
   const totalDays = allDays.length;
@@ -128,6 +118,16 @@ function HomePage() {
       audioRef.current.currentTime = 0;
     }
   }, [currentDay?.id]);
+
+  const loading = weeksQ.isLoading || profileQ.isLoading || progressQ.isLoading;
+
+  if (loading) {
+    return (
+      <div className="flex h-[80vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   const togglePlay = (e: React.MouseEvent) => {
     e.preventDefault();
