@@ -13,7 +13,7 @@ const items: NavItem[] = [
 export function BottomNav() {
   const { pathname } = useLocation();
   return (
-    <div className="pointer-events-none fixed bottom-0 left-1/2 z-40 w-full max-w-[430px] -translate-x-1/2">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40">
       <nav className={cn("pointer-events-auto w-full border-t border-black/[0.04] glass-nav") }>
         <ul className="flex min-h-[72px] items-stretch justify-around px-5 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
           {items.map((it) => {
