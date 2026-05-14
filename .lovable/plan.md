@@ -1,58 +1,78 @@
-## Objetivo
+# Plano LGPD do Yuna
 
-Na tela de cada dia (`/day/$dayNumber`), trocar o player de vídeo principal por uma experiência de áudio-guiado:
-- Vídeo ambiente em **loop, mudo, autoplay**, ocupando o card como background.
-- Sobreposto: um **botão único de play/pause** central, **waveform animada reagindo ao áudio real**, e **controle de velocidade** (1x / 1.5x / 2x).
-- O mesmo vídeo de loop é usado em **todos os dias** (asset único).
-- Áudio explicativo é **upload manual por dia** (novo campo `audio_url`).
+## 1. Banco de dados (Supabase)
 
-## Mudanças no banco
+Nova tabela `user_consents` para registrar cada aceite (histórico, não substitui versões antigas):
 
-Migration única adicionando:
-- `days.audio_url TEXT NULL` — URL do áudio do módulo (upload via admin, igual ao `video_url` hoje).
-- Trigger `sync_day_audio_asset` análogo a `sync_day_video_asset`, para registrar/desvincular o áudio em `media_assets` quando o campo mudar.
+| Campo | Tipo | Função |
+|---|---|---|
+| id | uuid | PK |
+| user_id | uuid | dona do aceite |
+| accepted_terms | boolean | aceite dos Termos |
+| accepted_privacy | boolean | aceite da Política |
+| terms_version | text | ex: "v1.0" |
+| privacy_version | text | ex: "v1.0" |
+| accepted_at | timestamptz | data/hora |
+| ip_address | text | prova adicional |
+| user_agent | text | prova adicional |
 
-Não é necessário criar tabela nova nem mexer em RLS — herda das políticas existentes de `days`.
+RLS: usuária só lê os próprios consentimentos; insert via server function (para capturar IP/user-agent reais — não dá pra confiar no cliente).
 
-## Asset do vídeo de fundo
+Constantes versionadas em `src/lib/legal-versions.ts`:
+```ts
+export const TERMS_VERSION = "v1.0";
+export const PRIVACY_VERSION = "v1.0";
+```
+Quando você atualizar os textos, sobe a versão → app detecta que o último aceite está desatualizado → exibe modal de re-aceite.
 
-- O usuário enviará 1 arquivo de vídeo curto (loop ambiente).
-- Salvo em `src/assets/ambient-loop.mp4` e importado como módulo (mesmo loop em todos os dias, sem campo no banco).
+## 2. Páginas legais (rotas públicas)
 
-## Mudanças no frontend
+Três rotas novas, acessíveis sem login:
+- `/termos-de-uso`
+- `/politica-de-privacidade`
+- `/politica-de-cookies`
 
-### `src/routes/_authenticated.day.$dayNumber.tsx`
-Substituir o bloco do player de vídeo atual por um novo componente `AudioModulePlayer` que recebe `audioUrl` e renderiza:
-- `<video>` ambiente em loop/muted/autoplay/playsInline cobrindo todo o card (`absolute inset-0 object-cover`), com leve overlay escuro para contraste.
-- Camada de conteúdo sobreposta (`relative z-10`) contendo:
-  - **Botão central play/pause** (círculo grande, ícone Play/Pause de `lucide-react`).
-  - **Waveform reativa** abaixo do botão.
-  - **Pílula de velocidade** (1x / 1.5x / 2x) que cicla ao clicar e ajusta `audio.playbackRate`.
-- Estado vazio: se `audio_url` for nulo, mostrar texto "Áudio em breve" sobre o loop.
+Cada uma com layout limpo, mobile-first, com data da última atualização e número de versão visível no topo. Conteúdo virá dos rascunhos (ver seção 5).
 
-### Novo componente `src/components/AudioModulePlayer.tsx`
-- `<audio>` controlado por ref.
-- Web Audio API: `AudioContext` + `MediaElementAudioSourceNode` + `AnalyserNode` (fftSize 64) para extrair `getByteFrequencyData` em tempo real.
-- 24 barras renderizadas em SVG/divs, altura proporcional ao bin de frequência, animadas via `requestAnimationFrame`.
-- Quando pausado: barras voltam suavemente a uma altura mínima animada (respiração).
-- Cleanup de RAF e disconnect de nodes no unmount.
+## 3. Cadastro (`/auth`)
 
-### Admin
-- Adicionar campo "URL do áudio" no formulário de edição de dia (mesma UI do `video_url`, com upload pro bucket `videos` reutilizado — ou criar bucket `audios` se preferir; **proposta: reusar `videos`** para não multiplicar buckets/políticas).
+No modo "criar conta", adicionar **dois checkboxes desmarcados**:
+- ☐ Li e aceito os [Termos de Uso](/termos-de-uso)
+- ☐ Li e aceito a [Política de Privacidade](/politica-de-privacidade)
 
-## O que NÃO muda
+Botão "Criar conta" fica desabilitado até os dois estarem marcados. Após signUp bem-sucedido, chama server function `recordConsent` que salva em `user_consents` com IP/user-agent extraídos do request.
 
-- Tabelas existentes (exceto a nova coluna).
-- Fluxo de "completar dia", streak, navegação, exercícios, reflexão, respiração.
-- Vídeo do dia (`video_url`) **continua existindo** para os exercícios/movimentos — só o player principal do topo deixa de ser de vídeo.
+## 4. Usuárias antigas (modal bloqueante)
 
-## Pendências do usuário
+Componente `LegalGate` no layout `_authenticated.tsx`:
+- Ao montar, busca último consentimento da usuária
+- Se não existe OU `terms_version` / `privacy_version` < versão atual → exibe `Dialog` não-fechável
+- Modal mostra resumo + links pras páginas + os mesmos dois checkboxes + botão "Aceitar e continuar"
+- Enquanto não aceita, app inteiro fica bloqueado (overlay)
+- Botão secundário "Sair" pra dar opção de logout
 
-1. Enviar o arquivo do vídeo de loop ambiente.
-2. Após implementação, subir o `audio_url` de cada dia no admin.
+## 5. Rascunhos jurídicos + lista pro advogado
 
-## Fora do escopo
+Vou gerar três arquivos `.md` em `/mnt/documents/`:
+- `yuna-termos-de-uso-v1.md`
+- `yuna-politica-de-privacidade-v1.md`
+- `yuna-politica-de-cookies-v1.md`
 
-- Geração TTS automática (descartada — upload manual).
-- Scrub bar / tempo visível (descartado — só botão + waveform + velocidade).
-- Player flutuante persistente entre rotas.
+Cobrindo: produto, elegibilidade 18+, conta, pagamento via Ticto, licença pessoal, propriedade intelectual, **isenção médica** (crítico), variação de resultados, cancelamento, foro Brasil, dados coletados (nome, email, progresso, avatar), finalidade, compartilhamento (Supabase, Ticto), direitos LGPD, segurança, contato do DPO.
+
+Junto, um arquivo `yuna-checklist-advogado.md` com a lista exata de pontos pro advogado revisar/preencher (CNPJ, razão social, endereço, email do DPO, política de reembolso específica, jurisdição, etc.).
+
+## 6. Ordem de implementação
+
+1. Migration: tabela `user_consents` + RLS + policies
+2. Server function `recordConsent` (captura IP/UA)
+3. Constantes de versão + helper `getLatestConsent`
+4. Páginas `/termos-de-uso`, `/politica-de-privacidade`, `/politica-de-cookies` com rascunhos
+5. Checkboxes + validação no `/auth` (modo signup)
+6. `LegalGate` modal no `_authenticated.tsx`
+7. Gerar os três `.md` + checklist do advogado em `/mnt/documents/`
+
+## Fora deste plano (decisões já tomadas)
+- Sem banner de cookies por enquanto (você confirmou que ainda não tem analytics/pixels)
+- Política de Cookies fica como página informativa simples
+- Quando adicionar Google/Meta no futuro, voltamos pra colocar banner de consentimento

@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { BottomNav } from "@/components/BottomNav";
+import { LegalGate } from "@/components/LegalGate";
 
 export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
@@ -40,9 +41,11 @@ function AuthenticatedLayout() {
   }
 
   return (
-    <div className="mobile-shell pb-24">
-      <Outlet />
-      <BottomNav />
-    </div>
+    <LegalGate>
+      <div className="mobile-shell pb-24">
+        <Outlet />
+        <BottomNav />
+      </div>
+    </LegalGate>
   );
 }
