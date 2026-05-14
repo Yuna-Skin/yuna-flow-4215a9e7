@@ -142,9 +142,9 @@ function FeedPage() {
                   );
                 })}
               </CarouselContent>
-              <div className="mt-4 flex items-center justify-center gap-3">
-                <CarouselPrevious className="static translate-x-0 translate-y-0 h-10 w-10 border-border/40 bg-card hover:bg-muted" />
-                <CarouselNext className="static translate-x-0 translate-y-0 h-10 w-10 border-border/40 bg-card hover:bg-muted" />
+              <div className="mt-4 flex items-center justify-end gap-3 pr-5">
+                <CarouselPrevious className="static translate-x-0 translate-y-0 h-11 w-11 border-border/40 bg-card hover:bg-muted" />
+                <CarouselNext className="static translate-x-0 translate-y-0 h-11 w-11 border-border/40 bg-card hover:bg-muted" />
               </div>
             </Carousel>
           </div>
