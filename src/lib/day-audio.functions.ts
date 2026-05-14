@@ -86,7 +86,7 @@ export const getPlayableDayAudioUrl = createServerFn({ method: "GET" })
 
     const { data: signed, error } = await supabase.storage
       .from("videos")
-      .createSignedUrl(storagePath, 60 * 60);
+      .createSignedUrl(storagePath, 50 * 60);
 
     if (error || !signed?.signedUrl) {
       console.error("Failed to create signed audio URL", error);

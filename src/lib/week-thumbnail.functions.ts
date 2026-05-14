@@ -34,7 +34,7 @@ export const getSignedWeekThumbnailUrl = createServerFn({ method: "GET" })
     if (!path) return data.thumbnailUrl;
     const { data: signed, error } = await context.supabase.storage
       .from("videos")
-      .createSignedUrl(path, 60 * 60);
+      .createSignedUrl(path, 50 * 60);
     if (error || !signed?.signedUrl) return data.thumbnailUrl;
     return signed.signedUrl;
   });
