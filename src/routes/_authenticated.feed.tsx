@@ -29,7 +29,6 @@ function FeedPage() {
     staleTime: 10 * 60_000,
   });
 
-  const items = itemsQ.data ?? [];
   const weeks = weeksQ.data ?? [];
 
   return (
