@@ -43,8 +43,8 @@ function HomePage() {
     queryKey: ["profile", userId],
     enabled: !!userId,
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("name").eq("id", userId!).maybeSingle();
-      return data?.name ?? "Praticante";
+      const { data } = await supabase.from("profiles").select("name, avatar_url").eq("id", userId!).maybeSingle();
+      return { name: data?.name ?? "Praticante", avatarUrl: data?.avatar_url ?? null };
     },
   });
 
@@ -65,7 +65,8 @@ function HomePage() {
   const allDays = weeks.flatMap((w) => w.days);
   const totalDays = allDays.length;
   const completedSet = progressQ.data ?? new Set<string>();
-  const name = profileQ.data ?? "Praticante";
+  const name = profileQ.data?.name ?? "Praticante";
+  const avatarUrl = profileQ.data?.avatarUrl ?? null;
 
   const completedCount = allDays.filter((d) => completedSet.has(d.id)).length;
   const currentDay = allDays.find((d) => !completedSet.has(d.id)) ?? allDays[allDays.length - 1];
@@ -156,10 +157,21 @@ function HomePage() {
 
   return (
     <div className="px-4 pb-6 pt-8">
-      <div>
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">Olá,</p>
-        <h1 className="mt-1 font-display text-[28px] leading-tight text-foreground">{name}</h1>
-      </div>
+      <Link to="/profile" className="flex items-center gap-3 rounded-2xl -mx-1 px-1 py-1 transition-colors active:bg-black/5">
+        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-primary to-warm shadow-sm">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+          ) : (
+            <span className="flex h-full w-full items-center justify-center text-lg font-display text-primary-foreground">
+              {name[0]?.toUpperCase()}
+            </span>
+          )}
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Olá,</p>
+          <h1 className="mt-0.5 font-display text-[26px] leading-tight text-foreground">{name}</h1>
+        </div>
+      </Link>
 
       <Card className="relative mt-6 h-[440px] overflow-hidden rounded-[40px] border-0 bg-black p-0 text-white shadow-2xl">
         {thumbQ.data ? (
