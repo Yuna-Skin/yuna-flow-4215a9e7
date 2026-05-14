@@ -243,15 +243,12 @@ function DayPage() {
         </button>
       </div>
 
-      <div className="bg-warm/40 px-5 py-3">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
-          {weekNumber > 0 ? `Semana ${weekNumber} · ` : ""}Dia {day.day_number}
-        </p>
-      </div>
-
       <div className="px-5 pt-5">
-        <h1 className="font-display text-3xl text-foreground">
-          {day.title.replace(/^Dia \d+ — /, "")}
+        <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+          Dia {day.day_number}
+        </p>
+        <h1 className="mt-1 font-display text-2xl leading-tight text-foreground">
+          {(day as { weeks?: { title?: string } }).weeks?.title ?? day.title.replace(/^Dia \d+ — /, "")}
         </h1>
 
         <h2 className="mt-7 text-sm font-semibold text-muted-foreground">Exercícios</h2>
