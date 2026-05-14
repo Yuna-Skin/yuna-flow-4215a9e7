@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Flame, Play, Pause, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getPlayableDayAudioUrl } from "@/lib/day-audio.functions";
+import { getSignedWeekThumbnailUrl } from "@/lib/week-thumbnail.functions";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: HomePage,
@@ -111,6 +112,22 @@ function HomePage() {
     staleTime: 30 * 60_000,
   });
 
+  const fetchThumb = useServerFn(getSignedWeekThumbnailUrl);
+  const thumbQ = useQuery({
+    queryKey: ["week-thumb", currentWeek?.id, currentWeek?.thumbnail_url],
+    enabled: !!currentWeek?.thumbnail_url,
+    queryFn: async () => {
+      if (!currentWeek?.thumbnail_url) return null;
+      try {
+        return await fetchThumb({ data: { thumbnailUrl: currentWeek.thumbnail_url } });
+      } catch (e) {
+        console.error("Failed to sign thumbnail", e);
+        return currentWeek.thumbnail_url;
+      }
+    },
+    staleTime: 30 * 60_000,
+  });
+
   useEffect(() => {
     setIsPlaying(false);
     if (audioRef.current) {
@@ -155,52 +172,56 @@ function HomePage() {
         </div>
       </div>
 
-      <Card className="mt-6 overflow-hidden border-0 bg-cta-dark p-0 text-white shadow-lg">
-        <div className="relative h-44 w-full overflow-hidden">
-          {currentWeek?.thumbnail_url ? (
+      <Card className="mt-6 overflow-hidden border-0 p-0 text-white shadow-lg">
+        <div className="relative min-h-[280px] w-full overflow-hidden">
+          {thumbQ.data ? (
             <img
-              src={currentWeek.thumbnail_url}
-              alt={currentWeek.title}
+              src={thumbQ.data}
+              alt={currentWeek?.title ?? "Semana"}
               className="absolute inset-0 h-full w-full object-cover"
             />
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-black" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
-          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5">
-            <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/15" />
+
+          <div className="relative flex min-h-[280px] flex-col justify-between p-5">
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">
                 Semana {currentWeekIndex + 1}
               </p>
-              <h3 className="mt-1 font-display text-2xl leading-tight text-white">
+              <div className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold backdrop-blur-md">
+                Dia {currentDay?.day_number ?? totalDays}/{totalDays}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-display text-3xl leading-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
                 {currentWeek?.title ?? "Sua jornada"}
               </h3>
-            </div>
-            <div className="shrink-0 rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold backdrop-blur-md">
-              Dia {currentDay?.day_number ?? totalDays}/{totalDays}
+
+              <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/20">
+                <div
+                  className="h-full bg-progress-accent rounded-full transition-all duration-500"
+                  style={{ width: `${totalDays ? (completedCount / totalDays) * 100 : 0}%` }}
+                />
+              </div>
+              <p className="mt-2 text-xs text-white/80">
+                {completedCount} de {totalDays} dias concluídos
+              </p>
+
+              <Button
+                onClick={() => currentDay && navigate({ to: "/day/$dayId", params: { dayId: currentDay.id } })}
+                disabled={isAllDone}
+                variant="primary"
+                size="lg"
+                className="mt-4 w-full bg-white text-foreground hover:bg-white/95 hover:brightness-100"
+              >
+                <Play className="h-4 w-4 fill-foreground" />
+                {isAllDone ? "Programa concluído 🎉" : "Continuar prática"}
+              </Button>
             </div>
           </div>
-        </div>
-
-        <div className="p-5">
-          <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/15">
-            <div
-              className="h-full bg-progress-accent rounded-full transition-all duration-500"
-              style={{ width: `${totalDays ? (completedCount / totalDays) * 100 : 0}%` }}
-            />
-          </div>
-          <p className="mt-2 text-xs opacity-70">{completedCount} de {totalDays} dias concluídos</p>
-
-          <Button
-            onClick={() => currentDay && navigate({ to: "/day/$dayId", params: { dayId: currentDay.id } })}
-            disabled={isAllDone}
-            variant="primary"
-            size="lg"
-            className="mt-5 w-full bg-white text-foreground hover:bg-white/95 hover:brightness-100"
-          >
-            <Play className="h-4 w-4 fill-foreground" />
-            {isAllDone ? "Programa concluído 🎉" : "Continuar prática"}
-          </Button>
         </div>
       </Card>
 
