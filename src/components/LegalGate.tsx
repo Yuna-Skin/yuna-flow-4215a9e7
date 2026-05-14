@@ -39,6 +39,13 @@ export function LegalGate({ children }: { children: React.ReactNode }) {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["latest-consent"] });
+      writeAuditLog({
+        data: {
+          event_type: "consent_accepted",
+          terms_version: TERMS_VERSION,
+          privacy_version: PRIVACY_VERSION,
+        },
+      }).catch((e) => console.warn("audit log consent failed", e));
       toast.success("Obrigado por aceitar 🌸");
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Erro ao salvar"),
