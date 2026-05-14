@@ -63,7 +63,6 @@ function HomePage() {
 
   const weeks = weeksQ.data ?? [];
   const allDays = weeks.flatMap((w) => w.days);
-  const totalDays = allDays.length;
   const completedSet = progressQ.data ?? new Set<string>();
   const name = profileQ.data?.name ?? "Praticante";
   const avatarUrl = profileQ.data?.avatarUrl ?? null;
