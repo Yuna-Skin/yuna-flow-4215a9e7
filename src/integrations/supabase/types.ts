@@ -124,6 +124,7 @@ export type Database = {
           created_at: string
           day_number: number
           id: string
+          is_rest: boolean
           reflection_text: string | null
           respiration_text: string | null
           title: string
@@ -135,6 +136,7 @@ export type Database = {
           created_at?: string
           day_number: number
           id?: string
+          is_rest?: boolean
           reflection_text?: string | null
           respiration_text?: string | null
           title: string
@@ -146,6 +148,7 @@ export type Database = {
           created_at?: string
           day_number?: number
           id?: string
+          is_rest?: boolean
           reflection_text?: string | null
           respiration_text?: string | null
           title?: string
