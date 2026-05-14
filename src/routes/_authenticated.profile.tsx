@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
@@ -181,12 +182,9 @@ function ProfilePage() {
         </div>
       </div>
 
-      <Card className="mt-10 p-5">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">Sua jornada</p>
-        <p className="mt-2 font-display text-lg text-foreground">
-          Você está plantando a semente do hábito 🌿
-        </p>
-      </Card>
+      <JourneyCard userId={user?.id} />
+
+
 
       <Link
         to="/settings"
