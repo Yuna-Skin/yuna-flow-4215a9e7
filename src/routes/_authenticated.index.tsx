@@ -124,6 +124,11 @@ function HomePage() {
     ? Math.round((activeWeekCompleted / activeWeekTotal) * 100)
     : 0;
   const activeWeekDone = activeWeekTotal > 0 && activeWeekCompleted === activeWeekTotal;
+  const nextWeek = activeWeekDone ? weeks[activeWeekIndex + 1] ?? null : null;
+  const nextWeekFirstDay =
+    nextWeek?.days.filter((d) => !d.is_rest).find((d) => !completedSet.has(d.id))
+    ?? nextWeek?.days.filter((d) => !d.is_rest)[0]
+    ?? null;
 
   useEffect(() => {
     setIsPlaying(false);
@@ -233,11 +238,17 @@ function HomePage() {
 
             <button
               type="button"
-              onClick={() =>
-                activeWeekTargetDay &&
-                navigate({ to: "/day/$dayId", params: { dayId: activeWeekTargetDay.id } })
-              }
-              disabled={activeWeekDone || !activeWeekTargetDay}
+              onClick={() => {
+                if (activeWeekDone && nextWeekFirstDay) {
+                  setSelectedWeekId(nextWeek!.id);
+                  navigate({ to: "/day/$dayId", params: { dayId: nextWeekFirstDay.id } });
+                  return;
+                }
+                if (activeWeekTargetDay) {
+                  navigate({ to: "/day/$dayId", params: { dayId: activeWeekTargetDay.id } });
+                }
+              }}
+              disabled={(activeWeekDone && !nextWeekFirstDay) || (!activeWeekDone && !activeWeekTargetDay)}
               className="group/btn flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-white transition-all duration-300 hover:bg-zinc-100 active:scale-[0.98] disabled:opacity-60"
             >
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-900 transition-transform group-hover/btn:scale-110">
@@ -245,7 +256,9 @@ function HomePage() {
               </div>
               <span className="text-base font-bold tracking-tight text-zinc-900">
                 {activeWeekDone
-                  ? "Semana concluída"
+                  ? nextWeekFirstDay
+                    ? "Ir para próxima semana"
+                    : "Protocolo concluído"
                   : activeWeek?.id === currentWeek?.id
                     ? "Continuar"
                     : "Começar semana"}
