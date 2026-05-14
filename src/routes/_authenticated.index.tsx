@@ -202,33 +202,36 @@ function HomePage() {
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/70">
                 Sua jornada atual
               </p>
-              <h3 className="mt-1 font-display text-[32px] leading-[1.05] text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)]">
+              <h3 className="mt-1 font-display text-[28px] leading-[1.05] text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)]">
                 {currentWeek?.title ?? "Sua jornada"}
               </h3>
 
-              <div className="mt-5 flex items-center justify-between text-[11px] font-medium text-white/85">
-                <span>{completedCount} de {totalDays} dias</span>
-                <span>{totalDays ? Math.round((completedCount / totalDays) * 100) : 0}%</span>
-              </div>
-              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/20">
-                <div
-                  className="h-full bg-progress-accent rounded-full transition-all duration-500"
-                  style={{ width: `${totalDays ? (completedCount / totalDays) * 100 : 0}%` }}
-                />
-              </div>
+              <div className="mt-4 flex items-end justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between text-[10px] font-medium text-white/80">
+                    <span>{completedCount}/{totalDays} dias</span>
+                    <span>{totalDays ? Math.round((completedCount / totalDays) * 100) : 0}%</span>
+                  </div>
+                  <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-white/20">
+                    <div
+                      className="h-full bg-progress-accent rounded-full transition-all duration-500"
+                      style={{ width: `${totalDays ? (completedCount / totalDays) * 100 : 0}%` }}
+                    />
+                  </div>
+                </div>
 
-              <button
-                type="button"
-                onClick={() => currentDay && navigate({ to: "/day/$dayId", params: { dayId: currentDay.id } })}
-                disabled={isAllDone}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-white py-3.5 text-sm font-semibold text-foreground shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
-              >
-                <Play className="h-4 w-4 fill-foreground" strokeWidth={0} />
-                {isAllDone ? "Programa concluído" : "Continuar prática"}
-              </button>
+                <button
+                  type="button"
+                  onClick={() => currentDay && navigate({ to: "/day/$dayId", params: { dayId: currentDay.id } })}
+                  disabled={isAllDone}
+                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-foreground shadow-md transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60"
+                >
+                  <Play className="h-3 w-3 fill-foreground" strokeWidth={0} />
+                  {isAllDone ? "Concluído" : "Continuar"}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
       </Card>
 
       <div className="mt-7">
