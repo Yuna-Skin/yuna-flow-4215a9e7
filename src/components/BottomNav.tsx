@@ -1,6 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { Home, Sparkles, Users, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { zeroRightClassName } from "react-remove-scroll-bar";
 
 type NavItem = { to: string; label: string; icon: typeof Home; exact?: boolean };
 const items: NavItem[] = [
@@ -13,7 +14,12 @@ const items: NavItem[] = [
 export function BottomNav() {
   const { pathname } = useLocation();
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 mx-auto w-full max-w-[430px] border-t border-black/[0.04] glass-nav">
+    <nav
+      className={cn(
+        "fixed bottom-0 left-0 right-0 z-40 mx-auto w-full max-w-[430px] border-t border-black/[0.04] glass-nav",
+        zeroRightClassName,
+      )}
+    >
       <ul className="flex items-stretch justify-around px-5 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
         {items.map((it) => {
           const active = it.exact ? pathname === it.to : pathname.startsWith(it.to);
