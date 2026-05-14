@@ -250,6 +250,45 @@ export type Database = {
           },
         ]
       }
+      legal_audit_logs: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          ip_address: string | null
+          marketing_consent: boolean | null
+          metadata: Json | null
+          privacy_version: string | null
+          terms_version: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          marketing_consent?: boolean | null
+          metadata?: Json | null
+          privacy_version?: string | null
+          terms_version?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          marketing_consent?: boolean | null
+          metadata?: Json | null
+          privacy_version?: string | null
+          terms_version?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       media_asset_links: {
         Row: {
           asset_id: string
