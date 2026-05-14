@@ -350,8 +350,17 @@ function HomePage() {
                     />
                   )}
                 </button>
-                <div className="absolute inset-x-0 bottom-0 px-6 pb-5">
-                  <div className="flex h-12 items-center justify-center gap-[3px]" aria-hidden>
+
+                {currentWeek?.title && (
+                  <div className="absolute left-4 top-4 z-10 rounded-full border border-white/20 bg-black/35 px-3 py-1.5 backdrop-blur-md">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white">
+                      {currentWeek.title}
+                    </p>
+                  </div>
+                )}
+
+                <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-5">
+                  <div className="mb-3 flex h-10 items-center justify-center gap-[3px]" aria-hidden>
                     {Array.from({ length: 56 }).map((_, i) => {
                       const edge = Math.sin((i / 55) * Math.PI);
                       const wave = Math.sin(i * 0.45) * 0.5 + 0.5;
@@ -365,18 +374,11 @@ function HomePage() {
                       );
                     })}
                   </div>
-                </div>
-              </div>
-              <div className="p-5">
-                <div className="flex items-center gap-2">
-                  <span className="text-base leading-none">🫁</span>
-                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
-                    {currentDay.respiration_text ? "Respire antes de começar" : currentDay.reflection_text ? "Reflexão de hoje" : `Dia ${currentDay.day_number}`}
+                  <p className="text-center font-display text-[15px] leading-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.7)]">
+                    Escute a prévia da aula{" "}
+                    <span className="font-bold">{currentDay.title}</span>
                   </p>
                 </div>
-                <p className="mt-2 font-display text-[15px] leading-[1.45] text-foreground/90">
-                  {currentDay.respiration_text ?? currentDay.reflection_text ?? currentDay.title ?? ""}
-                </p>
               </div>
             </Card>
           </Link>
