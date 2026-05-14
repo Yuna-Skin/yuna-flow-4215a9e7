@@ -201,8 +201,8 @@ function HomePage() {
                 <p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                   Dia {currentDay.day_number}
                 </p>
-                <p className="mt-1 font-display text-lg leading-snug text-foreground">
-                  {currentDay.title.replace(/^Dia \d+ — /, "")}
+                <p className="mt-1 font-display text-2xl leading-tight text-foreground">
+                  {currentWeek?.title ?? ""}
                 </p>
               </div>
             </Card>
