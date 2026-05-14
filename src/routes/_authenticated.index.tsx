@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Play, Pause, Check, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getPlayableDayAudioUrl } from "@/lib/day-audio.functions";
-import { getSignedWeekThumbnailUrl } from "@/lib/week-thumbnail.functions";
+import { optimizeCloudinary } from "@/lib/cloudinary";
 import { LazyVideo } from "@/components/LazyVideo";
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -102,21 +102,12 @@ function HomePage() {
     staleTime: 45 * 60_000,
   });
 
-  const fetchThumb = useServerFn(getSignedWeekThumbnailUrl);
-  const thumbQ = useQuery({
-    queryKey: ["week-thumb", activeWeek?.id, activeWeek?.thumbnail_url],
-    enabled: !!activeWeek?.thumbnail_url,
-    queryFn: async () => {
-      if (!activeWeek?.thumbnail_url) return null;
-      try {
-        return await fetchThumb({ data: { thumbnailUrl: activeWeek.thumbnail_url } });
-      } catch (e) {
-        console.error("Failed to sign thumbnail", e);
-        return activeWeek.thumbnail_url;
-      }
-    },
-    staleTime: 45 * 60_000,
-  });
+  // Cloudinary entrega WebP/AVIF + redimensionamento via URL — sem round-trip ao server.
+  // Card mostra a imagem em ~430px CSS; pedimos 900px pra cobrir DPR 2x retina.
+  const thumbUrl = useMemo(
+    () => optimizeCloudinary(activeWeek?.thumbnail_url, { width: 900, crop: "fill" }),
+    [activeWeek?.thumbnail_url],
+  );
 
   const activeWeekDays = weekDays.filter((d) => !d.is_rest);
   const activeWeekCompleted = activeWeekDays.filter((d) => completedSet.has(d.id)).length;
@@ -192,15 +183,13 @@ function HomePage() {
       </Link>
 
       <Card className="relative mt-6 h-[440px] overflow-hidden rounded-[40px] border-0 bg-black p-0 text-white shadow-2xl">
-        {thumbQ.data ? (
+        {thumbUrl ? (
           <img
-            src={thumbQ.data}
+            src={thumbUrl}
             alt={activeWeek?.title ?? "Semana"}
             decoding="async"
             fetchPriority="high"
-            onError={() => {
-              queryClient.invalidateQueries({ queryKey: ["week-thumb", activeWeek?.id, activeWeek?.thumbnail_url] });
-            }}
+            loading="eager"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-1000 hover:scale-105"
           />
         ) : (

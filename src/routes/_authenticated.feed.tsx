@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery, useQueries } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import {
@@ -11,7 +10,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Sparkles, Calendar, ArrowRight, Clock } from "lucide-react";
-import { getSignedWeekThumbnailUrl } from "@/lib/week-thumbnail.functions";
+import { optimizeCloudinary } from "@/lib/cloudinary";
 
 export const Route = createFileRoute("/_authenticated/feed")({
   component: FeedPage,
@@ -26,8 +25,6 @@ type Week = {
 };
 
 function FeedPage() {
-  const fetchThumb = useServerFn(getSignedWeekThumbnailUrl);
-
   const weeksQ = useQuery({
     queryKey: ["feed-weeks"],
     queryFn: async (): Promise<Week[]> => {
@@ -41,22 +38,6 @@ function FeedPage() {
   });
 
   const weeks = weeksQ.data ?? [];
-
-  const thumbQs = useQueries({
-    queries: weeks.map((w) => ({
-      queryKey: ["feed-week-thumb", w.id, w.thumbnail_url],
-      enabled: !!w.thumbnail_url,
-      queryFn: async () => {
-        if (!w.thumbnail_url) return null;
-        try {
-          return await fetchThumb({ data: { thumbnailUrl: w.thumbnail_url } });
-        } catch {
-          return w.thumbnail_url;
-        }
-      },
-      staleTime: 30 * 60_000,
-    })),
-  });
 
   return (
     <div className="px-5 pb-10 pt-8">
@@ -89,7 +70,7 @@ function FeedPage() {
             >
               <CarouselContent className="ml-0 px-5">
                 {weeks.map((w, i) => {
-                  const thumb = thumbQs[i]?.data ?? w.thumbnail_url;
+                  const thumb = optimizeCloudinary(w.thumbnail_url, { width: 720, crop: "fill" });
                   return (
                     <CarouselItem
                       key={w.id}
