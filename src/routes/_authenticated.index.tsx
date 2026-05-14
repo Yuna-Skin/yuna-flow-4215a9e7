@@ -201,10 +201,28 @@ function HomePage() {
                   playsInline
                   className="absolute inset-0 h-full w-full scale-105 object-cover"
                 />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.45)_100%)]" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.55)_100%)]" />
+                <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-lg">
-                    <Play className="ml-0.5 h-6 w-6 fill-foreground text-foreground" />
+                  <Play
+                    className="ml-1 h-16 w-16 fill-white text-white drop-shadow-[0_6px_20px_rgba(0,0,0,0.55)]"
+                    strokeWidth={0}
+                  />
+                </div>
+                <div className="absolute inset-x-0 bottom-0 px-6 pb-5">
+                  <div className="flex h-12 items-center justify-center gap-[3px]" aria-hidden>
+                    {Array.from({ length: 56 }).map((_, i) => {
+                      const edge = Math.sin((i / 55) * Math.PI);
+                      const wave = Math.sin(i * 0.45) * 0.5 + 0.5;
+                      const h = 0.1 + wave * 0.5 * edge;
+                      return (
+                        <span
+                          key={i}
+                          className="w-[2.5px] rounded-full bg-white/55"
+                          style={{ height: `${Math.max(8, Math.round(h * 100))}%` }}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
               </div>
