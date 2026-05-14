@@ -16,9 +16,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated.index'
 import { Route as AuthenticatedShopRouteImport } from './routes/_authenticated.shop'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated.settings'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated.feed'
 import { Route as AuthenticatedCommunityRouteImport } from './routes/_authenticated.community'
+import { Route as AuthenticatedSettingsPrivacyRouteImport } from './routes/_authenticated.settings.privacy'
 import { Route as AuthenticatedDayDayIdRouteImport } from './routes/_authenticated.day.$dayId'
 import { Route as AuthenticatedAdminModerationRouteImport } from './routes/_authenticated.admin.moderation'
 
@@ -56,6 +58,11 @@ const AuthenticatedShopRoute = AuthenticatedShopRouteImport.update({
   path: '/shop',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -71,6 +78,12 @@ const AuthenticatedCommunityRoute = AuthenticatedCommunityRouteImport.update({
   path: '/community',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedSettingsPrivacyRoute =
+  AuthenticatedSettingsPrivacyRouteImport.update({
+    id: '/privacy',
+    path: '/privacy',
+    getParentRoute: () => AuthenticatedSettingsRoute,
+  } as any)
 const AuthenticatedDayDayIdRoute = AuthenticatedDayDayIdRouteImport.update({
   id: '/day/$dayId',
   path: '/day/$dayId',
@@ -92,9 +105,11 @@ export interface FileRoutesByFullPath {
   '/community': typeof AuthenticatedCommunityRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/settings': typeof AuthenticatedSettingsRouteWithChildren
   '/shop': typeof AuthenticatedShopRoute
   '/admin/moderation': typeof AuthenticatedAdminModerationRoute
   '/day/$dayId': typeof AuthenticatedDayDayIdRoute
+  '/settings/privacy': typeof AuthenticatedSettingsPrivacyRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -104,10 +119,12 @@ export interface FileRoutesByTo {
   '/community': typeof AuthenticatedCommunityRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/settings': typeof AuthenticatedSettingsRouteWithChildren
   '/shop': typeof AuthenticatedShopRoute
   '/': typeof AuthenticatedIndexRoute
   '/admin/moderation': typeof AuthenticatedAdminModerationRoute
   '/day/$dayId': typeof AuthenticatedDayDayIdRoute
+  '/settings/privacy': typeof AuthenticatedSettingsPrivacyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -119,10 +136,12 @@ export interface FileRoutesById {
   '/_authenticated/community': typeof AuthenticatedCommunityRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRouteWithChildren
   '/_authenticated/shop': typeof AuthenticatedShopRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/admin/moderation': typeof AuthenticatedAdminModerationRoute
   '/_authenticated/day/$dayId': typeof AuthenticatedDayDayIdRoute
+  '/_authenticated/settings/privacy': typeof AuthenticatedSettingsPrivacyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -135,9 +154,11 @@ export interface FileRouteTypes {
     | '/community'
     | '/feed'
     | '/profile'
+    | '/settings'
     | '/shop'
     | '/admin/moderation'
     | '/day/$dayId'
+    | '/settings/privacy'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -147,10 +168,12 @@ export interface FileRouteTypes {
     | '/community'
     | '/feed'
     | '/profile'
+    | '/settings'
     | '/shop'
     | '/'
     | '/admin/moderation'
     | '/day/$dayId'
+    | '/settings/privacy'
   id:
     | '__root__'
     | '/_authenticated'
@@ -161,10 +184,12 @@ export interface FileRouteTypes {
     | '/_authenticated/community'
     | '/_authenticated/feed'
     | '/_authenticated/profile'
+    | '/_authenticated/settings'
     | '/_authenticated/shop'
     | '/_authenticated/'
     | '/_authenticated/admin/moderation'
     | '/_authenticated/day/$dayId'
+    | '/_authenticated/settings/privacy'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -226,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedShopRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
@@ -247,6 +279,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommunityRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/settings/privacy': {
+      id: '/_authenticated/settings/privacy'
+      path: '/privacy'
+      fullPath: '/settings/privacy'
+      preLoaderRoute: typeof AuthenticatedSettingsPrivacyRouteImport
+      parentRoute: typeof AuthenticatedSettingsRoute
+    }
     '/_authenticated/day/$dayId': {
       id: '/_authenticated/day/$dayId'
       path: '/day/$dayId'
@@ -264,10 +303,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedSettingsRouteChildren {
+  AuthenticatedSettingsPrivacyRoute: typeof AuthenticatedSettingsPrivacyRoute
+}
+
+const AuthenticatedSettingsRouteChildren: AuthenticatedSettingsRouteChildren = {
+  AuthenticatedSettingsPrivacyRoute: AuthenticatedSettingsPrivacyRoute,
+}
+
+const AuthenticatedSettingsRouteWithChildren =
+  AuthenticatedSettingsRoute._addFileChildren(
+    AuthenticatedSettingsRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
   AuthenticatedCommunityRoute: typeof AuthenticatedCommunityRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRouteWithChildren
   AuthenticatedShopRoute: typeof AuthenticatedShopRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAdminModerationRoute: typeof AuthenticatedAdminModerationRoute
@@ -278,6 +331,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCommunityRoute: AuthenticatedCommunityRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRouteWithChildren,
   AuthenticatedShopRoute: AuthenticatedShopRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedAdminModerationRoute: AuthenticatedAdminModerationRoute,
@@ -298,3 +352,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
