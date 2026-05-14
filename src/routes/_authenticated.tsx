@@ -42,7 +42,7 @@ function AuthenticatedLayout() {
 
   return (
     <LegalGate>
-      <div className="mobile-shell pb-24">
+      <div className="mobile-shell overflow-x-clip pb-24">
         <Outlet />
         <BottomNav />
       </div>
