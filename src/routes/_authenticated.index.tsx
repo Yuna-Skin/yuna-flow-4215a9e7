@@ -172,67 +172,78 @@ function HomePage() {
         </div>
       </div>
 
-      <Card className="mt-6 overflow-hidden border-0 p-0 text-white shadow-xl">
-        <div className="relative min-h-[340px] w-full overflow-hidden">
-          {thumbQ.data ? (
-            <img
-              src={thumbQ.data}
-              alt={currentWeek?.title ?? "Semana"}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-black" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent" />
+      <Card className="relative mt-6 h-[440px] overflow-hidden rounded-[40px] border-0 bg-black p-0 text-white shadow-2xl">
+        {thumbQ.data ? (
+          <img
+            src={thumbQ.data}
+            alt={currentWeek?.title ?? "Semana"}
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-1000 hover:scale-105"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-black" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent" />
 
-          <div className="relative flex min-h-[340px] flex-col justify-between p-6">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 backdrop-blur-md">
-                <span className="h-1.5 w-1.5 rounded-full bg-progress-accent" />
-                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white">
-                  Semana {currentWeekIndex + 1} de {weeks.length}
-                </span>
-              </div>
-              <div className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold backdrop-blur-md">
-                Dia {currentDay?.day_number ?? totalDays}/{totalDays}
-              </div>
-            </div>
-
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/70">
-                Sua jornada atual
+        <div className="relative flex h-full flex-col justify-between p-7">
+          <div className="flex gap-2">
+            <div className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 backdrop-blur-xl">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white">
+                Semana {currentWeekIndex + 1}
               </p>
-              <h3 className="mt-1 font-display text-[28px] leading-[1.05] text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)]">
-                {currentWeek?.title ?? "Sua jornada"}
-              </h3>
-
-              <div className="mt-4 flex items-end justify-between gap-4">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between text-[10px] font-medium text-white/80">
-                    <span>{completedCount}/{totalDays} dias</span>
-                    <span>{totalDays ? Math.round((completedCount / totalDays) * 100) : 0}%</span>
-                  </div>
-                  <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-white/20">
-                    <div
-                      className="h-full bg-progress-accent rounded-full transition-all duration-500"
-                      style={{ width: `${totalDays ? (completedCount / totalDays) * 100 : 0}%` }}
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => currentDay && navigate({ to: "/day/$dayId", params: { dayId: currentDay.id } })}
-                  disabled={isAllDone}
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-white px-4 py-2 text-[12px] font-semibold text-foreground shadow-md transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60"
-                >
-                  <Play className="h-3 w-3 fill-foreground" strokeWidth={0} />
-                  {isAllDone ? "Concluído" : "Continuar"}
-                </button>
-              </div>
+            </div>
+            <div className="rounded-full border border-white/20 bg-white/10 px-3 py-1.5 backdrop-blur-xl">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white">
+                Dia {currentDay?.day_number ?? totalDays}
+              </p>
             </div>
           </div>
+
+          <div className="space-y-6">
+            <div className="space-y-1.5">
+              <span className="block text-[11px] font-bold uppercase tracking-[0.25em] text-primary">
+                Sua jornada atual
+              </span>
+              <h1 className="font-display text-4xl leading-[1.1] tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)]">
+                {currentWeek?.title ?? "Sua jornada"}
+              </h1>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-end justify-between font-medium text-white/70">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-lg font-bold text-white">{completedCount}</span>
+                  <span className="text-xs">/ {totalDays} dias</span>
+                </div>
+                <span className="text-xs uppercase tracking-wider">
+                  {totalDays ? Math.round((completedCount / totalDays) * 100) : 0}% concluído
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-white/10 backdrop-blur-sm">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-orange-400 to-orange-600 shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all duration-1000"
+                  style={{ width: `${totalDays ? (completedCount / totalDays) * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => currentDay && navigate({ to: "/day/$dayId", params: { dayId: currentDay.id } })}
+              disabled={isAllDone}
+              className="group/btn flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-white transition-all duration-300 hover:bg-zinc-100 active:scale-[0.98] disabled:opacity-60"
+            >
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-zinc-900 transition-transform group-hover/btn:scale-110">
+                <Play className="h-2.5 w-2.5 translate-x-[1px] fill-white text-white" strokeWidth={0} />
+              </div>
+              <span className="text-base font-bold tracking-tight text-zinc-900">
+                {isAllDone ? "Concluído" : "Continuar"}
+              </span>
+            </button>
+          </div>
         </div>
+
+        <div className="pointer-events-none absolute inset-0 rounded-[40px] border border-white/10" />
       </Card>
 
       <div className="mt-7">
