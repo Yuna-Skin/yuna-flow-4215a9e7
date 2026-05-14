@@ -90,7 +90,7 @@ function FeedPage() {
                   return (
                     <CarouselItem
                       key={w.id}
-                      className="basis-[88%] pl-0 pr-3 sm:basis-[70%] md:basis-[55%] lg:basis-[42%]"
+                      className="basis-full pl-0 pr-0"
                     >
                       <Card className="group relative overflow-hidden rounded-[32px] border-0 bg-black p-0 text-white shadow-xl">
                         <div className="relative aspect-[3/4] w-full">
