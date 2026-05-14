@@ -1,5 +1,6 @@
 import { Outlet, Link, createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { AuthProvider } from "@/lib/auth";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -78,6 +79,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  // Mede a largura do scrollbar uma vez e expõe como --sbw.
+  // Usado pelo BottomNav pra alinhar com o .mobile-shell (que vive dentro do body,
+  // ou seja, sem o gutter reservado pelo html).
+  useEffect(() => {
+    const setSbw = () => {
+      const sbw = window.innerWidth - document.documentElement.clientWidth;
+      document.documentElement.style.setProperty("--sbw", `${Math.max(0, sbw)}px`);
+    };
+    setSbw();
+    window.addEventListener("resize", setSbw);
+    return () => window.removeEventListener("resize", setSbw);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>

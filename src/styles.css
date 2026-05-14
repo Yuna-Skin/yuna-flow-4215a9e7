@@ -136,6 +136,12 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     letter-spacing: -0.01em;
+    /* Neutraliza o padding-right que o react-remove-scroll (Radix Select/Dialog/Sheet)
+       adiciona ao bloquear scroll. Já reservamos o gutter no html, então não precisa
+       de compensação extra — sem isso o .mobile-shell centralizado pula pro lado
+       quando um Select/Dialog abre. */
+    --removed-body-scroll-bar-size: 0px !important;
+    padding-right: 0 !important;
   }
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);

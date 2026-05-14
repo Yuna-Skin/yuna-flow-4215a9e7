@@ -1,7 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { Home, Sparkles, ShoppingBag, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { zeroRightClassName } from "react-remove-scroll-bar";
 
 type NavItem = { to: string; label: string; icon: typeof Home; exact?: boolean };
 const items: NavItem[] = [
@@ -15,9 +14,12 @@ export function BottomNav() {
   const { pathname } = useLocation();
   return (
     <nav
+      // Importante: `right: var(--sbw)` desloca o nav pra alinhar com o body
+      // (que tem o gutter do scrollbar reservado no html). Sem isso o nav fica
+      // ~8px deslocado do .mobile-shell centralizado.
+      style={{ right: "var(--sbw, 0px)" }}
       className={cn(
-        "fixed bottom-0 left-0 right-0 z-40 mx-auto w-full max-w-[430px] border-t border-black/[0.04] glass-nav",
-        zeroRightClassName,
+        "fixed bottom-0 left-0 z-40 mx-auto w-full max-w-[430px] border-t border-black/[0.04] glass-nav",
       )}
     >
       <ul className="flex items-stretch justify-around px-5 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
