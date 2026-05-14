@@ -13,9 +13,9 @@ const items: NavItem[] = [
 export function BottomNav() {
   const { pathname } = useLocation();
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40">
-      <nav className={cn("pointer-events-auto w-full border-t border-black/[0.04] glass-nav") }>
-        <ul className="flex min-h-[72px] items-stretch justify-around px-5 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+      <nav className={cn("pointer-events-auto w-full rounded-[28px] border border-black/[0.06] glass-nav shadow-[0_12px_36px_rgba(0,0,0,0.12)] backdrop-blur-xl") }>
+        <ul className="flex min-h-[72px] items-stretch justify-around px-3 py-2">
           {items.map((it) => {
             const active = it.exact ? pathname === it.to : pathname.startsWith(it.to);
             const Icon = it.icon;
