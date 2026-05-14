@@ -119,7 +119,7 @@ function ProfilePage() {
           aria-label="Alterar foto"
         >
           {avatarUrl ? (
-            <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+            <img src={avatarUrl} alt={name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
           ) : (
             <span className="flex h-full w-full items-center justify-center text-4xl font-display text-primary-foreground">
               {name[0]?.toUpperCase()}

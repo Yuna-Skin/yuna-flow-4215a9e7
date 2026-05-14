@@ -225,8 +225,15 @@ function DayPage() {
 
   if (loading || !day) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      <div className="pb-32">
+        <Skeleton className="aspect-[4/5] w-full rounded-none" />
+        <div className="px-5 pt-5 space-y-3">
+          <Skeleton className="h-3 w-16" />
+          <Skeleton className="h-7 w-3/4" />
+          <Skeleton className="mt-6 h-12 w-full rounded-2xl" />
+          <Skeleton className="h-12 w-full rounded-2xl" />
+          <Skeleton className="h-12 w-full rounded-2xl" />
+        </div>
       </div>
     );
   }
