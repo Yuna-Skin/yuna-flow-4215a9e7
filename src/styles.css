@@ -144,6 +144,8 @@
     letter-spacing: 0;
   }
   body[data-scroll-locked] {
+    overflow: visible !important;
+    --removed-body-scroll-bar-size: 0px !important;
     margin-right: 0 !important;
     padding-right: 0 !important;
   }
@@ -198,4 +200,16 @@
     radial-gradient(100% 70% at 0% 100%, #FADBD8 0%, transparent 60%),
     #FFF9F5;
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.04);
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  overflow: clip;
+}
+
+.app-shell-main {
+  flex: 1;
+  min-height: 0;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
 }
