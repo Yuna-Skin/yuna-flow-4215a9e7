@@ -67,7 +67,7 @@ function PlusPage() {
         Conteúdo extra
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Bônus exclusivos pra aprofundar sua jornada — ebooks, áudios e guias.
+        Bônus exclusivos pra aprofundar sua jornada, ebooks, áudios e guias.
       </p>
 
       <section className="mt-8 space-y-3">
