@@ -192,9 +192,20 @@ function HomePage() {
           </h2>
           <Link to="/day/$dayId" params={{ dayId: currentDay.id }} className="mt-3 block">
             <Card className="overflow-hidden p-0 transition-all hover:shadow-md active:scale-[0.99]">
-              <div className="relative flex aspect-[16/9] items-center justify-center bg-primary-soft">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/95 shadow-md">
-                  <Play className="h-5 w-5 fill-foreground text-foreground ml-0.5" />
+              <div className="relative aspect-[16/9] w-full overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-black">
+                <video
+                  src="/ambient-loop.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="absolute inset-0 h-full w-full scale-105 object-cover"
+                />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.45)_100%)]" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-lg">
+                    <Play className="ml-0.5 h-6 w-6 fill-foreground text-foreground" />
+                  </div>
                 </div>
               </div>
               <div className="p-4">
