@@ -1,13 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Flame, Play, Check } from "lucide-react";
+import { Flame, Play, Pause, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getPlayableDayAudioUrl } from "@/lib/day-audio.functions";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: HomePage,
