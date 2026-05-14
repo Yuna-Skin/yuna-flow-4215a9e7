@@ -40,6 +40,16 @@ function AuthPage() {
       toast.error("Você precisa aceitar os Termos e a Política para continuar.");
       return;
     }
+    if (mode === "signup") {
+      if (password.length < 8) {
+        toast.error("A senha precisa ter pelo menos 8 caracteres.");
+        return;
+      }
+      if (!/\d/.test(password)) {
+        toast.error("A senha precisa conter pelo menos 1 número.");
+        return;
+      }
+    }
     setBusy(true);
     try {
       if (mode === "signup") {
@@ -85,8 +95,21 @@ function AuthPage() {
         toast.success("Bom te ver de volta ✨");
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Algo deu errado";
-      toast.error(msg);
+      const raw = err instanceof Error ? err.message : "Algo deu errado";
+      const lower = raw.toLowerCase();
+      let friendly = raw;
+      if (lower.includes("rate") || lower.includes("too many") || lower.includes("over_") ) {
+        friendly = "Muitas tentativas. Aguarde alguns minutos e tente novamente.";
+      } else if (lower.includes("invalid login") || lower.includes("invalid credentials")) {
+        friendly = "E-mail ou senha incorretos.";
+      } else if (lower.includes("email not confirmed")) {
+        friendly = "Confirme seu e-mail antes de entrar.";
+      } else if (lower.includes("user already registered")) {
+        friendly = "Esse e-mail já tem conta. Tente entrar.";
+      } else if (lower.includes("weak password") || lower.includes("password should")) {
+        friendly = "Senha fraca. Use 8+ caracteres com números.";
+      }
+      toast.error(friendly);
     } finally {
       setBusy(false);
     }
@@ -138,8 +161,8 @@ function AuthPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            minLength={6}
-            placeholder="Mínimo 6 caracteres"
+            minLength={mode === "signup" ? 8 : 6}
+            placeholder={mode === "signup" ? "8+ caracteres com 1 número" : "Sua senha"}
             className="h-12 rounded-xl"
           />
         </div>
