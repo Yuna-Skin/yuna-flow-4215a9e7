@@ -29,6 +29,7 @@ type ExerciseRow = { id: string; title: string; order_index: number; movements: 
 
 function MinimalVideoPlayer({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const queryClient = useQueryClient();
   const [playing, setPlaying] = useState(true);
   const [muted, setMuted] = useState(false);
   const [volume, setVolume] = useState(1);
