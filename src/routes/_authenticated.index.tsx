@@ -124,6 +124,11 @@ function HomePage() {
     ? Math.round((activeWeekCompleted / activeWeekTotal) * 100)
     : 0;
   const activeWeekDone = activeWeekTotal > 0 && activeWeekCompleted === activeWeekTotal;
+  const nextWeek = activeWeekDone ? weeks[activeWeekIndex + 1] ?? null : null;
+  const nextWeekFirstDay =
+    nextWeek?.days.filter((d) => !d.is_rest).find((d) => !completedSet.has(d.id))
+    ?? nextWeek?.days.filter((d) => !d.is_rest)[0]
+    ?? null;
 
   useEffect(() => {
     setIsPlaying(false);
