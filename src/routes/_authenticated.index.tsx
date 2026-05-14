@@ -1,19 +1,21 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Flame, Play, Check } from "lucide-react";
+import { Flame, Play, Pause, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getPlayableDayAudioUrl } from "@/lib/day-audio.functions";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: HomePage,
 });
 
-type Day = { id: string; day_number: number; title: string };
+type Day = { id: string; day_number: number; title: string; audio_url: string | null };
 type Week = { id: string; title: string; order_index: number; days: Day[] };
 
 function HomePage() {
@@ -27,7 +29,7 @@ function HomePage() {
     queryFn: async (): Promise<Week[]> => {
       const { data, error } = await supabase
         .from("weeks")
-        .select("id, title, order_index, days(id, day_number, title)")
+        .select("id, title, order_index, days(id, day_number, title, audio_url)")
         .order("order_index", { ascending: true })
         .order("day_number", { foreignTable: "days", ascending: true });
       if (error) throw error;
@@ -97,6 +99,48 @@ function HomePage() {
   const activeWeek = weeks.find((w) => w.id === selectedWeekId) ?? currentWeek;
   const activeWeekIndex = activeWeek ? weeks.indexOf(activeWeek) : 0;
   const weekDays = activeWeek?.days ?? [];
+
+  const fetchPlayableAudio = useServerFn(getPlayableDayAudioUrl);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const audioQ = useQuery({
+    queryKey: ["day-playable-audio", currentDay?.id],
+    enabled: !!currentDay?.audio_url,
+    queryFn: async () => {
+      if (!currentDay?.audio_url) return null;
+      try {
+        return await fetchPlayableAudio({
+          data: { dayId: currentDay.id, audioUrl: currentDay.audio_url },
+        });
+      } catch (e) {
+        console.error("Failed to resolve audio", e);
+        return currentDay.audio_url;
+      }
+    },
+    staleTime: 30 * 60_000,
+  });
+
+  useEffect(() => {
+    setIsPlaying(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  }, [currentDay?.id]);
+
+  const togglePlay = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const a = audioRef.current;
+    if (!a) return;
+    if (a.paused) {
+      a.play().then(() => setIsPlaying(true)).catch((err) => console.error(err));
+    } else {
+      a.pause();
+      setIsPlaying(false);
+    }
+  };
 
   return (
     <div className="px-4 pb-6 pt-8">
@@ -203,12 +247,35 @@ function HomePage() {
                 />
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.55)_100%)]" />
                 <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Play
-                    className="ml-1 h-16 w-16 fill-white text-white drop-shadow-[0_6px_20px_rgba(0,0,0,0.55)]"
-                    strokeWidth={0}
+                {audioQ.data && (
+                  <audio
+                    ref={audioRef}
+                    src={audioQ.data}
+                    preload="metadata"
+                    onEnded={() => setIsPlaying(false)}
+                    onPause={() => setIsPlaying(false)}
+                    onPlay={() => setIsPlaying(true)}
                   />
-                </div>
+                )}
+                <button
+                  type="button"
+                  onClick={togglePlay}
+                  disabled={!audioQ.data}
+                  aria-label={isPlaying ? "Pausar áudio" : "Reproduzir áudio"}
+                  className="absolute inset-0 z-10 flex items-center justify-center transition-transform hover:scale-105 active:scale-95 disabled:opacity-50"
+                >
+                  {isPlaying ? (
+                    <Pause
+                      className="h-16 w-16 fill-white text-white drop-shadow-[0_6px_20px_rgba(0,0,0,0.55)]"
+                      strokeWidth={0}
+                    />
+                  ) : (
+                    <Play
+                      className="ml-1 h-16 w-16 fill-white text-white drop-shadow-[0_6px_20px_rgba(0,0,0,0.55)]"
+                      strokeWidth={0}
+                    />
+                  )}
+                </button>
                 <div className="absolute inset-x-0 bottom-0 px-6 pb-5">
                   <div className="flex h-12 items-center justify-center gap-[3px]" aria-hidden>
                     {Array.from({ length: 56 }).map((_, i) => {
