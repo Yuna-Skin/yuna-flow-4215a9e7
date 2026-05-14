@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Home, Sparkles, Users, User } from "lucide-react";
+import { Home, Sparkles, ShoppingBag, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { zeroRightClassName } from "react-remove-scroll-bar";
 
@@ -7,7 +7,7 @@ type NavItem = { to: string; label: string; icon: typeof Home; exact?: boolean }
 const items: NavItem[] = [
   { to: "/", label: "Início", icon: Home, exact: true },
   { to: "/feed", label: "Feed", icon: Sparkles },
-  { to: "/community", label: "Comunidade", icon: Users },
+  { to: "/shop", label: "Loja", icon: ShoppingBag },
   { to: "/profile", label: "Perfil", icon: User },
 ];
 
