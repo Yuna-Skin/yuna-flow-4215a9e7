@@ -100,6 +100,48 @@ function HomePage() {
   const activeWeekIndex = activeWeek ? weeks.indexOf(activeWeek) : 0;
   const weekDays = activeWeek?.days ?? [];
 
+  const fetchPlayableAudio = useServerFn(getPlayableDayAudioUrl);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const audioQ = useQuery({
+    queryKey: ["day-playable-audio", currentDay?.id],
+    enabled: !!currentDay?.audio_url,
+    queryFn: async () => {
+      if (!currentDay?.audio_url) return null;
+      try {
+        return await fetchPlayableAudio({
+          data: { dayId: currentDay.id, audioUrl: currentDay.audio_url },
+        });
+      } catch (e) {
+        console.error("Failed to resolve audio", e);
+        return currentDay.audio_url;
+      }
+    },
+    staleTime: 30 * 60_000,
+  });
+
+  useEffect(() => {
+    setIsPlaying(false);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+  }, [currentDay?.id]);
+
+  const togglePlay = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const a = audioRef.current;
+    if (!a) return;
+    if (a.paused) {
+      a.play().then(() => setIsPlaying(true)).catch((err) => console.error(err));
+    } else {
+      a.pause();
+      setIsPlaying(false);
+    }
+  };
+
   return (
     <div className="px-4 pb-6 pt-8">
       <div className="flex items-start justify-between">
