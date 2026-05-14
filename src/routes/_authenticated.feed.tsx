@@ -2,19 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
-import { Lightbulb, Play, FileText, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/feed")({
   component: FeedPage,
 });
-
-type FeedItem = {
-  id: string;
-  type: "video" | "tip" | "text";
-  title: string;
-  content: string | null;
-  media_url: string | null;
-};
 
 type Week = {
   id: string;
@@ -25,18 +17,6 @@ type Week = {
 };
 
 function FeedPage() {
-  const itemsQ = useQuery({
-    queryKey: ["feed-items"],
-    queryFn: async (): Promise<FeedItem[]> => {
-      const { data } = await supabase
-        .from("feed_items")
-        .select("id, type, title, content, media_url")
-        .order("created_at", { ascending: false });
-      return (data ?? []) as FeedItem[];
-    },
-    staleTime: 5 * 60_000,
-  });
-
   const weeksQ = useQuery({
     queryKey: ["feed-weeks"],
     queryFn: async (): Promise<Week[]> => {
