@@ -70,7 +70,7 @@ function FeedPage() {
             >
               <CarouselContent className="ml-0 px-5">
                 {weeks.map((w, i) => {
-                  const thumb = thumbQs[i]?.data ?? w.thumbnail_url;
+                  const thumb = optimizeCloudinary(w.thumbnail_url, { width: 720, crop: "fill" });
                   return (
                     <CarouselItem
                       key={w.id}
