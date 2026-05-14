@@ -210,6 +210,14 @@
 
 .app-shell-main {
   flex: 1;
-  min-height: 0;
+  min-height: 100dvh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
   padding-bottom: calc(72px + env(safe-area-inset-bottom));
+}
+
+.app-shell-main::-webkit-scrollbar {
+  display: none;
 }
