@@ -83,6 +83,9 @@ export type Database = {
           created_at: string
           id: string
           likes_count: number
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["post_status"]
           user_id: string
         }
         Insert: {
@@ -90,6 +93,9 @@ export type Database = {
           created_at?: string
           id?: string
           likes_count?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["post_status"]
           user_id: string
         }
         Update: {
@@ -97,6 +103,9 @@ export type Database = {
           created_at?: string
           id?: string
           likes_count?: number
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["post_status"]
           user_id?: string
         }
         Relationships: [
@@ -589,6 +598,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      post_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -717,6 +727,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      post_status: ["pending", "approved", "rejected"],
     },
   },
 } as const
