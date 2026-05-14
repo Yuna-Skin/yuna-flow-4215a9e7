@@ -232,6 +232,7 @@ function HomePage() {
               </div>
             </div>
           </div>
+        </div>
       </Card>
 
       <div className="mt-7">
