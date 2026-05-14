@@ -346,6 +346,9 @@ function HomePage() {
             );
           })}
         </div>
+        <p className="mt-3 text-center text-[11px] text-muted-foreground">
+          Complete os dias para liberar as próximas semanas
+        </p>
       </div>
 
       {currentDay && !isAllDone && (
