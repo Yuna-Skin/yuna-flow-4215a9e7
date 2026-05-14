@@ -213,7 +213,7 @@ function HomePage() {
           <div className="space-y-6">
             <div className="space-y-1.5">
               <span className="block text-[11px] font-bold uppercase tracking-[0.25em] text-primary">
-                {activeWeek?.id === currentWeek?.id ? "Sua jornada atual" : "Explorar semana"}
+                {activeWeek?.title ?? "Sua jornada"}
               </span>
               <h1 className="font-display text-4xl leading-[1.1] tracking-tight text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)]">
                 {activeWeekTargetDay?.title ?? activeWeek?.title ?? "Sua jornada"}
