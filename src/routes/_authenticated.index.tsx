@@ -310,7 +310,7 @@ function HomePage() {
           </h2>
           <Link to="/day/$dayId" params={{ dayId: currentDay.id }} className="mt-3 block">
             <Card className="overflow-hidden p-0 transition-all hover:shadow-md active:scale-[0.99]">
-              <div className="relative aspect-[16/9] w-full overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-black">
+              <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-br from-zinc-900 via-zinc-800 to-black">
                 <video
                   src="/ambient-loop.mp4"
                   autoPlay
