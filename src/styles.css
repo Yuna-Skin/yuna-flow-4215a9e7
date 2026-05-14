@@ -125,23 +125,16 @@
 
 @layer base {
   * { border-color: var(--color-border); }
-  html {
-    scrollbar-gutter: stable;
-  }
   html, body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    width: 100%;
+    overflow-x: hidden;
   }
   body {
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
-    letter-spacing: -0.01em;
-    /* Neutraliza o padding-right que o react-remove-scroll (Radix Select/Dialog/Sheet)
-       adiciona ao bloquear scroll. Já reservamos o gutter no html, então não precisa
-       de compensação extra — sem isso o .mobile-shell centralizado pula pro lado
-       quando um Select/Dialog abre. */
-    --removed-body-scroll-bar-size: 0px !important;
-    padding-right: 0 !important;
+    letter-spacing: 0;
   }
   h1, h2, h3, h4, .font-display {
     font-family: var(--font-display);
@@ -185,7 +178,8 @@
 .mobile-shell {
   max-width: 430px;
   margin: 0 auto;
-  min-height: 100vh;
+   width: 100%;
+   min-height: 100dvh;
   position: relative;
   background:
     radial-gradient(120% 80% at 100% 0%, #FFD7B8 0%, transparent 55%),
