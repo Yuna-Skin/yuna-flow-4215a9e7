@@ -1,8 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueries } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import { Sparkles, Calendar, ArrowRight, Clock } from "lucide-react";
+import { getSignedWeekThumbnailUrl } from "@/lib/week-thumbnail.functions";
 
 export const Route = createFileRoute("/_authenticated/feed")({
   component: FeedPage,
@@ -17,6 +26,8 @@ type Week = {
 };
 
 function FeedPage() {
+  const fetchThumb = useServerFn(getSignedWeekThumbnailUrl);
+
   const weeksQ = useQuery({
     queryKey: ["feed-weeks"],
     queryFn: async (): Promise<Week[]> => {
@@ -30,6 +41,22 @@ function FeedPage() {
   });
 
   const weeks = weeksQ.data ?? [];
+
+  const thumbQs = useQueries({
+    queries: weeks.map((w) => ({
+      queryKey: ["feed-week-thumb", w.id, w.thumbnail_url],
+      enabled: !!w.thumbnail_url,
+      queryFn: async () => {
+        if (!w.thumbnail_url) return null;
+        try {
+          return await fetchThumb({ data: { thumbnailUrl: w.thumbnail_url } });
+        } catch {
+          return w.thumbnail_url;
+        }
+      },
+      staleTime: 30 * 60_000,
+    })),
+  });
 
   return (
     <div className="px-5 pb-10 pt-8">
@@ -48,97 +75,74 @@ function FeedPage() {
 
       {weeks.length > 0 && (
         <section className="mt-8 space-y-8">
-          {/* Featured / Hero week (first one) */}
-          {weeks[0] && (
-            <div>
-              <h2 className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
-                Comece por aqui
-              </h2>
-              <Card className="group relative overflow-hidden rounded-3xl border-0 bg-black p-0 text-white shadow-xl">
-                <div className="relative aspect-[4/5] w-full sm:aspect-[16/10]">
-                  {weeks[0].thumbnail_url ? (
-                    <img
-                      src={weeks[0].thumbnail_url}
-                      alt={weeks[0].title}
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-zinc-800 to-black" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-                  <div className="absolute inset-x-0 top-0 flex items-center justify-between p-5">
-                    <span className="rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-md">
-                      Em destaque
-                    </span>
-                    <span className="flex items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-[10px] font-semibold backdrop-blur-md">
-                      <Clock className="h-3 w-3" />
-                      {weeks[0].days.length * 5} min
-                    </span>
-                  </div>
-                  <div className="absolute inset-x-0 bottom-0 p-6">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
-                      Semana 1 · {weeks[0].days.length} dias
-                    </p>
-                    <h3 className="mt-2 font-display text-3xl leading-tight">
-                      {weeks[0].title}
-                    </h3>
-                    <p className="mt-2 max-w-md text-sm text-white/70">
-                      Inicie sua jornada com práticas guiadas para preparar o rosto.
-                    </p>
-                    <Link
-                      to="/"
-                      className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wider text-black transition hover:bg-white/90"
-                    >
-                      Começar agora
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          )}
+          <div>
+            <h2 className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+              Sobre o programa
+            </h2>
 
-          {/* Other weeks */}
-          {weeks.length > 1 && (
-            <div>
-              <h2 className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
-                Próximas semanas
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {weeks.slice(1).map((w, i) => (
-                  <Card
-                    key={w.id}
-                    className="group relative overflow-hidden rounded-2xl border-0 bg-black p-0 text-white shadow-md transition-transform duration-500 hover:-translate-y-1"
-                  >
-                    <div className="relative aspect-[16/10] w-full">
-                      {w.thumbnail_url ? (
-                        <img
-                          src={w.thumbnail_url}
-                          alt={w.title}
-                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 bg-gradient-to-br from-zinc-700 to-black" />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                      <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-semibold backdrop-blur-md">
-                        <Calendar className="h-3 w-3" />
-                        {w.days.length} dias
-                      </div>
-                      <div className="absolute inset-x-0 bottom-0 p-4">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
-                          Semana {i + 2}
-                        </p>
-                        <h3 className="mt-1 font-display text-xl leading-tight">
-                          {w.title}
-                        </h3>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
+            <Carousel
+              opts={{ align: "start", loop: false }}
+              className="-mx-5"
+            >
+              <CarouselContent className="ml-0 px-5">
+                {weeks.map((w, i) => {
+                  const thumb = thumbQs[i]?.data ?? w.thumbnail_url;
+                  return (
+                    <CarouselItem
+                      key={w.id}
+                      className="basis-[88%] pl-0 pr-3 sm:basis-[70%] md:basis-[55%] lg:basis-[42%]"
+                    >
+                      <Card className="group relative overflow-hidden rounded-[32px] border-0 bg-black p-0 text-white shadow-xl">
+                        <div className="relative aspect-[3/4] w-full">
+                          {thumb ? (
+                            <img
+                              src={thumb}
+                              alt={w.title}
+                              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/40 via-zinc-800 to-black" />
+                          )}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+
+                          {/* top badges */}
+                          <div className="absolute inset-x-0 top-0 flex items-center justify-between p-5">
+                            <span className="rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] backdrop-blur-md">
+                              Semana {i + 1}
+                            </span>
+                            <span className="flex items-center gap-1 rounded-full bg-white/15 px-3 py-1 text-[10px] font-semibold backdrop-blur-md">
+                              <Clock className="h-3 w-3" />
+                              {w.days.length * 5} min
+                            </span>
+                          </div>
+
+                          {/* bottom content */}
+                          <div className="absolute inset-x-0 bottom-0 p-6">
+                            <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.22em] text-primary">
+                              <Calendar className="h-3 w-3" />
+                              {w.days.length} dias de prática
+                            </p>
+                            <h3 className="mt-2 font-display text-3xl leading-tight">
+                              {w.title}
+                            </h3>
+                            <Link
+                              to="/"
+                              className="mt-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wider text-black transition hover:bg-white/90"
+                            >
+                              Acessar semana
+                              <ArrowRight className="h-3.5 w-3.5" />
+                            </Link>
+                          </div>
+                        </div>
+                      </Card>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+              <CarouselPrevious className="left-2 hidden sm:flex" />
+              <CarouselNext className="right-2 hidden sm:flex" />
+            </Carousel>
+          </div>
 
           {/* Tips section */}
           <div>
