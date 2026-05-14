@@ -90,9 +90,9 @@ function FeedPage() {
                   return (
                     <CarouselItem
                       key={w.id}
-                      className="basis-full pl-0 pr-0"
+                      className="basis-full pl-0 pr-4"
                     >
-                      <Card className="group relative overflow-hidden rounded-[32px] border-0 bg-black p-0 text-white shadow-xl">
+                      <Card className="group relative overflow-hidden rounded-[32px] border-0 bg-black p-0 text-white shadow-none">
                         <div className="relative aspect-[3/4] w-full">
                           {thumb ? (
                             <img
