@@ -1,5 +1,5 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, Outlet, useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { BottomNav } from "@/components/BottomNav";
 import { LegalGate } from "@/components/LegalGate";
@@ -11,12 +11,18 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthenticatedLayout() {
   const { session, loading } = useAuth();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (!loading && !session) {
       navigate({ to: "/auth", replace: true });
     }
   }, [loading, session, navigate]);
+
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
 
   if (loading) {
     return (
@@ -43,7 +49,7 @@ function AuthenticatedLayout() {
   return (
     <LegalGate>
       <div className="mobile-shell app-shell">
-        <main className="app-shell-main">
+        <main ref={mainRef} className="app-shell-main">
           <Outlet />
         </main>
         <BottomNav />
