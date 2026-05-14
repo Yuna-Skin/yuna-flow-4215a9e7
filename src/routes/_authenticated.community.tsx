@@ -130,8 +130,21 @@ function CommunityPage() {
 
   return (
     <div className="px-5 pb-6 pt-8">
-      <h1 className="font-display text-3xl text-foreground">Comunidade</h1>
-      <p className="text-sm text-muted-foreground">Compartilhe sua jornada</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-3xl text-foreground">Comunidade</h1>
+          <p className="text-sm text-muted-foreground">Compartilhe sua jornada</p>
+        </div>
+        {isModerator && (
+          <Link
+            to="/admin/moderation"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted"
+          >
+            <Shield className="h-3.5 w-3.5" />
+            Moderar
+          </Link>
+        )}
+      </div>
 
       <Card className="mt-6 p-4">
         <Textarea
