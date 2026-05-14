@@ -76,9 +76,12 @@ function FeedPage() {
       {weeks.length > 0 && (
         <section className="mt-8 space-y-8">
           <div>
-            <h2 className="mb-3 text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
-              Sobre o programa
-            </h2>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-[11px] font-bold uppercase tracking-[0.22em] text-muted-foreground">
+                Sobre o programa
+              </h2>
+              <div className="relative flex items-center gap-2" id="weeks-carousel-nav" />
+            </div>
 
             <Carousel
               opts={{ align: "start", loop: false }}
@@ -139,8 +142,10 @@ function FeedPage() {
                   );
                 })}
               </CarouselContent>
-              <CarouselPrevious className="left-2 hidden sm:flex" />
-              <CarouselNext className="right-2 hidden sm:flex" />
+              <div className="mt-4 flex items-center justify-center gap-3">
+                <CarouselPrevious className="static translate-x-0 translate-y-0 h-10 w-10 border-border/40 bg-card hover:bg-muted" />
+                <CarouselNext className="static translate-x-0 translate-y-0 h-10 w-10 border-border/40 bg-card hover:bg-muted" />
+              </div>
             </Carousel>
           </div>
 
