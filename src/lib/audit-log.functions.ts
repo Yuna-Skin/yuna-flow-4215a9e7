@@ -44,7 +44,7 @@ export const logAuditEvent = createServerFn({ method: "POST" })
       terms_version: data.terms_version ?? null,
       privacy_version: data.privacy_version ?? null,
       marketing_consent: data.marketing_consent ?? null,
-      metadata: data.metadata ?? null,
+      metadata: (data.metadata ?? null) as never,
     });
 
     if (error) {

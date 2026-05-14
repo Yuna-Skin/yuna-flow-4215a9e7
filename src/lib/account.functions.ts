@@ -36,29 +36,19 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
       metadata: { reason: "user_request" },
     });
 
-    // 2. Apaga dados pessoais (RLS bypass via service role)
-    // Ordem importa pra respeitar dependências lógicas
-    const tables = [
-      "post_likes",
-      "feed_likes",
-      "comments",
-      "community_posts",
-      "user_progress",
-      "user_streak",
-      "user_roles",
-      "access_control",
-      "profiles",
-    ] as const;
-
-    for (const table of tables) {
-      const { error } = await supabaseAdmin.from(table).delete().eq("user_id", userId);
-      // profiles usa `id`, não `user_id`
-      if (error && table === "profiles") {
-        await supabaseAdmin.from("profiles").delete().eq("id", userId);
-      }
-    }
-    // Garante profiles (PK = id, não user_id)
-    await supabaseAdmin.from("profiles").delete().eq("id", userId);
+    // 2. Apaga dados pessoais (RLS bypass via service role).
+    // Mantemos `user_consents` e `legal_audit_logs` por exigência legal.
+    await Promise.allSettled([
+      supabaseAdmin.from("post_likes").delete().eq("user_id", userId),
+      supabaseAdmin.from("feed_likes").delete().eq("user_id", userId),
+      supabaseAdmin.from("comments").delete().eq("user_id", userId),
+      supabaseAdmin.from("community_posts").delete().eq("user_id", userId),
+      supabaseAdmin.from("user_progress").delete().eq("user_id", userId),
+      supabaseAdmin.from("user_streak").delete().eq("user_id", userId),
+      supabaseAdmin.from("user_roles").delete().eq("user_id", userId),
+      supabaseAdmin.from("access_control").delete().eq("user_id", userId),
+      supabaseAdmin.from("profiles").delete().eq("id", userId),
+    ]);
 
     // 3. Apaga avatares do storage
     const { data: avatarFiles } = await supabaseAdmin.storage
