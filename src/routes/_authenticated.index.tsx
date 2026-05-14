@@ -114,19 +114,28 @@ function HomePage() {
 
   const fetchThumb = useServerFn(getSignedWeekThumbnailUrl);
   const thumbQ = useQuery({
-    queryKey: ["week-thumb", currentWeek?.id, currentWeek?.thumbnail_url],
-    enabled: !!currentWeek?.thumbnail_url,
+    queryKey: ["week-thumb", activeWeek?.id, activeWeek?.thumbnail_url],
+    enabled: !!activeWeek?.thumbnail_url,
     queryFn: async () => {
-      if (!currentWeek?.thumbnail_url) return null;
+      if (!activeWeek?.thumbnail_url) return null;
       try {
-        return await fetchThumb({ data: { thumbnailUrl: currentWeek.thumbnail_url } });
+        return await fetchThumb({ data: { thumbnailUrl: activeWeek.thumbnail_url } });
       } catch (e) {
         console.error("Failed to sign thumbnail", e);
-        return currentWeek.thumbnail_url;
+        return activeWeek.thumbnail_url;
       }
     },
     staleTime: 30 * 60_000,
   });
+
+  const activeWeekCompleted = weekDays.filter((d) => completedSet.has(d.id)).length;
+  const activeWeekTotal = weekDays.length;
+  const activeWeekTargetDay =
+    weekDays.find((d) => !completedSet.has(d.id)) ?? weekDays[0] ?? null;
+  const activeWeekProgressPct = activeWeekTotal
+    ? Math.round((activeWeekCompleted / activeWeekTotal) * 100)
+    : 0;
+  const activeWeekDone = activeWeekTotal > 0 && activeWeekCompleted === activeWeekTotal;
 
   useEffect(() => {
     setIsPlaying(false);
