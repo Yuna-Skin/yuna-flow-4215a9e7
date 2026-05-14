@@ -12,7 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { ArrowLeft, Wind, Sparkles, Check, Play, Volume2, VolumeX } from "lucide-react";
+import { ArrowLeft, Wind, Sparkles, Check, Play, Volume2, VolumeX, Moon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
@@ -114,7 +114,7 @@ function DayPage() {
     queryFn: async () => {
       const { data: dayRow, error } = await supabase
         .from("days")
-        .select("id, day_number, title, video_url, audio_url, respiration_text, reflection_text, week_id, weeks(title, order_index)")
+        .select("id, day_number, title, video_url, audio_url, respiration_text, reflection_text, is_rest, week_id, weeks(title, order_index)")
         .eq("id", dayId)
         .maybeSingle();
       if (error) throw error;
@@ -227,6 +227,67 @@ function DayPage() {
     return (
       <div className="flex h-[80vh] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (day.is_rest) {
+    return (
+      <div className="min-h-[100vh] bg-gradient-to-b from-accent/30 via-background to-background pb-32">
+        <button
+          onClick={() => navigate({ to: "/" })}
+          className="absolute left-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-full bg-background/80 backdrop-blur"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button>
+        <div className="flex flex-col items-center px-6 pt-24 text-center">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <Moon className="h-9 w-9" strokeWidth={1.5} />
+          </div>
+          <p className="mt-6 text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
+            Dia {day.day_number} · Descanso
+          </p>
+          <h1 className="mt-2 font-display text-3xl leading-tight text-foreground">
+            Hoje é dia de pausa
+          </h1>
+          <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            O descanso faz parte do protocolo. Deixe os músculos da face relaxarem,
+            beba bastante água e respire fundo. Amanhã retomamos a prática.
+          </p>
+
+          <div className="mt-10 w-full max-w-sm space-y-3">
+            <Card className="border-0 bg-accent/40 p-5 text-left shadow-none">
+              <div className="flex items-center gap-2 text-primary">
+                <Wind className="h-4 w-4" />
+                <p className="text-xs font-semibold uppercase tracking-widest">Sugestão</p>
+              </div>
+              <p className="mt-2 text-sm leading-relaxed text-foreground">
+                3 minutos de respiração consciente: inspire por 4s, segure 4s, solte por 6s.
+              </p>
+            </Card>
+            <Card className="border-0 bg-warm/20 p-5 text-left shadow-none">
+              <div className="flex items-center gap-2 text-primary">
+                <Sparkles className="h-4 w-4" />
+                <p className="text-xs font-semibold uppercase tracking-widest">Lembrete</p>
+              </div>
+              <p className="mt-2 font-display text-base leading-snug text-foreground">
+                Pausa também é autocuidado.
+              </p>
+            </Card>
+          </div>
+
+          <Button
+            onClick={handleComplete}
+            disabled={submitting}
+            className="mt-8 h-12 w-full max-w-sm rounded-full text-base"
+          >
+            {submitting
+              ? "Salvando..."
+              : isCompleted
+                ? (<><Check className="h-4 w-4" /> Marcado</>)
+                : "Marcar descanso"}
+          </Button>
+        </div>
       </div>
     );
   }

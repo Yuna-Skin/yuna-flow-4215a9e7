@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Play, Pause, Check } from "lucide-react";
+import { Play, Pause, Check, Moon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getPlayableDayAudioUrl } from "@/lib/day-audio.functions";
 import { getSignedWeekThumbnailUrl } from "@/lib/week-thumbnail.functions";
@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/")({
   component: HomePage,
 });
 
-type Day = { id: string; day_number: number; title: string; audio_url: string | null; respiration_text?: string | null; reflection_text?: string | null };
+type Day = { id: string; day_number: number; title: string; audio_url: string | null; respiration_text?: string | null; reflection_text?: string | null; is_rest?: boolean };
 type Week = { id: string; title: string; order_index: number; thumbnail_url: string | null; days: Day[] };
 
 function HomePage() {
@@ -30,7 +30,7 @@ function HomePage() {
     queryFn: async (): Promise<Week[]> => {
       const { data, error } = await supabase
         .from("weeks")
-        .select("id, title, order_index, thumbnail_url, days(id, day_number, title, audio_url, respiration_text, reflection_text)")
+        .select("id, title, order_index, thumbnail_url, days(id, day_number, title, audio_url, respiration_text, reflection_text, is_rest)")
         .order("order_index", { ascending: true })
         .order("day_number", { foreignTable: "days", ascending: true });
       if (error) throw error;
@@ -63,14 +63,14 @@ function HomePage() {
 
   const weeks = weeksQ.data ?? [];
   const allDays = weeks.flatMap((w) => w.days);
-  const totalDays = allDays.length;
   const completedSet = progressQ.data ?? new Set<string>();
   const name = profileQ.data?.name ?? "Praticante";
   const avatarUrl = profileQ.data?.avatarUrl ?? null;
 
-  const completedCount = allDays.filter((d) => completedSet.has(d.id)).length;
-  const currentDay = allDays.find((d) => !completedSet.has(d.id)) ?? allDays[allDays.length - 1];
-  const isAllDone = totalDays > 0 && completedCount === totalDays;
+  const activeDays = allDays.filter((d) => !d.is_rest);
+  const completedCount = activeDays.filter((d) => completedSet.has(d.id)).length;
+  const currentDay = activeDays.find((d) => !completedSet.has(d.id)) ?? activeDays[activeDays.length - 1];
+  const isAllDone = activeDays.length > 0 && completedCount === activeDays.length;
 
   const currentWeek = weeks.find((w) => w.days.some((d) => d.id === currentDay?.id)) ?? weeks[0];
   const currentWeekIndex = currentWeek ? weeks.indexOf(currentWeek) : 0;
@@ -115,10 +115,11 @@ function HomePage() {
     staleTime: 30 * 60_000,
   });
 
-  const activeWeekCompleted = weekDays.filter((d) => completedSet.has(d.id)).length;
-  const activeWeekTotal = weekDays.length;
+  const activeWeekDays = weekDays.filter((d) => !d.is_rest);
+  const activeWeekCompleted = activeWeekDays.filter((d) => completedSet.has(d.id)).length;
+  const activeWeekTotal = activeWeekDays.length;
   const activeWeekTargetDay =
-    weekDays.find((d) => !completedSet.has(d.id)) ?? weekDays[0] ?? null;
+    activeWeekDays.find((d) => !completedSet.has(d.id)) ?? activeWeekDays[0] ?? null;
   const activeWeekProgressPct = activeWeekTotal
     ? Math.round((activeWeekCompleted / activeWeekTotal) * 100)
     : 0;
@@ -268,12 +269,25 @@ function HomePage() {
               ))}
             </SelectContent>
           </Select>
-          <span className="text-[11px] text-muted-foreground">{weekDays.length} dias</span>
+          <span className="text-[11px] text-muted-foreground">{activeWeekTotal} dias + descanso</span>
         </div>
         <div className="mt-3 grid gap-2" style={{ gridTemplateColumns: `repeat(${weekDays.length}, minmax(0, 1fr))` }}>
           {weekDays.map((d) => {
             const done = completedSet.has(d.id);
             const isCurrent = currentDay?.id === d.id;
+            if (d.is_rest) {
+              return (
+                <Link
+                  key={d.id}
+                  to="/day/$dayId"
+                  params={{ dayId: d.id }}
+                  aria-label={`Dia ${d.day_number} — descanso`}
+                  className="flex aspect-square w-full items-center justify-center rounded-full border border-dashed border-black/10 bg-white/40 text-muted-foreground/70 transition-all hover:bg-white/70"
+                >
+                  <Moon className="h-3.5 w-3.5" strokeWidth={2} />
+                </Link>
+              );
+            }
             return (
               <Link
                 key={d.id}

@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
@@ -181,12 +182,9 @@ function ProfilePage() {
         </div>
       </div>
 
-      <Card className="mt-10 p-5">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">Sua jornada</p>
-        <p className="mt-2 font-display text-lg text-foreground">
-          Você está plantando a semente do hábito 🌿
-        </p>
-      </Card>
+      <JourneyCard userId={user?.id} />
+
+
 
       <Link
         to="/settings"
@@ -208,5 +206,73 @@ function ProfilePage() {
         Sair
       </Button>
     </div>
+  );
+}
+
+function JourneyCard({ userId }: { userId: string | undefined }) {
+  const q = useQuery({
+    queryKey: ["journey-progress", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const [{ count: completed }, { data: days }] = await Promise.all([
+        supabase
+          .from("user_progress")
+          .select("day_id", { count: "exact", head: true })
+          .eq("user_id", userId!)
+          .eq("completed", true),
+        supabase.from("days").select("id, is_rest").eq("is_rest", false),
+      ]);
+      return {
+        completed: completed ?? 0,
+        total: days?.length ?? 0,
+      };
+    },
+  });
+
+  const completed = q.data?.completed ?? 0;
+  const total = q.data?.total ?? 0;
+  const pct = total > 0 ? completed / total : 0;
+
+  let title = "Plantando a semente do hábito 🌿";
+  let sub = "Comece sua primeira prática para iniciar a jornada.";
+  if (completed > 0 && pct < 0.25) {
+    title = "Construindo sua rotina 🌱";
+    sub = "Os primeiros passos já estão acontecendo.";
+  } else if (pct >= 0.25 && pct < 0.5) {
+    title = "Florescendo aos poucos 🌸";
+    sub = "Sua dedicação já começa a aparecer.";
+  } else if (pct >= 0.5 && pct < 0.75) {
+    title = "Brilho em formação ✨";
+    sub = "Mais da metade do protocolo concluído.";
+  } else if (pct >= 0.75 && pct < 1) {
+    title = "Quase lá, continue ✨";
+    sub = "A reta final é só sua.";
+  } else if (pct >= 1 && total > 0) {
+    title = "Jornada completa 🌟";
+    sub = "Você concluiu o protocolo de 28 dias.";
+  }
+
+  return (
+    <Card className="mt-10 p-5">
+      <p className="text-xs uppercase tracking-widest text-muted-foreground">Sua jornada</p>
+      <p className="mt-2 font-display text-lg text-foreground">{title}</p>
+      <p className="mt-1 text-sm text-muted-foreground">{sub}</p>
+      {total > 0 && (
+        <>
+          <div className="mt-4 flex items-baseline justify-between">
+            <span className="text-xs text-muted-foreground">Progresso</span>
+            <span className="text-xs font-semibold text-foreground">
+              {completed} / {total} dias
+            </span>
+          </div>
+          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-primary transition-all duration-700"
+              style={{ width: `${Math.round(pct * 100)}%` }}
+            />
+          </div>
+        </>
+      )}
+    </Card>
   );
 }
