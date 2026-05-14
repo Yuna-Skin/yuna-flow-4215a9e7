@@ -77,7 +77,19 @@ function HomePage() {
 
   const currentWeek = weeks.find((w) => w.days.some((d) => d.id === currentDay?.id)) ?? weeks[0];
   const currentWeekIndex = currentWeek ? weeks.indexOf(currentWeek) : 0;
-  const activeWeek = weeks.find((w) => w.id === selectedWeekId) ?? currentWeek;
+
+  const isWeekUnlocked = (idx: number): boolean => {
+    if (idx <= 0) return true;
+    const prev = weeks[idx - 1];
+    if (!prev) return false;
+    const prevActive = prev.days.filter((d) => !d.is_rest);
+    return prevActive.length > 0 && prevActive.every((d) => completedSet.has(d.id));
+  };
+
+  const requestedWeek = weeks.find((w) => w.id === selectedWeekId);
+  const requestedWeekIndex = requestedWeek ? weeks.indexOf(requestedWeek) : -1;
+  const requestedUnlocked = requestedWeekIndex >= 0 && isWeekUnlocked(requestedWeekIndex);
+  const activeWeek = requestedUnlocked ? requestedWeek! : currentWeek;
   const activeWeekIndex = activeWeek ? weeks.indexOf(activeWeek) : 0;
   const weekDays = activeWeek?.days ?? [];
 
