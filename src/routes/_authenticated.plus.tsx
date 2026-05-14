@@ -12,7 +12,7 @@ import {
 import { Sparkles, Calendar, ArrowRight, Clock } from "lucide-react";
 import { optimizeCloudinary } from "@/lib/cloudinary";
 
-export const Route = createFileRoute("/_authenticated/feed")({
+export const Route = createFileRoute("/_authenticated/plus")({
   component: FeedPage,
 });
 
