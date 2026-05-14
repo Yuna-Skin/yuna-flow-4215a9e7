@@ -295,9 +295,17 @@ function HomePage() {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {weeks.map((w, i) => (
-                <SelectItem key={w.id} value={w.id}>Semana {i + 1}</SelectItem>
-              ))}
+              {weeks.map((w, i) => {
+                const locked = !isWeekUnlocked(i);
+                return (
+                  <SelectItem key={w.id} value={w.id} disabled={locked}>
+                    <span className="flex items-center gap-2">
+                      Semana {i + 1}
+                      {locked && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    </span>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
           <span className="text-[11px] text-muted-foreground">{activeWeekTotal} dias + descanso</span>
