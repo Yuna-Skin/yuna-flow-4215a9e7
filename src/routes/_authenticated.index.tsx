@@ -7,7 +7,7 @@ import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Flame, Play, Pause, Check } from "lucide-react";
+import { Play, Pause, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getPlayableDayAudioUrl } from "@/lib/day-audio.functions";
 import { getSignedWeekThumbnailUrl } from "@/lib/week-thumbnail.functions";
