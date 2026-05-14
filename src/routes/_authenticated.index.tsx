@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/")({
 });
 
 type Day = { id: string; day_number: number; title: string; audio_url: string | null };
-type Week = { id: string; title: string; order_index: number; days: Day[] };
+type Week = { id: string; title: string; order_index: number; thumbnail_url: string | null; days: Day[] };
 
 function HomePage() {
   const { user } = useAuth();
@@ -29,7 +29,7 @@ function HomePage() {
     queryFn: async (): Promise<Week[]> => {
       const { data, error } = await supabase
         .from("weeks")
-        .select("id, title, order_index, days(id, day_number, title, audio_url)")
+        .select("id, title, order_index, thumbnail_url, days(id, day_number, title, audio_url)")
         .order("order_index", { ascending: true })
         .order("day_number", { foreignTable: "days", ascending: true });
       if (error) throw error;
@@ -155,39 +155,53 @@ function HomePage() {
         </div>
       </div>
 
-      <Card className="mt-6 overflow-hidden border-0 bg-cta-dark p-5 text-white shadow-lg">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.18em] opacity-70">Sua jornada</p>
-            <p className="mt-2 font-display text-4xl">
-              Dia {currentDay?.day_number ?? totalDays}
-              <span className="text-xl opacity-60"> / {totalDays}</span>
-            </p>
-          </div>
-          <div className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-medium">
-            Semana {currentWeekIndex + 1}
+      <Card className="mt-6 overflow-hidden border-0 bg-cta-dark p-0 text-white shadow-lg">
+        <div className="relative h-44 w-full overflow-hidden">
+          {currentWeek?.thumbnail_url ? (
+            <img
+              src={currentWeek.thumbnail_url}
+              alt={currentWeek.title}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-black" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/10" />
+          <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-5">
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70">
+                Semana {currentWeekIndex + 1}
+              </p>
+              <h3 className="mt-1 font-display text-2xl leading-tight text-white">
+                {currentWeek?.title ?? "Sua jornada"}
+              </h3>
+            </div>
+            <div className="shrink-0 rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold backdrop-blur-md">
+              Dia {currentDay?.day_number ?? totalDays}/{totalDays}
+            </div>
           </div>
         </div>
-        <div className="mt-5">
+
+        <div className="p-5">
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/15">
             <div
               className="h-full bg-progress-accent rounded-full transition-all duration-500"
               style={{ width: `${totalDays ? (completedCount / totalDays) * 100 : 0}%` }}
             />
           </div>
-          <p className="mt-2 text-xs opacity-70">{completedCount} dias concluídos</p>
-        </div>
+          <p className="mt-2 text-xs opacity-70">{completedCount} de {totalDays} dias concluídos</p>
 
-        <Button
-          onClick={() => currentDay && navigate({ to: "/day/$dayId", params: { dayId: currentDay.id } })}
-          disabled={isAllDone}
-          variant="primary"
-          size="lg"
-          className="mt-5 w-full bg-white text-foreground hover:bg-white/95 hover:brightness-100"
-        >
-          <Play className="h-4 w-4 fill-foreground" />
-          {isAllDone ? "Programa concluído 🎉" : "Continuar prática"}
-        </Button>
+          <Button
+            onClick={() => currentDay && navigate({ to: "/day/$dayId", params: { dayId: currentDay.id } })}
+            disabled={isAllDone}
+            variant="primary"
+            size="lg"
+            className="mt-5 w-full bg-white text-foreground hover:bg-white/95 hover:brightness-100"
+          >
+            <Play className="h-4 w-4 fill-foreground" />
+            {isAllDone ? "Programa concluído 🎉" : "Continuar prática"}
+          </Button>
+        </div>
       </Card>
 
       <div className="mt-7">
