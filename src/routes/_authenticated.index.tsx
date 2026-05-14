@@ -247,12 +247,35 @@ function HomePage() {
                 />
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.55)_100%)]" />
                 <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Play
-                    className="ml-1 h-16 w-16 fill-white text-white drop-shadow-[0_6px_20px_rgba(0,0,0,0.55)]"
-                    strokeWidth={0}
+                {audioQ.data && (
+                  <audio
+                    ref={audioRef}
+                    src={audioQ.data}
+                    preload="metadata"
+                    onEnded={() => setIsPlaying(false)}
+                    onPause={() => setIsPlaying(false)}
+                    onPlay={() => setIsPlaying(true)}
                   />
-                </div>
+                )}
+                <button
+                  type="button"
+                  onClick={togglePlay}
+                  disabled={!audioQ.data}
+                  aria-label={isPlaying ? "Pausar áudio" : "Reproduzir áudio"}
+                  className="absolute inset-0 z-10 flex items-center justify-center transition-transform hover:scale-105 active:scale-95 disabled:opacity-50"
+                >
+                  {isPlaying ? (
+                    <Pause
+                      className="h-16 w-16 fill-white text-white drop-shadow-[0_6px_20px_rgba(0,0,0,0.55)]"
+                      strokeWidth={0}
+                    />
+                  ) : (
+                    <Play
+                      className="ml-1 h-16 w-16 fill-white text-white drop-shadow-[0_6px_20px_rgba(0,0,0,0.55)]"
+                      strokeWidth={0}
+                    />
+                  )}
+                </button>
                 <div className="absolute inset-x-0 bottom-0 px-6 pb-5">
                   <div className="flex h-12 items-center justify-center gap-[3px]" aria-hidden>
                     {Array.from({ length: 56 }).map((_, i) => {
