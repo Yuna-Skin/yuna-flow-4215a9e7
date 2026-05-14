@@ -48,7 +48,6 @@ function SettingsPage() {
         <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card divide-y divide-border">
           <Link
             to="/termos-de-uso"
-            target="_blank"
             className="flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-muted/40"
           >
             <span className="flex items-center gap-3">
@@ -59,7 +58,6 @@ function SettingsPage() {
           </Link>
           <Link
             to="/politica-de-privacidade"
-            target="_blank"
             className="flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-muted/40"
           >
             <span className="flex items-center gap-3">
@@ -72,7 +70,6 @@ function SettingsPage() {
           </Link>
           <Link
             to="/politica-de-cookies"
-            target="_blank"
             className="flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-muted/40"
           >
             <span className="flex items-center gap-3">
