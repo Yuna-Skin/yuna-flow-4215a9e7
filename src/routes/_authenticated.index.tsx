@@ -172,8 +172,8 @@ function HomePage() {
         </div>
       </div>
 
-      <Card className="mt-6 overflow-hidden border-0 p-0 text-white shadow-lg">
-        <div className="relative min-h-[280px] w-full overflow-hidden">
+      <Card className="mt-6 overflow-hidden border-0 p-0 text-white shadow-xl">
+        <div className="relative min-h-[340px] w-full overflow-hidden">
           {thumbQ.data ? (
             <img
               src={thumbQ.data}
@@ -183,43 +183,49 @@ function HomePage() {
           ) : (
             <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-black" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/15" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent" />
 
-          <div className="relative flex min-h-[280px] flex-col justify-between p-5">
+          <div className="relative flex min-h-[340px] flex-col justify-between p-6">
             <div className="flex items-start justify-between gap-3">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/80">
-                Semana {currentWeekIndex + 1}
-              </p>
+              <div className="flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 backdrop-blur-md">
+                <span className="h-1.5 w-1.5 rounded-full bg-progress-accent" />
+                <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white">
+                  Semana {currentWeekIndex + 1} de {weeks.length}
+                </span>
+              </div>
               <div className="rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold backdrop-blur-md">
                 Dia {currentDay?.day_number ?? totalDays}/{totalDays}
               </div>
             </div>
 
             <div>
-              <h3 className="font-display text-3xl leading-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/70">
+                Sua jornada atual
+              </p>
+              <h3 className="mt-1 font-display text-[32px] leading-[1.05] text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.6)]">
                 {currentWeek?.title ?? "Sua jornada"}
               </h3>
 
-              <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-white/20">
+              <div className="mt-5 flex items-center justify-between text-[11px] font-medium text-white/85">
+                <span>{completedCount} de {totalDays} dias</span>
+                <span>{totalDays ? Math.round((completedCount / totalDays) * 100) : 0}%</span>
+              </div>
+              <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/20">
                 <div
                   className="h-full bg-progress-accent rounded-full transition-all duration-500"
                   style={{ width: `${totalDays ? (completedCount / totalDays) * 100 : 0}%` }}
                 />
               </div>
-              <p className="mt-2 text-xs text-white/80">
-                {completedCount} de {totalDays} dias concluídos
-              </p>
 
-              <Button
+              <button
+                type="button"
                 onClick={() => currentDay && navigate({ to: "/day/$dayId", params: { dayId: currentDay.id } })}
                 disabled={isAllDone}
-                variant="primary"
-                size="lg"
-                className="mt-4 w-full bg-white text-foreground hover:bg-white/95 hover:brightness-100"
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-white py-3.5 text-sm font-semibold text-foreground shadow-lg transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
               >
-                <Play className="h-4 w-4 fill-foreground" />
-                {isAllDone ? "Programa concluído 🎉" : "Continuar prática"}
-              </Button>
+                <Play className="h-4 w-4 fill-foreground" strokeWidth={0} />
+                {isAllDone ? "Programa concluído" : "Continuar prática"}
+              </button>
             </div>
           </div>
         </div>
