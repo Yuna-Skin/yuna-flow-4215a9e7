@@ -1,12 +1,16 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Flower2 } from "lucide-react";
+import { recordConsent } from "@/lib/consent.functions";
+import { TERMS_VERSION, PRIVACY_VERSION } from "@/lib/legal-versions";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
@@ -19,7 +23,10 @@ function AuthPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   const [busy, setBusy] = useState(false);
+  const submitConsent = useServerFn(recordConsent);
 
   useEffect(() => {
     if (session) navigate({ to: "/" });
@@ -27,6 +34,10 @@ function AuthPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (mode === "signup" && (!acceptTerms || !acceptPrivacy)) {
+      toast.error("Você precisa aceitar os Termos e a Política para continuar.");
+      return;
+    }
     setBusy(true);
     try {
       if (mode === "signup") {
@@ -39,6 +50,21 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+
+        // Registra consentimento (best-effort; gate fará fallback se falhar)
+        try {
+          await submitConsent({
+            data: {
+              accepted_terms: true,
+              accepted_privacy: true,
+              terms_version: TERMS_VERSION,
+              privacy_version: PRIVACY_VERSION,
+            },
+          });
+        } catch (err) {
+          console.warn("Falha ao registrar consentimento no signup", err);
+        }
+
         toast.success("Conta criada! Bem-vinda ao Yuna 🌸");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -105,7 +131,50 @@ function AuthPage() {
           />
         </div>
 
-        <Button type="submit" disabled={busy} className="h-12 w-full rounded-full text-base">
+        {mode === "signup" && (
+          <div className="space-y-2.5 pt-1">
+            <label className="flex items-start gap-2.5 text-sm">
+              <Checkbox
+                checked={acceptTerms}
+                onCheckedChange={(v) => setAcceptTerms(v === true)}
+                className="mt-0.5"
+              />
+              <span className="text-muted-foreground">
+                Li e aceito os{" "}
+                <Link
+                  to="/termos-de-uso"
+                  target="_blank"
+                  className="font-medium text-primary underline"
+                >
+                  Termos de Uso
+                </Link>
+              </span>
+            </label>
+            <label className="flex items-start gap-2.5 text-sm">
+              <Checkbox
+                checked={acceptPrivacy}
+                onCheckedChange={(v) => setAcceptPrivacy(v === true)}
+                className="mt-0.5"
+              />
+              <span className="text-muted-foreground">
+                Li e aceito a{" "}
+                <Link
+                  to="/politica-de-privacidade"
+                  target="_blank"
+                  className="font-medium text-primary underline"
+                >
+                  Política de Privacidade
+                </Link>
+              </span>
+            </label>
+          </div>
+        )}
+
+        <Button
+          type="submit"
+          disabled={busy || (mode === "signup" && (!acceptTerms || !acceptPrivacy))}
+          className="h-12 w-full rounded-full text-base"
+        >
           {busy ? "Aguarde..." : mode === "login" ? "Entrar" : "Criar conta"}
         </Button>
       </form>
