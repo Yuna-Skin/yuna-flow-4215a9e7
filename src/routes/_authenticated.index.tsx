@@ -68,9 +68,10 @@ function HomePage() {
   const name = profileQ.data?.name ?? "Praticante";
   const avatarUrl = profileQ.data?.avatarUrl ?? null;
 
-  const completedCount = allDays.filter((d) => completedSet.has(d.id)).length;
-  const currentDay = allDays.find((d) => !completedSet.has(d.id)) ?? allDays[allDays.length - 1];
-  const isAllDone = totalDays > 0 && completedCount === totalDays;
+  const activeDays = allDays.filter((d) => !d.is_rest);
+  const completedCount = activeDays.filter((d) => completedSet.has(d.id)).length;
+  const currentDay = activeDays.find((d) => !completedSet.has(d.id)) ?? activeDays[activeDays.length - 1];
+  const isAllDone = activeDays.length > 0 && completedCount === activeDays.length;
 
   const currentWeek = weeks.find((w) => w.days.some((d) => d.id === currentDay?.id)) ?? weeks[0];
   const currentWeekIndex = currentWeek ? weeks.indexOf(currentWeek) : 0;
@@ -115,10 +116,11 @@ function HomePage() {
     staleTime: 30 * 60_000,
   });
 
-  const activeWeekCompleted = weekDays.filter((d) => completedSet.has(d.id)).length;
-  const activeWeekTotal = weekDays.length;
+  const activeWeekDays = weekDays.filter((d) => !d.is_rest);
+  const activeWeekCompleted = activeWeekDays.filter((d) => completedSet.has(d.id)).length;
+  const activeWeekTotal = activeWeekDays.length;
   const activeWeekTargetDay =
-    weekDays.find((d) => !completedSet.has(d.id)) ?? weekDays[0] ?? null;
+    activeWeekDays.find((d) => !completedSet.has(d.id)) ?? activeWeekDays[0] ?? null;
   const activeWeekProgressPct = activeWeekTotal
     ? Math.round((activeWeekCompleted / activeWeekTotal) * 100)
     : 0;
