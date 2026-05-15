@@ -1,8 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,13 +12,38 @@ import { cn } from "@/lib/utils";
 import { getPlayableDayAudioUrl } from "@/lib/day-audio.functions";
 import { optimizeCloudinary } from "@/lib/cloudinary";
 import { LazyVideo } from "@/components/LazyVideo";
+import { weeksQueryOptions, profileQueryOptions, progressQueryOptions } from "@/lib/queries/home.queries";
+import { RouteError } from "@/components/RouteError";
+import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/_authenticated/")({
+  loader: ({ context }) => {
+    // Fire-and-forget paralelo — popula cache antes do componente montar.
+    // Weeks não depende de userId; profile/progress são gated por enabled no componente.
+    context.queryClient.ensureQueryData(weeksQueryOptions());
+  },
+  pendingComponent: HomeSkeleton,
+  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
   component: HomePage,
 });
 
-type Day = { id: string; day_number: number; title: string; audio_url: string | null; respiration_text?: string | null; reflection_text?: string | null; is_rest?: boolean };
-type Week = { id: string; title: string; order_index: number; thumbnail_url: string | null; days: Day[] };
+function HomeSkeleton() {
+  return (
+    <div className="px-4 pb-6 pt-8">
+      <div className="flex items-center gap-3">
+        <Skeleton className="h-12 w-12 rounded-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-3 w-16" />
+          <Skeleton className="h-6 w-40" />
+        </div>
+      </div>
+      <Skeleton className="mt-6 h-[440px] w-full rounded-[40px]" />
+      <Skeleton className="mt-6 h-4 w-32" />
+      <Skeleton className="mt-3 aspect-[4/5] w-full rounded-3xl" />
+    </div>
+  );
+}
 
 function HomePage() {
   const { user } = useAuth();
@@ -28,45 +52,13 @@ function HomePage() {
   const queryClient = useQueryClient();
   const [selectedWeekId, setSelectedWeekId] = useState<string | null>(null);
 
-  const weeksQ = useQuery({
-    queryKey: ["weeks-with-days"],
-    queryFn: async (): Promise<Week[]> => {
-      const { data, error } = await supabase
-        .from("weeks")
-        .select("id, title, order_index, thumbnail_url, days(id, day_number, title, audio_url, respiration_text, reflection_text, is_rest)")
-        .order("order_index", { ascending: true })
-        .order("day_number", { foreignTable: "days", ascending: true });
-      if (error) throw error;
-      return (data ?? []) as Week[];
-    },
-    staleTime: 10 * 60_000,
-  });
-
-  const profileQ = useQuery({
-    queryKey: ["profile", userId],
-    enabled: !!userId,
-    queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("name, avatar_url").eq("id", userId!).maybeSingle();
-      return { name: data?.name ?? "Praticante", avatarUrl: data?.avatar_url ?? null };
-    },
-  });
-
-  const progressQ = useQuery({
-    queryKey: ["user_progress", userId],
-    enabled: !!userId,
-    queryFn: async (): Promise<Set<string>> => {
-      const { data } = await supabase
-        .from("user_progress")
-        .select("day_id")
-        .eq("user_id", userId!)
-        .eq("completed", true);
-      return new Set((data ?? []).map((p) => p.day_id));
-    },
-  });
+  const weeksQ = useSuspenseQuery(weeksQueryOptions());
+  const profileQ = useQuery(profileQueryOptions(userId));
+  const progressQ = useQuery(progressQueryOptions(userId));
 
   const weeks = weeksQ.data ?? [];
   const allDays = weeks.flatMap((w) => w.days);
-  const completedSet = progressQ.data ?? new Set<string>();
+  const completedSet = useMemo(() => new Set(progressQ.data ?? []), [progressQ.data]);
   const name = profileQ.data?.name ?? "Praticante";
   const avatarUrl = profileQ.data?.avatarUrl ?? null;
 
