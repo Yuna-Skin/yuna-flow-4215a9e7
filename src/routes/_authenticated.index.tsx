@@ -136,24 +136,8 @@ function HomePage() {
     }
   }, [currentDay?.id]);
 
-  const loading = weeksQ.isLoading || profileQ.isLoading || progressQ.isLoading;
-
-  if (loading) {
-    return (
-      <div className="px-4 pb-6 pt-8">
-        <div className="flex items-center gap-3">
-          <Skeleton className="h-12 w-12 rounded-full" />
-          <div className="space-y-2">
-            <Skeleton className="h-3 w-16" />
-            <Skeleton className="h-6 w-40" />
-          </div>
-        </div>
-        <Skeleton className="mt-6 h-[440px] w-full rounded-[40px]" />
-        <Skeleton className="mt-6 h-4 w-32" />
-        <Skeleton className="mt-3 aspect-[4/5] w-full rounded-3xl" />
-      </div>
-    );
-  }
+  // Weeks já chega via loader (suspense). Profile/progress carregam em background;
+  // não bloqueamos render por eles — defaults seguros já estão definidos acima.
 
   const togglePlay = (e: React.MouseEvent) => {
     e.preventDefault();
