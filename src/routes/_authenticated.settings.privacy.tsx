@@ -18,8 +18,12 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { deleteMyAccount } from "@/lib/account.functions";
+import { RouteError } from "@/components/RouteError";
+import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/_authenticated/settings/privacy")({
+  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
   component: PrivacyPage,
 });
 

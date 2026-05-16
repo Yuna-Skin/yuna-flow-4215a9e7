@@ -1,7 +1,11 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { ChevronRight, ArrowLeft, Shield, FileText, Cookie, Lock } from "lucide-react";
+import { RouteError } from "@/components/RouteError";
+import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/_authenticated/settings")({
+  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
   component: SettingsPage,
 });
 

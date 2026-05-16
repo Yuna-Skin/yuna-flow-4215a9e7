@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ShoppingBag } from "lucide-react";
+import { RouteError } from "@/components/RouteError";
+import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/_authenticated/shop")({
+  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
   component: ShopPage,
 });
 

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
@@ -8,38 +8,37 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LogOut, Camera, Loader2, Check, Pencil, Settings, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
+import { profileWithJourneyQueryOptions } from "@/lib/queries/profile.queries";
+import { RouteError } from "@/components/RouteError";
+import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/_authenticated/profile")({
+  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
   component: ProfilePage,
 });
 
 function ProfilePage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const userId = user?.id;
 
-  const [name, setName] = useState("Praticante");
-  const [draftName, setDraftName] = useState("Praticante");
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const profileQ = useQuery(profileWithJourneyQueryOptions(userId));
+
+  const serverName = profileQ.data?.name ?? "Praticante";
+  const serverAvatar = profileQ.data?.avatarUrl ?? null;
+
+  const [draftName, setDraftName] = useState(serverName);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
+  // mantém draft alinhado quando dados chegam
   useEffect(() => {
-    if (!user) return;
-    (async () => {
-      const { data: prof } = await supabase
-        .from("profiles")
-        .select("name, avatar_url")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (prof?.name) {
-        setName(prof.name);
-        setDraftName(prof.name);
-      }
-      setAvatarUrl(prof?.avatar_url ?? null);
-    })();
-  }, [user]);
+    if (!editing) setDraftName(serverName);
+  }, [serverName, editing]);
 
   const handleLogout = async () => {
     await signOut();
@@ -63,8 +62,9 @@ function ProfilePage() {
       toast.error("Não foi possível salvar");
       return;
     }
-    setName(trimmed);
     setEditing(false);
+    await queryClient.invalidateQueries({ queryKey: ["profile-with-journey"] });
+    await queryClient.invalidateQueries({ queryKey: ["profile"] });
     toast.success("Nome atualizado");
   };
 
@@ -102,9 +102,33 @@ function ProfilePage() {
       toast.error("Não foi possível salvar a foto");
       return;
     }
-    setAvatarUrl(url);
+    await queryClient.invalidateQueries({ queryKey: ["profile-with-journey"] });
+    await queryClient.invalidateQueries({ queryKey: ["profile"] });
     toast.success("Foto atualizada");
   };
+
+  const completed = profileQ.data?.completed ?? 0;
+  const total = profileQ.data?.totalActiveDays ?? 0;
+  const pct = total > 0 ? completed / total : 0;
+
+  let journeyTitle = "Plantando a semente do hábito 🌿";
+  let journeySub = "Comece sua primeira prática para iniciar a jornada.";
+  if (completed > 0 && pct < 0.25) {
+    journeyTitle = "Construindo sua rotina 🌱";
+    journeySub = "Os primeiros passos já estão acontecendo.";
+  } else if (pct >= 0.25 && pct < 0.5) {
+    journeyTitle = "Florescendo aos poucos 🌸";
+    journeySub = "Sua dedicação já começa a aparecer.";
+  } else if (pct >= 0.5 && pct < 0.75) {
+    journeyTitle = "Brilho em formação ✨";
+    journeySub = "Mais da metade do protocolo concluído.";
+  } else if (pct >= 0.75 && pct < 1) {
+    journeyTitle = "Quase lá, continue ✨";
+    journeySub = "A reta final é só sua.";
+  } else if (pct >= 1 && total > 0) {
+    journeyTitle = "Jornada completa 🌟";
+    journeySub = "Você concluiu o protocolo de 28 dias.";
+  }
 
   return (
     <div className="px-5 pb-6 pt-8">
@@ -118,11 +142,11 @@ function ProfilePage() {
           className="group relative h-28 w-28 overflow-hidden rounded-full bg-gradient-to-br from-primary to-warm shadow-md transition-transform active:scale-95"
           aria-label="Alterar foto"
         >
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+          {serverAvatar ? (
+            <img src={serverAvatar} alt={serverName} loading="lazy" decoding="async" className="h-full w-full object-cover" />
           ) : (
             <span className="flex h-full w-full items-center justify-center text-4xl font-display text-primary-foreground">
-              {name[0]?.toUpperCase()}
+              {serverName[0]?.toUpperCase()}
             </span>
           )}
           <span className="absolute inset-0 flex items-center justify-center bg-black/45 opacity-0 transition-opacity group-hover:opacity-100">
@@ -170,21 +194,39 @@ function ProfilePage() {
             <button
               type="button"
               onClick={() => {
-                setDraftName(name);
+                setDraftName(serverName);
                 setEditing(true);
               }}
               className="group inline-flex items-center gap-2"
             >
-              <span className="font-display text-2xl text-foreground">{name}</span>
+              <span className="font-display text-2xl text-foreground">{serverName}</span>
               <Pencil className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-foreground" />
             </button>
           )}
         </div>
       </div>
 
-      <JourneyCard userId={user?.id} />
-
-
+      <Card className="mt-10 p-5">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">Sua jornada</p>
+        <p className="mt-2 font-display text-lg text-foreground">{journeyTitle}</p>
+        <p className="mt-1 text-sm text-muted-foreground">{journeySub}</p>
+        {total > 0 && (
+          <>
+            <div className="mt-4 flex items-baseline justify-between">
+              <span className="text-xs text-muted-foreground">Progresso</span>
+              <span className="text-xs font-semibold text-foreground">
+                {completed} / {total} dias
+              </span>
+            </div>
+            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-700"
+                style={{ width: `${Math.round(pct * 100)}%` }}
+              />
+            </div>
+          </>
+        )}
+      </Card>
 
       <Link
         to="/settings"
@@ -206,73 +248,5 @@ function ProfilePage() {
         Sair
       </Button>
     </div>
-  );
-}
-
-function JourneyCard({ userId }: { userId: string | undefined }) {
-  const q = useQuery({
-    queryKey: ["journey-progress", userId],
-    enabled: !!userId,
-    queryFn: async () => {
-      const [{ count: completed }, { data: days }] = await Promise.all([
-        supabase
-          .from("user_progress")
-          .select("day_id", { count: "exact", head: true })
-          .eq("user_id", userId!)
-          .eq("completed", true),
-        supabase.from("days").select("id, is_rest").eq("is_rest", false),
-      ]);
-      return {
-        completed: completed ?? 0,
-        total: days?.length ?? 0,
-      };
-    },
-  });
-
-  const completed = q.data?.completed ?? 0;
-  const total = q.data?.total ?? 0;
-  const pct = total > 0 ? completed / total : 0;
-
-  let title = "Plantando a semente do hábito 🌿";
-  let sub = "Comece sua primeira prática para iniciar a jornada.";
-  if (completed > 0 && pct < 0.25) {
-    title = "Construindo sua rotina 🌱";
-    sub = "Os primeiros passos já estão acontecendo.";
-  } else if (pct >= 0.25 && pct < 0.5) {
-    title = "Florescendo aos poucos 🌸";
-    sub = "Sua dedicação já começa a aparecer.";
-  } else if (pct >= 0.5 && pct < 0.75) {
-    title = "Brilho em formação ✨";
-    sub = "Mais da metade do protocolo concluído.";
-  } else if (pct >= 0.75 && pct < 1) {
-    title = "Quase lá, continue ✨";
-    sub = "A reta final é só sua.";
-  } else if (pct >= 1 && total > 0) {
-    title = "Jornada completa 🌟";
-    sub = "Você concluiu o protocolo de 28 dias.";
-  }
-
-  return (
-    <Card className="mt-10 p-5">
-      <p className="text-xs uppercase tracking-widest text-muted-foreground">Sua jornada</p>
-      <p className="mt-2 font-display text-lg text-foreground">{title}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{sub}</p>
-      {total > 0 && (
-        <>
-          <div className="mt-4 flex items-baseline justify-between">
-            <span className="text-xs text-muted-foreground">Progresso</span>
-            <span className="text-xs font-semibold text-foreground">
-              {completed} / {total} dias
-            </span>
-          </div>
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-primary transition-all duration-700"
-              style={{ width: `${Math.round(pct * 100)}%` }}
-            />
-          </div>
-        </>
-      )}
-    </Card>
   );
 }

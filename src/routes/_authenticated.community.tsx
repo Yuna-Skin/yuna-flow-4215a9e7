@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
@@ -8,124 +9,81 @@ import { Textarea } from "@/components/ui/textarea";
 import { Heart, MessageCircle, Send, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import {
+  communityFeedQueryOptions,
+  postCommentsQueryOptions,
+} from "@/lib/queries/community.queries";
+import { RouteError } from "@/components/RouteError";
+import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/_authenticated/community")({
+  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
   component: CommunityPage,
 });
 
-type Status = "pending" | "approved" | "rejected";
-
-type Post = {
-  id: string;
-  user_id: string;
-  content: string;
-  likes_count: number;
-  created_at: string;
-  status: Status;
-  author_name: string;
-  comment_count: number;
-};
-
 function CommunityPage() {
   const { user } = useAuth();
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [liked, setLiked] = useState<Set<string>>(new Set());
+  const userId = user?.id;
+  const queryClient = useQueryClient();
+
+  const feedQ = useQuery(communityFeedQueryOptions(userId));
+  const posts = feedQ.data?.posts ?? [];
+  const liked = new Set(feedQ.data?.likedIds ?? []);
+  const isModerator = feedQ.data?.isModerator ?? false;
+
   const [content, setContent] = useState("");
   const [posting, setPosting] = useState(false);
   const [openComments, setOpenComments] = useState<string | null>(null);
-  const [comments, setComments] = useState<Record<string, { id: string; content: string; author_name: string }[]>>({});
   const [commentInput, setCommentInput] = useState("");
-  const [isModerator, setIsModerator] = useState(false);
 
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .in("role", ["admin", "moderator"])
-      .then(({ data }) => setIsModerator((data ?? []).length > 0));
-  }, [user]);
-
-  const load = async () => {
-    if (!user) return;
-    const [{ data: list }, { data: likes }] = await Promise.all([
-      supabase
-        .from("community_posts")
-        .select("id, user_id, content, likes_count, created_at, status, profiles!community_posts_profile_fk(name), comments(id)")
-        .order("created_at", { ascending: false }),
-      supabase.from("post_likes").select("post_id").eq("user_id", user.id),
-    ]);
-    type Row = {
-      id: string; user_id: string; content: string; likes_count: number; created_at: string; status: Status;
-      profiles: { name: string } | { name: string }[] | null;
-      comments: { id: string }[] | null;
-    };
-    const mapped: Post[] = ((list ?? []) as unknown as Row[]).map((p) => {
-      const prof = Array.isArray(p.profiles) ? p.profiles[0] : p.profiles;
-      return {
-        id: p.id,
-        user_id: p.user_id,
-        content: p.content,
-        likes_count: p.likes_count,
-        created_at: p.created_at,
-        status: p.status,
-        author_name: prof?.name ?? "Praticante",
-        comment_count: p.comments?.length ?? 0,
-      };
-    });
-    setPosts(mapped);
-    setLiked(new Set((likes ?? []).map((l) => l.post_id)));
-  };
-
-  useEffect(() => { load(); }, [user]);
+  const invalidateFeed = () =>
+    queryClient.invalidateQueries({ queryKey: ["community-feed"] });
 
   const submitPost = async () => {
     if (!user || !content.trim()) return;
     setPosting(true);
-    const { error } = await supabase.from("community_posts").insert({ user_id: user.id, content: content.trim() });
+    const { error } = await supabase.from("community_posts").insert({
+      user_id: user.id,
+      content: content.trim(),
+    });
     setPosting(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setContent("");
     toast.success("Mensagem enviada para revisão");
-    load();
+    await invalidateFeed();
   };
 
-  const toggleLike = async (p: Post) => {
+  const toggleLike = async (postId: string) => {
     if (!user) return;
-    const isLiked = liked.has(p.id);
-    setLiked((prev) => { const n = new Set(prev); isLiked ? n.delete(p.id) : n.add(p.id); return n; });
-    setPosts((prev) => prev.map((x) => x.id === p.id ? { ...x, likes_count: x.likes_count + (isLiked ? -1 : 1) } : x));
+    const isLiked = liked.has(postId);
     if (isLiked) {
-      await supabase.from("post_likes").delete().eq("post_id", p.id).eq("user_id", user.id);
+      await supabase.from("post_likes").delete().eq("post_id", postId).eq("user_id", user.id);
     } else {
-      await supabase.from("post_likes").insert({ post_id: p.id, user_id: user.id });
+      await supabase.from("post_likes").insert({ post_id: postId, user_id: user.id });
     }
-  };
-
-  const loadComments = async (postId: string) => {
-    const { data } = await supabase
-      .from("comments")
-      .select("id, content, profiles!comments_profile_fk(name)")
-      .eq("post_id", postId)
-      .order("created_at");
-    type CRow = { id: string; content: string; profiles: { name: string } | { name: string }[] | null };
-    const mapped = ((data ?? []) as unknown as CRow[]).map((c) => {
-      const prof = Array.isArray(c.profiles) ? c.profiles[0] : c.profiles;
-      return { id: c.id, content: c.content, author_name: prof?.name ?? "Praticante" };
-    });
-    setComments((prev) => ({ ...prev, [postId]: mapped }));
+    await invalidateFeed();
   };
 
   const submitComment = async (postId: string) => {
     if (!user || !commentInput.trim()) return;
     const { error } = await supabase.from("comments").insert({
-      post_id: postId, user_id: user.id, content: commentInput.trim(),
+      post_id: postId,
+      user_id: user.id,
+      content: commentInput.trim(),
     });
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     setCommentInput("");
-    loadComments(postId);
-    setPosts((prev) => prev.map((x) => x.id === postId ? { ...x, comment_count: x.comment_count + 1 } : x));
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["post-comments", postId] }),
+      invalidateFeed(),
+    ]);
   };
 
   return (
@@ -195,7 +153,7 @@ function CommunityPage() {
             {p.status === "approved" && (
               <div className="mt-3 flex gap-2">
                 <button
-                  onClick={() => toggleLike(p)}
+                  onClick={() => toggleLike(p.id)}
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition-colors",
                     liked.has(p.id) ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground",
@@ -205,11 +163,7 @@ function CommunityPage() {
                   {p.likes_count}
                 </button>
                 <button
-                  onClick={() => {
-                    const next = openComments === p.id ? null : p.id;
-                    setOpenComments(next);
-                    if (next) loadComments(p.id);
-                  }}
+                  onClick={() => setOpenComments(openComments === p.id ? null : p.id)}
                   className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground"
                 >
                   <MessageCircle className="h-4 w-4" />
@@ -219,30 +173,53 @@ function CommunityPage() {
             )}
 
             {openComments === p.id && (
-              <div className="mt-3 border-t border-border pt-3">
-                <ul className="space-y-2">
-                  {(comments[p.id] ?? []).map((c) => (
-                    <li key={c.id} className="rounded-xl bg-muted px-3 py-2">
-                      <p className="text-xs font-medium text-foreground">{c.author_name}</p>
-                      <p className="text-sm text-muted-foreground">{c.content}</p>
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-2 flex gap-2">
-                  <input
-                    value={commentInput}
-                    onChange={(e) => setCommentInput(e.target.value)}
-                    placeholder="Comentar..."
-                    className="flex-1 rounded-full border border-input bg-background px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
-                  />
-                  <Button size="sm" onClick={() => submitComment(p.id)} className="rounded-full">
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              <CommentsSection
+                postId={p.id}
+                value={commentInput}
+                onChange={setCommentInput}
+                onSubmit={() => submitComment(p.id)}
+              />
             )}
           </Card>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function CommentsSection({
+  postId,
+  value,
+  onChange,
+  onSubmit,
+}: {
+  postId: string;
+  value: string;
+  onChange: (v: string) => void;
+  onSubmit: () => void;
+}) {
+  const q = useQuery(postCommentsQueryOptions(postId));
+  const items = q.data ?? [];
+  return (
+    <div className="mt-3 border-t border-border pt-3">
+      <ul className="space-y-2">
+        {items.map((c) => (
+          <li key={c.id} className="rounded-xl bg-muted px-3 py-2">
+            <p className="text-xs font-medium text-foreground">{c.author_name}</p>
+            <p className="text-sm text-muted-foreground">{c.content}</p>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-2 flex gap-2">
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Comentar..."
+          className="flex-1 rounded-full border border-input bg-background px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+        />
+        <Button size="sm" onClick={onSubmit} className="rounded-full">
+          <Send className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );

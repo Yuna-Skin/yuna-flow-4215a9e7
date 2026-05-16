@@ -1,88 +1,52 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, X, Clock, ArrowLeft, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { moderationPostsQueryOptions } from "@/lib/queries/moderation.queries";
+import type { ModerationStatus } from "@/lib/moderation.functions";
+import { RouteError } from "@/components/RouteError";
+import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/_authenticated/admin/moderation")({
+  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
   component: ModerationPage,
 });
 
-type Status = "pending" | "approved" | "rejected";
-
-type Post = {
-  id: string;
-  user_id: string;
-  content: string;
-  created_at: string;
-  status: Status;
-  author_name: string;
-};
-
 function ModerationPage() {
-  const { user } = useAuth();
-  const [allowed, setAllowed] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<Status>("pending");
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
+  const [tab, setTab] = useState<ModerationStatus>("pending");
+  const q = useQuery(moderationPostsQueryOptions(tab));
 
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .in("role", ["admin", "moderator"])
-      .then(({ data }) => setAllowed((data ?? []).length > 0));
-  }, [user]);
+  const allowed = q.data?.allowed;
+  const posts = q.data?.posts ?? [];
+  const loading = q.isLoading;
 
-  const load = async (status: Status) => {
-    setLoading(true);
-    const { data } = await supabase
-      .from("community_posts")
-      .select("id, user_id, content, created_at, status, profiles!community_posts_profile_fk(name)")
-      .eq("status", status)
-      .order("created_at", { ascending: false });
-    type Row = {
-      id: string; user_id: string; content: string; created_at: string; status: Status;
-      profiles: { name: string } | { name: string }[] | null;
-    };
-    setPosts(((data ?? []) as unknown as Row[]).map((p) => {
-      const prof = Array.isArray(p.profiles) ? p.profiles[0] : p.profiles;
-      return {
-        id: p.id, user_id: p.user_id, content: p.content,
-        created_at: p.created_at, status: p.status,
-        author_name: prof?.name ?? "Praticante",
-      };
-    }));
-    setLoading(false);
-  };
-
-  useEffect(() => { if (allowed) load(tab); }, [tab, allowed]);
-
-  const setStatus = async (id: string, status: Status) => {
-    const prev = posts;
-    setPosts((p) => p.filter((x) => x.id !== id));
+  const setStatus = async (id: string, status: ModerationStatus) => {
     const { error } = await supabase
       .from("community_posts")
       .update({ status })
       .eq("id", id);
     if (error) {
-      setPosts(prev);
       toast.error(error.message);
       return;
     }
     toast.success(status === "approved" ? "Post aprovado" : status === "rejected" ? "Post rejeitado" : "Atualizado");
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["moderation-posts"] }),
+      queryClient.invalidateQueries({ queryKey: ["community-feed"] }),
+    ]);
   };
 
-  if (allowed === null) {
+  if (q.isLoading && allowed === undefined) {
     return <div className="px-5 pt-10 text-sm text-muted-foreground">Carregando…</div>;
   }
-  if (!allowed) {
+  if (allowed === false) {
     return (
       <div className="px-5 pt-10">
         <p className="text-sm text-muted-foreground">Você não tem permissão para acessar a moderação.</p>
@@ -91,7 +55,7 @@ function ModerationPage() {
     );
   }
 
-  const tabs: { id: Status; label: string; icon: typeof Clock }[] = [
+  const tabs: { id: ModerationStatus; label: string; icon: typeof Clock }[] = [
     { id: "pending", label: "Pendentes", icon: Clock },
     { id: "approved", label: "Aprovados", icon: Check },
     { id: "rejected", label: "Rejeitados", icon: X },

@@ -1,8 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Card } from "@/components/ui/card";
 import { Sparkles, BookOpen, Download, Lock, Headphones, FileText, ArrowUpRight } from "lucide-react";
+import { RouteError } from "@/components/RouteError";
+import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/_authenticated/plus")({
+  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
   component: PlusPage,
 });
 
