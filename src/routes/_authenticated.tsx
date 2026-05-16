@@ -7,10 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async () => {
-    // Sessão agora vive em cookie (lida tanto no client quanto no server).
-    // getUser() valida o token contra o Supabase.
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) {
+    // getSession() lê de cookie (SSR) OU memória (cliente após login),
+    // tolerando ambientes onde o cookie third-party do iframe é bloqueado.
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
       throw redirect({ to: "/auth", replace: true });
     }
   },

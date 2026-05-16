@@ -32,10 +32,15 @@ function createSupabaseClient() {
   const isSecure =
     isBrowser && (window.location.protocol === 'https:' || window.location.hostname === 'localhost');
 
+  // sameSite='none' + secure is required so the cookie persists when the app
+  // runs inside the Lovable preview iframe (cross-site context). On the
+  // production custom domain it remains first-party and works the same way.
+  // Falls back to 'lax' only when not secure (http://localhost in rare cases),
+  // since browsers reject SameSite=None without Secure.
   return createBrowserClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     cookieOptions: {
       path: '/',
-      sameSite: 'lax',
+      sameSite: isSecure ? 'none' : 'lax',
       secure: isSecure,
       // Cookie cannot be httpOnly because the browser client must read/write it.
       // The server reads the same cookie via @supabase/ssr's createServerClient.
