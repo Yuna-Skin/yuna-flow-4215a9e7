@@ -52,7 +52,7 @@ export type DayDetail = {
 };
 
 async function resolvePlayableAudio(
-  supabase: Awaited<ReturnType<typeof import("@/integrations/supabase/auth-middleware").requireSupabaseAuth.handler>>["supabase"] extends infer S ? S : never,
+  supabase: any,
   dayId: string,
   audioUrl: string | null,
 ): Promise<string | null> {
