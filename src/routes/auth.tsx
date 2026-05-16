@@ -12,9 +12,23 @@ import { Flower2 } from "lucide-react";
 import { recordConsent } from "@/lib/consent.functions";
 import { logAuditEvent } from "@/lib/audit-log.functions";
 import { TERMS_VERSION, PRIVACY_VERSION } from "@/lib/legal-versions";
+import { RouteError } from "@/components/RouteError";
+import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/auth")({
+  head: () => ({
+    meta: [
+      { title: "Entrar — Yuna" },
+      { name: "description", content: "Acesse o Yuna e comece sua jornada de yoga coreano em 28 dias." },
+      { property: "og:title", content: "Entrar — Yuna" },
+      { property: "og:description", content: "Acesse o Yuna e comece sua jornada de yoga coreano em 28 dias." },
+      { property: "og:url", content: "https://yuna-flow.lovable.app/auth" },
+    ],
+    links: [{ rel: "canonical", href: "https://yuna-flow.lovable.app/auth" }],
+  }),
   component: AuthPage,
+  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
 });
 
 function AuthPage() {
