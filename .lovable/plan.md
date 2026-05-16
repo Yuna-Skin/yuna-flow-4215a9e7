@@ -1,6 +1,8 @@
 
 # Fase B — Migração de auth para cookies com `@supabase/ssr`
 
+> **STATUS: CONCLUÍDA.** B.0–B.5 aplicadas. B.6 parcial: `auth-attacher.ts` removido; bearer fallback mantido em `auth-middleware.ts` e `start.ts` como safety net (cookies podem ser bloqueados em iframes/third-party em alguns browsers). Cookie config final: `sameSite: 'none', secure: true` (necessário pra iframe Lovable). `beforeLoad` usa `getSession()` (tolera storage bloqueado).
+
 ## Objetivo
 
 Mover a sessão Supabase de `localStorage` (acessível só no cliente) para **cookies httpOnly** lidos pelo servidor. Isso destrava:
