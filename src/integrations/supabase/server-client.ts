@@ -2,7 +2,7 @@
 // Use inside server functions / server routes where the current user's session is needed.
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { getCookie, setCookie, deleteCookie } from '@tanstack/react-start/server';
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 export function createSupabaseServerClient(): SupabaseClient<Database> {
@@ -39,12 +39,3 @@ export function createSupabaseServerClient(): SupabaseClient<Database> {
   }) as unknown as SupabaseClient<Database>;
 }
 
-// Helper for the bearer-fallback path in auth-middleware.
-export function createSupabaseBearerClient(token: string): SupabaseClient<Database> {
-  const SUPABASE_URL = process.env.SUPABASE_URL!;
-  const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY!;
-  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-    global: { headers: { Authorization: `Bearer ${token}` } },
-    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
-  });
-}
