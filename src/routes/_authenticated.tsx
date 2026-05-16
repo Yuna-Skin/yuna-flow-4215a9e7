@@ -7,12 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async () => {
-    // Aguarda hidratação da sessão do Supabase antes de qualquer loader filho rodar.
-    // Sem isso, server fns protegidas por requireSupabaseAuth podem 401 no primeiro load
-    // porque o token (em localStorage) ainda não foi restaurado.
-    if (typeof window === "undefined") return;
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) {
+    // Sessão agora vive em cookie (lida tanto no client quanto no server).
+    // getUser() valida o token contra o Supabase.
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) {
       throw redirect({ to: "/auth", replace: true });
     }
   },

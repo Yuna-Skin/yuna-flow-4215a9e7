@@ -24,7 +24,6 @@ import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/_authenticated/day/$dayId")({
   loader: ({ context, params }) => {
-    if (typeof window === "undefined") return;
     context.queryClient.ensureQueryData(dayDetailQueryOptions(params.dayId));
   },
   pendingComponent: DaySkeleton,

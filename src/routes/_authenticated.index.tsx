@@ -18,8 +18,6 @@ import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/_authenticated/")({
   loader: ({ context }) => {
-    // Auth vive em localStorage → server não tem sessão. Só pré-popula no client.
-    if (typeof window === "undefined") return;
     context.queryClient.ensureQueryData(weeksQueryOptions());
   },
   pendingComponent: HomeSkeleton,
