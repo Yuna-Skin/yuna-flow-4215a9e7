@@ -18,10 +18,10 @@ import { RouteNotFound } from "@/components/RouteNotFound";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar — Yuna" },
-      { name: "description", content: "Acesse o Yuna e comece sua jornada de yoga coreano em 28 dias." },
-      { property: "og:title", content: "Entrar — Yuna" },
-      { property: "og:description", content: "Acesse o Yuna e comece sua jornada de yoga coreano em 28 dias." },
+      { title: "Entrar — Yuna Skin" },
+      { name: "description", content: "Acesse o Yuna Skin e comece sua jornada de autocuidado facial guiado." },
+      { property: "og:title", content: "Entrar — Yuna Skin" },
+      { property: "og:description", content: "Acesse o Yuna Skin e comece sua jornada de autocuidado facial guiado." },
       { property: "og:url", content: "https://yuna-flow.lovable.app/auth" },
     ],
     links: [{ rel: "canonical", href: "https://yuna-flow.lovable.app/auth" }],
@@ -98,7 +98,7 @@ function AuthPage() {
           console.warn("Falha ao registrar consentimento/log no signup", err);
         }
 
-        toast.success("Conta criada! Bem-vinda ao Yuna 🌸");
+        toast.success("Conta criada! Bem-vinda ao Yuna Skin 🌸");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -135,9 +135,9 @@ function AuthPage() {
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
           <Flower2 className="h-8 w-8" />
         </div>
-        <h1 className="mt-6 text-4xl font-display text-foreground">Yuna</h1>
+        <h1 className="mt-6 text-4xl font-display text-foreground">Yuna Skin</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Yoga coreano em 28 dias.<br />Sua prática começa hoje.
+          Sua rotina de beleza natural.<br />Poucos minutos por dia.
         </p>
       </div>
 

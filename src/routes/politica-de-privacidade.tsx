@@ -13,10 +13,10 @@ import { RouteNotFound } from "@/components/RouteNotFound";
 export const Route = createFileRoute("/politica-de-privacidade")({
   head: () => ({
     meta: [
-      { title: "Política de Privacidade — Yuna" },
-      { name: "description", content: "Como o Yuna trata seus dados pessoais conforme a LGPD." },
-      { property: "og:title", content: "Política de Privacidade — Yuna" },
-      { property: "og:description", content: "Como o Yuna trata seus dados pessoais conforme a LGPD." },
+      { title: "Política de Privacidade — Yuna Skin" },
+      { name: "description", content: "Como o Yuna Skin trata seus dados pessoais conforme a LGPD." },
+      { property: "og:title", content: "Política de Privacidade — Yuna Skin" },
+      { property: "og:description", content: "Como o Yuna Skin trata seus dados pessoais conforme a LGPD." },
       { property: "og:url", content: "https://yuna-flow.lovable.app/politica-de-privacidade" },
     ],
     links: [{ rel: "canonical", href: "https://yuna-flow.lovable.app/politica-de-privacidade" }],
@@ -34,7 +34,7 @@ function PrivacyPage() {
       updatedAt={PRIVACY_UPDATED_AT}
     >
       <p>
-        Esta Política descreve como o Yuna, operado por{" "}
+        Esta Política descreve como o Yuna Skin, operado por{" "}
         <strong>{COMPANY_LEGAL_NAME}</strong> (CNPJ {COMPANY_CNPJ}), coleta,
         utiliza, armazena e compartilha dados pessoais, em conformidade com a
         Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD).
@@ -106,10 +106,10 @@ function PrivacyPage() {
           <strong>Autoridades públicas</strong> — quando exigido por lei
         </li>
       </ul>
-      <p>O Yuna não vende dados pessoais.</p>
+      <p>O Yuna Skin não vende dados pessoais.</p>
 
       <h2>5. Segurança</h2>
-      <p>O Yuna adota as seguintes medidas:</p>
+      <p>O Yuna Skin adota as seguintes medidas:</p>
       <ul>
         <li>criptografia em trânsito (HTTPS)</li>
         <li>criptografia de senhas</li>
@@ -151,7 +151,7 @@ function PrivacyPage() {
 
       <h2>8. Crianças e Adolescentes</h2>
       <p>
-        O Yuna não é destinado a menores de 18 anos e não coleta
+        O Yuna Skin não é destinado a menores de 18 anos e não coleta
         intencionalmente dados de menores.
       </p>
 

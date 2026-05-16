@@ -14,10 +14,10 @@ import { RouteNotFound } from "@/components/RouteNotFound";
 export const Route = createFileRoute("/termos-de-uso")({
   head: () => ({
     meta: [
-      { title: "Termos de Uso — Yuna" },
-      { name: "description", content: "Termos de Uso do aplicativo Yuna — yoga coreano em 28 dias." },
-      { property: "og:title", content: "Termos de Uso — Yuna" },
-      { property: "og:description", content: "Termos de Uso do aplicativo Yuna — yoga coreano em 28 dias." },
+      { title: "Termos de Uso — Yuna Skin" },
+      { name: "description", content: "Termos de Uso do aplicativo Yuna Skin — autocuidado facial guiado." },
+      { property: "og:title", content: "Termos de Uso — Yuna Skin" },
+      { property: "og:description", content: "Termos de Uso do aplicativo Yuna Skin — autocuidado facial guiado." },
       { property: "og:url", content: "https://yuna-flow.lovable.app/termos-de-uso" },
     ],
     links: [{ rel: "canonical", href: "https://yuna-flow.lovable.app/termos-de-uso" }],
@@ -31,21 +31,21 @@ function TermsPage() {
   return (
     <LegalPageLayout title="Termos de Uso" version={TERMS_VERSION} updatedAt={TERMS_UPDATED_AT}>
       <p>
-        Bem-vinda ao Yuna. Estes Termos de Uso regem o acesso e a utilização do
-        aplicativo Yuna. Ao criar uma conta, você declara ter lido, compreendido
+        Bem-vinda ao Yuna Skin. Estes Termos de Uso regem o acesso e a utilização do
+        aplicativo Yuna Skin. Ao criar uma conta, você declara ter lido, compreendido
         e concordado integralmente com as condições abaixo.
       </p>
 
       <h2>1. Identificação</h2>
       <p>
-        O Yuna é uma plataforma digital de autocuidado e wellness facial,
+        O Yuna Skin é uma plataforma digital de autocuidado e wellness facial,
         operada por <strong>{COMPANY_LEGAL_NAME}</strong>, inscrita no CNPJ sob
         o nº <strong>{COMPANY_CNPJ}</strong>.
       </p>
       <p>Contato oficial: {CONTACT_EMAIL}</p>
 
       <h2>2. Sobre o Produto</h2>
-      <p>O Yuna oferece conteúdos digitais relacionados a:</p>
+      <p>O Yuna Skin oferece conteúdos digitais relacionados a:</p>
       <ul>
         <li>exercícios faciais guiados</li>
         <li>drenagem facial estética</li>
@@ -55,7 +55,7 @@ function TermsPage() {
       </ul>
       <p>
         <strong>
-          O Yuna não constitui serviço médico, dermatológico, fisioterapêutico
+          O Yuna Skin não constitui serviço médico, dermatológico, fisioterapêutico
           ou terapêutico.
         </strong>{" "}
         Trata-se de plataforma educativa e de autocuidado estético.
@@ -84,7 +84,7 @@ function TermsPage() {
       <ul>
         <li>copiar, gravar ou reproduzir conteúdos</li>
         <li>redistribuir vídeos, áudios ou textos</li>
-        <li>revender materiais do Yuna</li>
+        <li>revender materiais do Yuna Skin</li>
         <li>utilizar a marca ou identidade visual sem autorização escrita</li>
       </ul>
 
@@ -105,7 +105,7 @@ function TermsPage() {
 
       <h2>8. Isenção Médica</h2>
       <p>
-        O Yuna possui caráter <strong>exclusivamente educativo, informativo
+        O Yuna Skin possui caráter <strong>exclusivamente educativo, informativo
         e de autocuidado estético</strong>. Não substitui consulta,
         diagnóstico ou orientação de profissionais de saúde habilitados.
       </p>
@@ -117,13 +117,13 @@ function TermsPage() {
       <h2>9. Resultados</h2>
       <p>
         Resultados podem variar conforme fatores individuais como
-        constância, biotipo, idade, hábitos e estilo de vida. O Yuna não
+        constância, biotipo, idade, hábitos e estilo de vida. O Yuna Skin não
         garante resultados específicos.
       </p>
 
       <h2>10. Limitação de Responsabilidade</h2>
       <p>
-        O Yuna não se responsabiliza por danos decorrentes de uso inadequado
+        O Yuna Skin não se responsabiliza por danos decorrentes de uso inadequado
         do conteúdo, falhas técnicas pontuais ou indisponibilidade
         temporária do aplicativo.
       </p>

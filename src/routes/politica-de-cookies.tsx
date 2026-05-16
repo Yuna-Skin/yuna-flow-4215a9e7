@@ -7,10 +7,10 @@ import { RouteNotFound } from "@/components/RouteNotFound";
 export const Route = createFileRoute("/politica-de-cookies")({
   head: () => ({
     meta: [
-      { title: "Política de Cookies — Yuna" },
-      { name: "description", content: "Como o Yuna utiliza cookies para garantir funcionamento, segurança e melhor experiência." },
-      { property: "og:title", content: "Política de Cookies — Yuna" },
-      { property: "og:description", content: "Como o Yuna utiliza cookies para garantir funcionamento, segurança e melhor experiência." },
+      { title: "Política de Cookies — Yuna Skin" },
+      { name: "description", content: "Como o Yuna Skin utiliza cookies para garantir funcionamento, segurança e melhor experiência." },
+      { property: "og:title", content: "Política de Cookies — Yuna Skin" },
+      { property: "og:description", content: "Como o Yuna Skin utiliza cookies para garantir funcionamento, segurança e melhor experiência." },
       { property: "og:url", content: "https://yuna-flow.lovable.app/politica-de-cookies" },
     ],
     links: [{ rel: "canonical", href: "https://yuna-flow.lovable.app/politica-de-cookies" }],
@@ -24,7 +24,7 @@ function CookiesPage() {
   return (
     <LegalPageLayout title="Política de Cookies" version="v1.0" updatedAt={COOKIES_UPDATED_AT}>
       <p>
-        Esta Política explica o que são cookies e como o Yuna os utiliza para
+        Esta Política explica o que são cookies e como o Yuna Skin os utiliza para
         garantir o funcionamento, a segurança e a melhor experiência possível.
       </p>
 
@@ -62,7 +62,7 @@ function CookiesPage() {
       </ul>
 
       <h2>5. Cookies de Terceiros</h2>
-      <p>O Yuna poderá utilizar serviços como:</p>
+      <p>O Yuna Skin poderá utilizar serviços como:</p>
       <ul>
         <li>Google Analytics</li>
         <li>Meta Pixel</li>
