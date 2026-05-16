@@ -18,8 +18,8 @@ import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/_authenticated/")({
   loader: ({ context }) => {
-    // Fire-and-forget paralelo — popula cache antes do componente montar.
-    // Weeks não depende de userId; profile/progress são gated por enabled no componente.
+    // Auth vive em localStorage → server não tem sessão. Só pré-popula no client.
+    if (typeof window === "undefined") return;
     context.queryClient.ensureQueryData(weeksQueryOptions());
   },
   pendingComponent: HomeSkeleton,
