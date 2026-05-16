@@ -111,7 +111,7 @@ function PrivacyPage() {
           <p className="mt-2 text-sm leading-relaxed text-foreground/90">
             Você pode solicitar acesso, correção, portabilidade ou exclusão dos
             seus dados a qualquer momento. Para acesso e portabilidade, escreva
-            para <strong>privacidade@yuna.com</strong>.
+            para <strong>contato@yunaskin.com.br</strong>.
           </p>
           <Link
             to="/politica-de-privacidade"

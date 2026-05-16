@@ -72,8 +72,8 @@ export function LegalGate({ children }: { children: React.ReactNode }) {
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
             {isUpdate
-              ? "Precisamos do seu novo aceite para você continuar usando o Yuna."
-              : "Para usar o Yuna, precisamos do seu aceite aos nossos Termos e Política."}
+              ? "Precisamos do seu novo aceite para você continuar usando o Yuna Skin."
+              : "Para usar o Yuna Skin, precisamos do seu aceite aos nossos Termos e Política."}
           </p>
 
           <div className="mt-5 space-y-3">
