@@ -1,7 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
+import { useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { Card } from "@/components/ui/card";
@@ -18,14 +17,36 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { toast } from "sonner";
 import DOMPurify from "dompurify";
 import { AudioModulePlayer } from "@/components/AudioModulePlayer";
-import { getPlayableDayAudioUrl } from "@/lib/day-audio.functions";
+import { dayDetailQueryOptions } from "@/lib/queries/day.queries";
+import { weeksQueryOptions, progressQueryOptions } from "@/lib/queries/home.queries";
+import { RouteError } from "@/components/RouteError";
+import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/_authenticated/day/$dayId")({
+  loader: ({ context, params }) => {
+    if (typeof window === "undefined") return;
+    context.queryClient.ensureQueryData(dayDetailQueryOptions(params.dayId));
+  },
+  pendingComponent: DaySkeleton,
+  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
   component: DayPage,
 });
 
-type Movement = { id: string; title: string; description: string | null; video_url: string | null; duration: string | null; order_index: number };
-type ExerciseRow = { id: string; title: string; order_index: number; movements: Movement[] | null };
+function DaySkeleton() {
+  return (
+    <div className="pb-32">
+      <Skeleton className="aspect-[4/5] w-full rounded-none" />
+      <div className="px-5 pt-5 space-y-3">
+        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-7 w-3/4" />
+        <Skeleton className="mt-6 h-12 w-full rounded-2xl" />
+        <Skeleton className="h-12 w-full rounded-2xl" />
+        <Skeleton className="h-12 w-full rounded-2xl" />
+      </div>
+    </div>
+  );
+}
 
 function MinimalVideoPlayer({ src }: { src: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -69,8 +90,7 @@ function MinimalVideoPlayer({ src }: { src: string }) {
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onError={() => {
-          // signed URL expirada — força re-fetch do day para renovar
-          queryClient.invalidateQueries({ queryKey: ["day"] });
+          queryClient.invalidateQueries({ queryKey: ["day-detail"] });
         }}
         className="aspect-[9/16] w-full bg-black object-cover"
       />
@@ -108,136 +128,40 @@ function MinimalVideoPlayer({ src }: { src: string }) {
 function DayPage() {
   const { dayId } = Route.useParams();
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user } = useAuth();
+  const userId = user?.id;
   const queryClient = useQueryClient();
   const [submitting, setSubmitting] = useState(false);
   const [activeVideo, setActiveVideo] = useState<{ url: string; title: string } | null>(null);
-  const fetchPlayableAudio = useServerFn(getPlayableDayAudioUrl);
 
-  const dayQ = useQuery({
-    queryKey: ["day", dayId, user?.id],
-    enabled: !authLoading && !!user,
-    queryFn: async () => {
-      const { data: dayRow, error } = await supabase
-        .from("days")
-        .select("id, day_number, title, video_url, audio_url, respiration_text, reflection_text, is_rest, week_id, weeks(title, order_index)")
-        .eq("id", dayId)
-        .maybeSingle();
-      if (error) throw error;
-      if (!dayRow) return null;
+  const dayQ = useSuspenseQuery(dayDetailQueryOptions(dayId));
+  const weeksQ = useQuery(weeksQueryOptions());
+  const progressQ = useQuery(progressQueryOptions(userId));
 
-      let playableAudioUrl = dayRow.audio_url;
-
-      if (dayRow.audio_url) {
-        try {
-          playableAudioUrl = await fetchPlayableAudio({
-            data: { dayId: dayRow.id, audioUrl: dayRow.audio_url },
-          });
-        } catch (audioError) {
-          console.error("Failed to resolve playable audio URL", audioError);
-        }
-      }
-
-      const { data: exs } = await supabase
-        .from("exercises")
-        .select("id, title, order_index, movements(id, title, description, video_url, duration, order_index)")
-        .eq("day_id", dayRow.id)
-        .order("order_index");
-      return {
-        ...dayRow,
-        audio_url: playableAudioUrl,
-        exercises: ((exs as ExerciseRow[] | null) ?? []).map((e) => ({
-          id: e.id,
-          title: e.title,
-          movements: (e.movements ?? []).slice().sort((a, b) => a.order_index - b.order_index),
-        })),
-      };
-    },
-    staleTime: 45 * 60_000,
-  });
-
-  const progressQ = useQuery({
-    queryKey: ["user_progress", user?.id],
-    enabled: !authLoading && !!user,
-    queryFn: async (): Promise<Set<string>> => {
-      const { data } = await supabase
-        .from("user_progress")
-        .select("day_id")
-        .eq("user_id", user!.id)
-        .eq("completed", true);
-      return new Set((data ?? []).map((p) => p.day_id));
-    },
-  });
-
-  const weeksQ = useQuery({
-    queryKey: ["weeks-order"],
-    queryFn: async (): Promise<{ id: string; order_index: number }[]> => {
-      const { data } = await supabase.from("weeks").select("id, order_index").order("order_index");
-      return data ?? [];
-    },
-    staleTime: 10 * 60_000,
-  });
-
-  const weeksFullQ = useQuery({
-    queryKey: ["weeks-with-days"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("weeks")
-        .select("id, order_index, days(id, is_rest)")
-        .order("order_index");
-      return data ?? [];
-    },
-    staleTime: 10 * 60_000,
-  });
-
-  const allProgressQ = useQuery({
-    queryKey: ["user_progress", user?.id],
-    enabled: !authLoading && !!user,
-    queryFn: async (): Promise<Set<string>> => {
-      const { data } = await supabase
-        .from("user_progress")
-        .select("day_id")
-        .eq("user_id", user!.id)
-        .eq("completed", true);
-      return new Set((data ?? []).map((p) => p.day_id));
-    },
-  });
-
-  const loading = authLoading || dayQ.isLoading || progressQ.isLoading || weeksQ.isLoading;
   const day = dayQ.data;
   const weeks = weeksQ.data ?? [];
-  const weekNumber = day?.week_id ? weeks.findIndex((w) => w.id === day.week_id) + 1 : 0;
-  const completedSet = progressQ.data ?? new Set<string>();
-  const isCompleted = day ? completedSet.has(day.id) : false;
+  const completedSet = new Set(progressQ.data ?? []);
+  const isCompleted = completedSet.has(day.id);
 
   // Lock check: a week is unlocked only when previous week's non-rest days are all completed.
-  const weeksFull = weeksFullQ.data ?? [];
-  const allCompleted = allProgressQ.data ?? new Set<string>();
-  const dayWeekIdx = day?.week_id ? weeksFull.findIndex((w) => w.id === day.week_id) : -1;
+  const dayWeekIdx = day.week_id ? weeks.findIndex((w) => w.id === day.week_id) : -1;
   const isLocked = (() => {
     if (dayWeekIdx <= 0) return false;
-    const prev = weeksFull[dayWeekIdx - 1] as { days: { id: string; is_rest: boolean }[] } | undefined;
+    const prev = weeks[dayWeekIdx - 1];
     if (!prev) return false;
     const prevActive = (prev.days ?? []).filter((d) => !d.is_rest);
-    return !(prevActive.length > 0 && prevActive.every((d) => allCompleted.has(d.id)));
+    return !(prevActive.length > 0 && prevActive.every((d) => completedSet.has(d.id)));
   })();
 
   useEffect(() => {
-    if (!loading && day && isLocked) {
+    if (isLocked) {
       toast.error("Conclua a semana anterior para desbloquear");
       navigate({ to: "/" });
     }
-  }, [loading, day, isLocked, navigate]);
-
-  useEffect(() => {
-    if (!loading && !day) {
-      toast.error("Dia não encontrado");
-      navigate({ to: "/" });
-    }
-  }, [loading, day, navigate]);
+  }, [isLocked, navigate]);
 
   const handleComplete = async () => {
-    if (!day || !user) return;
+    if (!user) return;
     setSubmitting(true);
     if (isCompleted) {
       const { error } = await supabase
@@ -272,21 +196,6 @@ function DayPage() {
     toast.success("Dia concluído! 🌸");
     navigate({ to: "/" });
   };
-
-  if (loading || !day) {
-    return (
-      <div className="pb-32">
-        <Skeleton className="aspect-[4/5] w-full rounded-none" />
-        <div className="px-5 pt-5 space-y-3">
-          <Skeleton className="h-3 w-16" />
-          <Skeleton className="h-7 w-3/4" />
-          <Skeleton className="mt-6 h-12 w-full rounded-2xl" />
-          <Skeleton className="h-12 w-full rounded-2xl" />
-          <Skeleton className="h-12 w-full rounded-2xl" />
-        </div>
-      </div>
-    );
-  }
 
   if (day.is_rest) {
     return (
@@ -354,7 +263,7 @@ function DayPage() {
       <div className="relative">
         <AudioModulePlayer
           audioUrl={day.audio_url ?? null}
-          onSourceError={() => queryClient.invalidateQueries({ queryKey: ["day", dayId, user?.id] })}
+          onSourceError={() => queryClient.invalidateQueries({ queryKey: ["day-detail", dayId] })}
         />
         <button
           onClick={() => navigate({ to: "/" })}
@@ -369,7 +278,7 @@ function DayPage() {
           Dia {day.day_number}
         </p>
         <h1 className="mt-1 font-display text-2xl leading-tight text-foreground">
-          {(day as { weeks?: { title?: string } }).weeks?.title ?? day.title.replace(/^Dia \d+ — /, "")}
+          {day.week_title ?? day.title.replace(/^Dia \d+ — /, "")}
         </h1>
 
         <h2 className="mt-7 text-sm font-semibold text-muted-foreground">Exercícios</h2>
