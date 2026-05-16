@@ -2,9 +2,10 @@
 // Use inside server functions / server routes where the current user's session is needed.
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { getCookie, setCookie, deleteCookie } from '@tanstack/react-start/server';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-export function createSupabaseServerClient() {
+export function createSupabaseServerClient(): SupabaseClient<Database> {
   const SUPABASE_URL = process.env.SUPABASE_URL;
   const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
 
@@ -17,21 +18,6 @@ export function createSupabaseServerClient() {
 
   return createServerClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     cookies: {
-      getAll() {
-        // @tanstack/react-start/server exposes a per-cookie getter; we re-collect via document of request.
-        // There is no getAll helper, so we read individual sb- cookies as @supabase/ssr requests them.
-        // Fallback: return empty; @supabase/ssr falls back to individual get().
-        return [];
-      },
-      setAll(cookies) {
-        for (const { name, value, options } of cookies) {
-          try {
-            setCookie(name, value, options as CookieOptions);
-          } catch {
-            /* response may already be sent in some flows */
-          }
-        }
-      },
       get(name: string) {
         return getCookie(name);
       },
@@ -39,7 +25,7 @@ export function createSupabaseServerClient() {
         try {
           setCookie(name, value, options);
         } catch {
-          /* noop */
+          /* response may already be sent */
         }
       },
       remove(name: string, options: CookieOptions) {
@@ -49,6 +35,16 @@ export function createSupabaseServerClient() {
           /* noop */
         }
       },
-    } as never, // @supabase/ssr accepts either the get/set/remove or getAll/setAll shape
+    },
+  }) as unknown as SupabaseClient<Database>;
+}
+
+// Helper for the bearer-fallback path in auth-middleware.
+export function createSupabaseBearerClient(token: string): SupabaseClient<Database> {
+  const SUPABASE_URL = process.env.SUPABASE_URL!;
+  const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY!;
+  return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+    auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
   });
 }
