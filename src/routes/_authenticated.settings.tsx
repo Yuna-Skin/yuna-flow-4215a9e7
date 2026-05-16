@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { ChevronRight, ArrowLeft, Shield, FileText, Cookie, Lock } from "lucide-react";
+import { ChevronRight, ArrowLeft, Shield, FileText, Cookie, Lock, Info, Receipt } from "lucide-react";
 import { RouteError } from "@/components/RouteError";
 import { RouteNotFound } from "@/components/RouteNotFound";
 
@@ -88,6 +88,30 @@ function SettingsPage() {
               <Cookie className="h-5 w-5 text-primary" />
               <span className="text-sm font-medium text-foreground">
                 Política de Cookies
+              </span>
+            </span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
+          <Link
+            to="/reembolso"
+            className="flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-muted/40"
+          >
+            <span className="flex items-center gap-3">
+              <Receipt className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-foreground">
+                Política de Reembolso
+              </span>
+            </span>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
+          <Link
+            to="/sobre"
+            className="flex items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-muted/40"
+          >
+            <span className="flex items-center gap-3">
+              <Info className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-foreground">
+                Sobre o Yuna Skin
               </span>
             </span>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />

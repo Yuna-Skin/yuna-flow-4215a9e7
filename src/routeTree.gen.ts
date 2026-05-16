@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermosDeUsoRouteImport } from './routes/termos-de-uso'
+import { Route as SobreRouteImport } from './routes/sobre'
+import { Route as ReembolsoRouteImport } from './routes/reembolso'
 import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
 import { Route as PoliticaDeCookiesRouteImport } from './routes/politica-de-cookies'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -27,6 +29,16 @@ import { Route as AuthenticatedAdminModerationRouteImport } from './routes/_auth
 const TermosDeUsoRoute = TermosDeUsoRouteImport.update({
   id: '/termos-de-uso',
   path: '/termos-de-uso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SobreRoute = SobreRouteImport.update({
+  id: '/sobre',
+  path: '/sobre',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReembolsoRoute = ReembolsoRouteImport.update({
+  id: '/reembolso',
+  path: '/reembolso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
@@ -101,6 +113,8 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
+  '/reembolso': typeof ReembolsoRoute
+  '/sobre': typeof SobreRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/community': typeof AuthenticatedCommunityRoute
   '/plus': typeof AuthenticatedPlusRoute
@@ -115,6 +129,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
+  '/reembolso': typeof ReembolsoRoute
+  '/sobre': typeof SobreRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/community': typeof AuthenticatedCommunityRoute
   '/plus': typeof AuthenticatedPlusRoute
@@ -132,6 +148,8 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
+  '/reembolso': typeof ReembolsoRoute
+  '/sobre': typeof SobreRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/_authenticated/community': typeof AuthenticatedCommunityRoute
   '/_authenticated/plus': typeof AuthenticatedPlusRoute
@@ -150,6 +168,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/politica-de-cookies'
     | '/politica-de-privacidade'
+    | '/reembolso'
+    | '/sobre'
     | '/termos-de-uso'
     | '/community'
     | '/plus'
@@ -164,6 +184,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/politica-de-cookies'
     | '/politica-de-privacidade'
+    | '/reembolso'
+    | '/sobre'
     | '/termos-de-uso'
     | '/community'
     | '/plus'
@@ -180,6 +202,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/politica-de-cookies'
     | '/politica-de-privacidade'
+    | '/reembolso'
+    | '/sobre'
     | '/termos-de-uso'
     | '/_authenticated/community'
     | '/_authenticated/plus'
@@ -197,6 +221,8 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   PoliticaDeCookiesRoute: typeof PoliticaDeCookiesRoute
   PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
+  ReembolsoRoute: typeof ReembolsoRoute
+  SobreRoute: typeof SobreRoute
   TermosDeUsoRoute: typeof TermosDeUsoRoute
 }
 
@@ -207,6 +233,20 @@ declare module '@tanstack/react-router' {
       path: '/termos-de-uso'
       fullPath: '/termos-de-uso'
       preLoaderRoute: typeof TermosDeUsoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sobre': {
+      id: '/sobre'
+      path: '/sobre'
+      fullPath: '/sobre'
+      preLoaderRoute: typeof SobreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reembolso': {
+      id: '/reembolso'
+      path: '/reembolso'
+      fullPath: '/reembolso'
+      preLoaderRoute: typeof ReembolsoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/politica-de-privacidade': {
@@ -347,6 +387,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   PoliticaDeCookiesRoute: PoliticaDeCookiesRoute,
   PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
+  ReembolsoRoute: ReembolsoRoute,
+  SobreRoute: SobreRoute,
   TermosDeUsoRoute: TermosDeUsoRoute,
 }
 export const routeTree = rootRouteImport
