@@ -7,15 +7,23 @@ import {
   COMPANY_CNPJ,
   PRIVACY_EMAIL,
 } from "@/lib/legal-versions";
+import { RouteError } from "@/components/RouteError";
+import { RouteNotFound } from "@/components/RouteNotFound";
 
 export const Route = createFileRoute("/politica-de-privacidade")({
   head: () => ({
     meta: [
       { title: "Política de Privacidade — Yuna" },
-      { name: "description", content: "Como o Yuna trata seus dados pessoais." },
+      { name: "description", content: "Como o Yuna trata seus dados pessoais conforme a LGPD." },
+      { property: "og:title", content: "Política de Privacidade — Yuna" },
+      { property: "og:description", content: "Como o Yuna trata seus dados pessoais conforme a LGPD." },
+      { property: "og:url", content: "https://yuna-flow.lovable.app/politica-de-privacidade" },
     ],
+    links: [{ rel: "canonical", href: "https://yuna-flow.lovable.app/politica-de-privacidade" }],
   }),
   component: PrivacyPage,
+  errorComponent: RouteError,
+  notFoundComponent: RouteNotFound,
 });
 
 function PrivacyPage() {
