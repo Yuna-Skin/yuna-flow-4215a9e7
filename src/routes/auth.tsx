@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { Flower2 } from "lucide-react";
+import { Logo } from "@/components/Logo";
 import { recordConsent } from "@/lib/consent.functions";
 import { logAuditEvent } from "@/lib/audit-log.functions";
 import { TERMS_VERSION, PRIVACY_VERSION } from "@/lib/legal-versions";
