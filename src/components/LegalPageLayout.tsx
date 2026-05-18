@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
+import { Logo } from "@/components/Logo";
 
 interface Props {
   title: string;
@@ -20,8 +21,9 @@ export function LegalPageLayout({ title, version, updatedAt, children }: Props) 
         Voltar
       </Link>
 
-      <header className="mt-6">
-        <h1 className="font-display text-3xl text-foreground">{title}</h1>
+      <header className="mt-6 flex flex-col items-center text-center">
+        <Logo size={56} />
+        <h1 className="mt-3 font-display text-3xl text-foreground">{title}</h1>
         <p className="mt-2 text-xs text-muted-foreground">
           Versão {version} · Atualizado em {updatedAt}
         </p>

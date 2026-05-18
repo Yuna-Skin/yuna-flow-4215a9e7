@@ -43,6 +43,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/png", href: "https://res.cloudinary.com/dqsuj0pjy/image/upload/f_auto,q_auto,w_64,h_64,c_fit/v1779080514/FastBurn_3_z6feak.png" },
+      { rel: "apple-touch-icon", href: "https://res.cloudinary.com/dqsuj0pjy/image/upload/f_auto,q_auto,w_180,h_180,c_fit/v1779080514/FastBurn_3_z6feak.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       { rel: "preconnect", href: "https://res.cloudinary.com", crossOrigin: "anonymous" },
