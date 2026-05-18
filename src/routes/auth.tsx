@@ -140,7 +140,7 @@ function AuthPage() {
   };
 
   return (
-    <div className="mobile-shell flex flex-col px-6 py-10">
+    <div className="mobile-shell flex min-h-screen flex-col justify-center px-6 py-10">
       <div className="flex flex-col items-center text-center">
         <Logo size={96} priority />
         <p className="mt-4 text-sm text-muted-foreground">
