@@ -38,6 +38,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:description", content: "Protocolo de autocuidado facial guiado. Construa o hábito da sua prática diária." },
       { name: "twitter:card", content: "summary" },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0c8503c3-e5f7-494e-b8c1-3dd29cc80b5c/id-preview-63b13036--c47b9a46-0009-409a-b039-b0bf90d518bb.lovable.app-1779075775330.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0c8503c3-e5f7-494e-b8c1-3dd29cc80b5c/id-preview-63b13036--c47b9a46-0009-409a-b039-b0bf90d518bb.lovable.app-1779075775330.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
