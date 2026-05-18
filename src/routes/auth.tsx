@@ -143,8 +143,7 @@ function AuthPage() {
     <div className="mobile-shell flex flex-col px-6 py-10">
       <div className="flex flex-col items-center text-center">
         <Logo size={96} priority />
-        <h1 className="mt-4 text-4xl font-display text-foreground">Yuna Skin</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-4 text-sm text-muted-foreground">
           Sua rotina de beleza natural.<br />Poucos minutos por dia.
         </p>
       </div>
