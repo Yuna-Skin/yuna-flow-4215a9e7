@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Sparkles, BookOpen, Download, Lock, Headphones, FileText, ArrowUpRight } from "lucide-react";
 import { RouteError } from "@/components/RouteError";
 import { RouteNotFound } from "@/components/RouteNotFound";
+import { optimizeCloudinary } from "@/lib/cloudinary";
 
 export const Route = createFileRoute("/_authenticated/plus")({
   errorComponent: RouteError,
