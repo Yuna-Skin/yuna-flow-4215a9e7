@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Sparkles, Heart, Flower2 } from "lucide-react";
+import { ArrowLeft, Heart, Flower2 } from "lucide-react";
+import { Logo } from "@/components/Logo";
 import { CONTACT_EMAIL } from "@/lib/legal-versions";
 import { RouteError } from "@/components/RouteError";
 import { RouteNotFound } from "@/components/RouteNotFound";
