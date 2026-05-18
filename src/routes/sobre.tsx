@@ -41,12 +41,10 @@ function SobrePage() {
       </Link>
 
       <header className="mt-8">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary">
-            Yuna Skin
-          </p>
-        </div>
+        <Logo size={64} />
+        <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.22em] text-primary">
+          Yuna Skin
+        </p>
         <h1 className="mt-2 font-display text-4xl leading-tight text-foreground">
           Sua rotina de beleza natural em poucos minutos por dia
         </h1>
