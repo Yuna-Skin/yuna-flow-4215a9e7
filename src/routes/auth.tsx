@@ -45,7 +45,7 @@ function AuthPage() {
   const writeAuditLog = useServerFn(logAuditEvent);
 
   useEffect(() => {
-    if (session) navigate({ to: "/" });
+    if (session) navigate({ to: "/", replace: true });
   }, [session, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,7 +67,7 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -99,9 +99,19 @@ function AuthPage() {
         }
 
         toast.success("Conta criada! Bem-vinda ao Yuna Skin 🌸");
+
+        if (data.session) {
+          navigate({ to: "/", replace: true });
+        }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+
+        if (data.session) {
+          await supabase.auth.getSession();
+          navigate({ to: "/", replace: true });
+        }
+
         // Log jurídico de login (best-effort, não bloqueia o fluxo)
         writeAuditLog({ data: { event_type: "login" } }).catch((e) =>
           console.warn("audit log login failed", e),
