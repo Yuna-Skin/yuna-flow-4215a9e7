@@ -19,36 +19,41 @@ type BonusItem = {
   title: string;
   description: string;
   meta: string;
+  cover?: string;
   url?: string;
   locked?: boolean;
 };
 
+const EBOOK_BASE = "https://peledeporcelanas.lovable.app/ebook";
+
 // TODO: mover pra tabela `bonus_items` no Supabase quando tivermos +5 itens.
-// Estrutura já espelha o shape da futura tabela: { id, kind, title, description, meta, url, locked }.
 const BONUSES: BonusItem[] = [
   {
-    id: "protocolo-pele-porcelana",
+    id: "pele-de-porcelana",
     kind: "ebook",
     title: "Protocolo Pele de Porcelana",
     description: "O ritual usado para deixar a pele uniforme, viçosa e bonita mesmo sem maquiagem.",
-    meta: "Em breve",
-    locked: true,
+    meta: "Bônus 01",
+    cover: "https://res.cloudinary.com/dqsuj0pjy/image/upload/v1778975052/Uma_mulher_relaxando_profundamente_a_202605162043_w4zm3x.jpg",
+    url: `${EBOOK_BASE}/pele-de-porcelana`,
   },
   {
-    id: "guia-anti-erros-botox-coreano",
+    id: "anti-erros",
     kind: "guide",
-    title: "Guia anti-erros do botox coreano manual",
+    title: "Guia Anti-Erros do Botox Coreano Manual",
     description: "Os erros silenciosos que impedem resultados e como evitar cada um deles.",
-    meta: "Em breve",
-    locked: true,
+    meta: "Bônus 02",
+    cover: "https://res.cloudinary.com/dqsuj0pjy/image/upload/v1778986049/Retrato_editorial_sofisticado_de_uma_202605162347_ojdhii.jpg",
+    url: `${EBOOK_BASE}/anti-erros`,
   },
   {
-    id: "plano-leve-pos-desafio",
+    id: "manutencao",
     kind: "guide",
     title: "Plano Leve de Manutenção Pós-Desafio",
     description: "Como preservar sua juventude facial conquistada com leveza e inteligência.",
-    meta: "Em breve",
-    locked: true,
+    meta: "Bônus 03",
+    cover: "https://res.cloudinary.com/dqsuj0pjy/image/upload/v1779056395/Close-up_editorial_extremamente_sofisticado_de_202605171918_bo6vcy.jpg",
+    url: `${EBOOK_BASE}/manutencao`,
   },
 ];
 
