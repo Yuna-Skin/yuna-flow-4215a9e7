@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermosDeUsoRouteImport } from './routes/termos-de-uso'
 import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as ReembolsoRouteImport } from './routes/reembolso'
+import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
 import { Route as PoliticaDeCookiesRouteImport } from './routes/politica-de-cookies'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -39,6 +40,11 @@ const SobreRoute = SobreRouteImport.update({
 const ReembolsoRoute = ReembolsoRouteImport.update({
   id: '/reembolso',
   path: '/reembolso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecuperarSenhaRoute = RecuperarSenhaRouteImport.update({
+  id: '/recuperar-senha',
+  path: '/recuperar-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
   '/reembolso': typeof ReembolsoRoute
   '/sobre': typeof SobreRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
   '/reembolso': typeof ReembolsoRoute
   '/sobre': typeof SobreRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
   '/reembolso': typeof ReembolsoRoute
   '/sobre': typeof SobreRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/politica-de-cookies'
     | '/politica-de-privacidade'
+    | '/recuperar-senha'
     | '/reembolso'
     | '/sobre'
     | '/termos-de-uso'
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/politica-de-cookies'
     | '/politica-de-privacidade'
+    | '/recuperar-senha'
     | '/reembolso'
     | '/sobre'
     | '/termos-de-uso'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/politica-de-cookies'
     | '/politica-de-privacidade'
+    | '/recuperar-senha'
     | '/reembolso'
     | '/sobre'
     | '/termos-de-uso'
@@ -221,6 +233,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   PoliticaDeCookiesRoute: typeof PoliticaDeCookiesRoute
   PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
+  RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   ReembolsoRoute: typeof ReembolsoRoute
   SobreRoute: typeof SobreRoute
   TermosDeUsoRoute: typeof TermosDeUsoRoute
@@ -247,6 +260,13 @@ declare module '@tanstack/react-router' {
       path: '/reembolso'
       fullPath: '/reembolso'
       preLoaderRoute: typeof ReembolsoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recuperar-senha': {
+      id: '/recuperar-senha'
+      path: '/recuperar-senha'
+      fullPath: '/recuperar-senha'
+      preLoaderRoute: typeof RecuperarSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/politica-de-privacidade': {
@@ -387,6 +407,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   PoliticaDeCookiesRoute: PoliticaDeCookiesRoute,
   PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
+  RecuperarSenhaRoute: RecuperarSenhaRoute,
   ReembolsoRoute: ReembolsoRoute,
   SobreRoute: SobreRoute,
   TermosDeUsoRoute: TermosDeUsoRoute,
