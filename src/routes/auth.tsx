@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -31,7 +31,6 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const { session } = useAuth();
-  const [mode, setMode] = useState<"login" | "forgot">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -45,25 +44,16 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      if (mode === "forgot") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/reset-password`,
-        });
-        if (error) throw error;
-        toast.success("Enviamos um e-mail com o link para redefinir sua senha ✨");
-        setMode("login");
-      } else {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        if (data.session) {
-          await supabase.auth.getSession();
-          navigate({ to: "/", replace: true });
-        }
-        writeAuditLog({ data: { event_type: "login" } }).catch((e) =>
-          console.warn("audit log login failed", e),
-        );
-        toast.success("Bom te ver de volta ✨");
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      if (data.session) {
+        await supabase.auth.getSession();
+        navigate({ to: "/", replace: true });
       }
+      writeAuditLog({ data: { event_type: "login" } }).catch((e) =>
+        console.warn("audit log login failed", e),
+      );
+      toast.success("Bom te ver de volta ✨");
     } catch (err) {
       const raw = err instanceof Error ? err.message : "Algo deu errado";
       const lower = raw.toLowerCase();
@@ -101,44 +91,39 @@ function AuthPage() {
             required
             placeholder="voce@email.com"
             className="h-12 rounded-xl"
+            autoComplete="email"
           />
         </div>
-        {mode === "login" && (
-          <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-              placeholder="Sua senha"
-              className="h-12 rounded-xl"
-            />
-          </div>
-        )}
+        <div className="space-y-2">
+          <Label htmlFor="password">Senha</Label>
+          <Input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+            placeholder="Sua senha"
+            className="h-12 rounded-xl"
+            autoComplete="current-password"
+          />
+        </div>
 
         <Button
           type="submit"
           disabled={busy}
           className="h-12 w-full rounded-full text-base"
         >
-          {busy ? "Aguarde..." : mode === "login" ? "Entrar" : "Enviar link de recuperação"}
+          {busy ? "Aguarde..." : "Entrar"}
         </Button>
       </form>
 
-      <button
-        type="button"
-        onClick={() => setMode(mode === "login" ? "forgot" : "login")}
+      <Link
+        to="/recuperar-senha"
         className="mt-6 text-center text-sm text-muted-foreground hover:text-foreground"
       >
-        {mode === "login" ? (
-          <>Esqueceu a senha? <span className="font-medium text-primary">Recuperar agora</span></>
-        ) : (
-          <>Lembrou da senha? <span className="font-medium text-primary">Voltar para entrar</span></>
-        )}
-      </button>
+        Esqueceu a senha? <span className="font-medium text-primary">Recuperar agora</span>
+      </Link>
     </div>
   );
 }

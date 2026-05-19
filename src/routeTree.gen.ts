@@ -11,8 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermosDeUsoRouteImport } from './routes/termos-de-uso'
 import { Route as SobreRouteImport } from './routes/sobre'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReembolsoRouteImport } from './routes/reembolso'
+import { Route as RecuperarSenhaRouteImport } from './routes/recuperar-senha'
 import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
 import { Route as PoliticaDeCookiesRouteImport } from './routes/politica-de-cookies'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -37,14 +37,14 @@ const SobreRoute = SobreRouteImport.update({
   path: '/sobre',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ReembolsoRoute = ReembolsoRouteImport.update({
   id: '/reembolso',
   path: '/reembolso',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecuperarSenhaRoute = RecuperarSenhaRouteImport.update({
+  id: '/recuperar-senha',
+  path: '/recuperar-senha',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
@@ -119,8 +119,8 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
   '/reembolso': typeof ReembolsoRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/sobre': typeof SobreRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/community': typeof AuthenticatedCommunityRoute
@@ -136,8 +136,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
   '/reembolso': typeof ReembolsoRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/sobre': typeof SobreRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/community': typeof AuthenticatedCommunityRoute
@@ -156,8 +156,8 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/politica-de-cookies': typeof PoliticaDeCookiesRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
+  '/recuperar-senha': typeof RecuperarSenhaRoute
   '/reembolso': typeof ReembolsoRoute
-  '/reset-password': typeof ResetPasswordRoute
   '/sobre': typeof SobreRoute
   '/termos-de-uso': typeof TermosDeUsoRoute
   '/_authenticated/community': typeof AuthenticatedCommunityRoute
@@ -177,8 +177,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/politica-de-cookies'
     | '/politica-de-privacidade'
+    | '/recuperar-senha'
     | '/reembolso'
-    | '/reset-password'
     | '/sobre'
     | '/termos-de-uso'
     | '/community'
@@ -194,8 +194,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/politica-de-cookies'
     | '/politica-de-privacidade'
+    | '/recuperar-senha'
     | '/reembolso'
-    | '/reset-password'
     | '/sobre'
     | '/termos-de-uso'
     | '/community'
@@ -213,8 +213,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/politica-de-cookies'
     | '/politica-de-privacidade'
+    | '/recuperar-senha'
     | '/reembolso'
-    | '/reset-password'
     | '/sobre'
     | '/termos-de-uso'
     | '/_authenticated/community'
@@ -233,8 +233,8 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   PoliticaDeCookiesRoute: typeof PoliticaDeCookiesRoute
   PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
+  RecuperarSenhaRoute: typeof RecuperarSenhaRoute
   ReembolsoRoute: typeof ReembolsoRoute
-  ResetPasswordRoute: typeof ResetPasswordRoute
   SobreRoute: typeof SobreRoute
   TermosDeUsoRoute: typeof TermosDeUsoRoute
 }
@@ -255,18 +255,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SobreRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/reembolso': {
       id: '/reembolso'
       path: '/reembolso'
       fullPath: '/reembolso'
       preLoaderRoute: typeof ReembolsoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recuperar-senha': {
+      id: '/recuperar-senha'
+      path: '/recuperar-senha'
+      fullPath: '/recuperar-senha'
+      preLoaderRoute: typeof RecuperarSenhaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/politica-de-privacidade': {
@@ -407,8 +407,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   PoliticaDeCookiesRoute: PoliticaDeCookiesRoute,
   PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
+  RecuperarSenhaRoute: RecuperarSenhaRoute,
   ReembolsoRoute: ReembolsoRoute,
-  ResetPasswordRoute: ResetPasswordRoute,
   SobreRoute: SobreRoute,
   TermosDeUsoRoute: TermosDeUsoRoute,
 }
