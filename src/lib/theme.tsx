@@ -12,7 +12,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 const STORAGE_KEY = "yuna-theme";
 const THEME_COLOR_LIGHT = "#FCDFC9";
-const THEME_COLOR_DARK = "#1a0710";
+const THEME_COLOR_DARK = "#0F0B0D";
 
 function getSystemTheme(): "light" | "dark" {
   if (typeof window === "undefined") return "light";
