@@ -316,7 +316,7 @@ function HomePage() {
                     ? "bg-progress-accent text-white shadow-sm"
                     : isCurrent
                       ? "glass border-2 border-primary text-foreground"
-                      : "bg-white/60 text-muted-foreground border border-black/[0.04] hover:bg-white",
+                      : "bg-white/60 text-background border border-black/[0.04] hover:bg-white",
                 )}
               >
                 {done ? <Check className="h-4 w-4" strokeWidth={2.5} /> : d.day_number}
