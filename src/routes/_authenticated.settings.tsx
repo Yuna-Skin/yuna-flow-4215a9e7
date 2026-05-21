@@ -1,7 +1,8 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { ChevronRight, ArrowLeft, Shield, FileText, Cookie, Lock, Info, Receipt } from "lucide-react";
+import { ChevronRight, ArrowLeft, Shield, FileText, Cookie, Lock, Info, Receipt, Sun, Moon, Monitor } from "lucide-react";
 import { RouteError } from "@/components/RouteError";
 import { RouteNotFound } from "@/components/RouteNotFound";
+import { useTheme, type Theme } from "@/lib/theme";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   errorComponent: RouteError,
@@ -34,6 +35,15 @@ function SettingsPage() {
       </p>
 
       <section className="mt-8">
+        <p className="px-1 text-xs uppercase tracking-widest text-muted-foreground">
+          Aparência
+        </p>
+        <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card p-2">
+          <AppearanceToggle />
+        </div>
+      </section>
+
+      <section className="mt-6">
         <p className="px-1 text-xs uppercase tracking-widest text-muted-foreground">
           Privacidade
         </p>
