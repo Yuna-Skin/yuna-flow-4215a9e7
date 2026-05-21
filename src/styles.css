@@ -227,24 +227,24 @@
     background: rgba(255, 255, 255, 0.92);
   }
   :is(.dark) .glass {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(10px);
   }
   .glass-strong {
     background: rgba(255, 255, 255, 0.96);
   }
   :is(.dark) .glass-strong {
-    background: rgba(42, 10, 24, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(34, 30, 34, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(12px);
   }
   .glass-nav {
     background: rgba(255, 255, 255, 0.94);
   }
   :is(.dark) .glass-nav {
-    background: rgba(26, 7, 16, 0.88);
-    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(15, 11, 13, 0.88);
+    border-color: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(14px);
   }
   .glass-dark {
