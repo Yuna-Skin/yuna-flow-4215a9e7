@@ -179,21 +179,21 @@
   }
   :is(.dark) .bg-screen {
     background:
-      radial-gradient(60% 50% at 80% 10%, rgba(244, 114, 162, 0.35) 0%, transparent 60%),
-      radial-gradient(70% 60% at 20% 90%, rgba(120, 20, 50, 0.6) 0%, transparent 65%),
-      linear-gradient(180deg, #1a0710 0%, #2a0a18 50%, #0c0306 100%);
+      radial-gradient(80% 60% at 100% 0%, rgba(243, 155, 92, 0.06) 0%, transparent 60%),
+      radial-gradient(70% 50% at 0% 100%, rgba(232, 154, 174, 0.04) 0%, transparent 65%),
+      #0F0B0D;
   }
   .bg-primary-soft {
     background: linear-gradient(135deg, #FAD0C4 0%, #FFD1A8 50%, #FFE5D0 100%);
   }
   :is(.dark) .bg-primary-soft {
-    background: linear-gradient(135deg, #5a1a2e 0%, #3a0f1c 60%, #2a0a18 100%);
+    background: linear-gradient(135deg, #2A2024 0%, #221E22 60%, #1A1619 100%);
   }
   .bg-secondary-soft {
     background: linear-gradient(135deg, #FBC2EB 0%, #FEC5A3 55%, #FFD8C2 100%);
   }
   :is(.dark) .bg-secondary-soft {
-    background: linear-gradient(135deg, #4a1530 0%, #3a1024 55%, #2a0a18 100%);
+    background: linear-gradient(135deg, #2A1E24 0%, #221A20 55%, #1A1619 100%);
   }
   .bg-cta-dark {
     background: linear-gradient(180deg, #2A2A2A 0%, #000000 100%);
