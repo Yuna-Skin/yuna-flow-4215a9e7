@@ -95,45 +95,45 @@
 }
 
 .dark {
-  /* Wine luxo — inspirado na hero da landing */
-  --background: oklch(0.16 0.05 12);              /* #1a0710 */
-  --foreground: oklch(0.95 0.02 350);             /* rosa muito claro */
+  /* Neutro warm — base calma de produto. Vinho/rosa fica reservado para CTAs e momentos premium. */
+  --background: oklch(0.16 0.008 30);             /* #0F0B0D quase-preto warm */
+  --foreground: oklch(0.94 0.008 60);             /* #F0EBE8 nunca branco puro */
 
-  --surface: oklch(0.21 0.06 12);                 /* #2a0a18 */
-  --surface-soft: oklch(0.21 0.06 12 / 0.72);
-  --surface-muted: oklch(0.26 0.06 12);
+  --surface: oklch(0.21 0.008 30);                /* #1A1619 surface-1 (cards) */
+  --surface-soft: oklch(0.21 0.008 30 / 0.72);
+  --surface-muted: oklch(0.25 0.008 30);          /* #221E22 surface-2 (elevado) */
 
-  --card: oklch(0.21 0.06 12 / 0.72);
-  --card-foreground: oklch(0.95 0.02 350);
+  --card: oklch(0.21 0.008 30 / 0.85);
+  --card-foreground: oklch(0.94 0.008 60);
 
-  --popover: oklch(0.21 0.06 12);
-  --popover-foreground: oklch(0.95 0.02 350);
+  --popover: oklch(0.27 0.008 30);                /* #2A2528 surface-3 */
+  --popover-foreground: oklch(0.94 0.008 60);
 
-  /* Pêssego mantém como primary (boa legibilidade no vinho) */
-  --primary: oklch(0.78 0.16 50);
-  --primary-foreground: oklch(0.16 0.05 12);
+  /* Pêssego dessaturado #F39B5C (original #FF8A3D queima no escuro) */
+  --primary: oklch(0.76 0.12 50);
+  --primary-foreground: oklch(0.16 0.008 30);
 
-  /* Rosa #F47299 como secondary */
-  --secondary: oklch(0.72 0.17 0);
-  --secondary-foreground: oklch(0.16 0.05 12);
+  /* Rosa dessaturado #E89AAE */
+  --secondary: oklch(0.78 0.08 0);
+  --secondary-foreground: oklch(0.16 0.008 30);
 
-  --muted: oklch(0.26 0.06 12);
-  --muted-foreground: oklch(0.78 0.04 350);
+  --muted: oklch(0.25 0.008 30);
+  --muted-foreground: oklch(0.70 0.012 50);       /* #A89F9B */
 
-  --accent: oklch(0.34 0.10 12);                  /* vinho médio */
-  --accent-foreground: oklch(0.95 0.02 350);
+  --accent: oklch(0.27 0.008 30);
+  --accent-foreground: oklch(0.94 0.008 60);
 
-  --destructive: oklch(0.68 0.17 25);
-  --destructive-foreground: oklch(0.99 0 0);
+  --destructive: oklch(0.65 0.15 25);
+  --destructive-foreground: oklch(0.98 0 0);
 
-  --success: oklch(0.78 0.13 145);
-  --warning: oklch(0.78 0.14 70);
-  --info: oklch(0.76 0.10 260);
-  --warm: oklch(0.78 0.10 60);
+  --success: oklch(0.75 0.10 145);
+  --warning: oklch(0.78 0.12 70);
+  --info: oklch(0.74 0.08 260);
+  --warm: oklch(0.76 0.08 60);
 
-  --border: oklch(1 0 0 / 0.10);
-  --input: oklch(1 0 0 / 0.08);
-  --ring: oklch(0.72 0.17 0);
+  --border: oklch(1 0 0 / 0.08);
+  --input: oklch(1 0 0 / 0.06);
+  --ring: oklch(0.76 0.12 50);
 }
 
 @layer base {
