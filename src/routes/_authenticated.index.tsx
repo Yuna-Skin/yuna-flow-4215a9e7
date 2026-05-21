@@ -428,3 +428,21 @@ function HomePage() {
     </div>
   );
 }
+
+function ThemeToggleButton() {
+  const { theme, setTheme } = useTheme();
+  const order: Theme[] = ["light", "dark", "system"];
+  const next = order[(order.indexOf(theme) + 1) % order.length];
+  const Icon = theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
+  const label = theme === "light" ? "Tema claro" : theme === "dark" ? "Tema escuro" : "Tema do sistema";
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(next)}
+      aria-label={`${label}. Trocar tema.`}
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground/80 shadow-sm transition-colors hover:text-foreground active:scale-95"
+    >
+      <Icon className="h-4 w-4" strokeWidth={1.75} />
+    </button>
+  );
+}
