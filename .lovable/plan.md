@@ -1,51 +1,81 @@
-## Fluxo de recuperação de senha por código (OTP)
+# Dark Mode "Wine Luxo" — aplicabilidade
 
-Substituir o atual link mágico do Supabase por um fluxo com **código de 6 dígitos enviado por e-mail**, em 3 passos numa única página `/recuperar-senha` (mais simples no PWA, sem depender de abrir link em outro navegador).
+## Veredito: 100% aplicável, e é a melhor escolha pro app
 
-### Passo a passo (UX)
+A paleta vinho/rosa/pêssego que você usou na hero da landing é **a evolução natural** do light mode atual do app (que já é pêssego + rosa em fundo creme). Não é um dark genérico cinza — é o mesmo DNA da marca, escurecido. Mantém a alma "wellness feminino premium" sem virar um app frio de produtividade.
 
-```
-[1. E-mail]  →  [2. Código de 6 dígitos]  →  [3. Nova senha + confirmação]  →  Redireciona pro app logado
-```
+A base técnica também ajuda: o `src/styles.css` já tem o bloco `.dark` definido com todos os tokens semânticos, e os componentes usam tokens (`bg-background`, `text-foreground`, etc.). Só precisamos **trocar os valores do `.dark`** pela paleta da hero e ajustar alguns utilitários "crus".
 
-1. **E-mail de compra**
-   - Campo de e-mail + botão "Enviar código"
-   - Chama `supabase.auth.resetPasswordForEmail(email)` — o Supabase envia um e-mail contendo um token OTP de 6 dígitos
-   - Mensagem genérica de sucesso ("Se este e-mail existir, enviaremos um código") para não vazar quais e-mails estão cadastrados
+## O que entra do design system da landing
 
-2. **Verificação do código**
-   - 6 inputs / campo único de 6 dígitos
-   - Chama `supabase.auth.verifyOtp({ email, token: codigo, type: 'recovery' })`
-   - Se válido, cria uma sessão de recuperação automaticamente e avança
-   - Link "Reenviar código" com cooldown de 60s
+**Cores**
+- Background base: `#1a0710 → #2a0a18 → #0c0306` (vinho profundo)
+- Glow rosa nos cantos: `rgba(244, 114, 162, 0.35)` e `rgba(120, 20, 50, 0.6)`
+- Acentos: rosa `#F47299` / `#FFB3C8` + pêssego `#FF8A3D` (mantém o primary atual)
+- CTA dark: gradiente `#FF4D7E → #C71E5C` (substitui o `bg-cta-dark` preto)
+- Texto gradiente: `text-gradient-pink` pra títulos/destaques
 
-3. **Nova senha**
-   - Campos: nova senha (8+ caracteres, 1 número) + confirmar senha
-   - Chama `supabase.auth.updateUser({ password })`
-   - Toast de sucesso e `navigate({ to: "/" })` (usuário já está logado)
+**Tipografia**
+- Manter Inter no app (não trocar pra Instrument Serif — a landing é venda, o app é uso diário; serif vira ruído em telas densas)
+- Opcional: Instrument Serif só em headlines grandes (ex: nome do dia, hero do Plus)
 
-### Mudanças técnicas
+**Visual**
+- `glass-dark`: `rgba(255,255,255,0.04)` + border `rgba(255,255,255,0.08)` + blur — substitui o `.glass` branco no dark
+- Aura/glow radial atrás de elementos heroicos (cards do Plus, foto do dia)
+- Border sutil claro em vez de sombras pretas (sombra preta some no dark)
 
-- **Substituir** `src/routes/reset-password.tsx` (fluxo de link mágico criado antes) por `src/routes/recuperar-senha.tsx` com os 3 passos controlados por estado (`step: "email" | "code" | "password"`).
-- **Atualizar** `src/routes/auth.tsx`: o link "Esqueceu a senha?" passa a apontar para `/recuperar-senha` em vez de chamar `resetPasswordForEmail` inline.
-- **Customizar template de e-mail de recovery do Supabase** para incluir o código `{{ .Token }}` em destaque (em vez do `{{ .ConfirmationURL }}` padrão). Isso pode ser feito de 2 formas:
-  - **Opção A (rápida):** editar o template "Reset Password" no painel Supabase → Authentication → Email Templates, trocando para algo como:
-    ```
-    Seu código de recuperação Yuna Skin: {{ .Token }}
-    Ele expira em 1 hora.
-    ```
-  - **Opção B (branding completo):** scaffoldar templates auth do Lovable (`auth-email-hook`) com layout Yuna Skin (logo, cor `#FCDFC9`, fontes). Requer domínio de e-mail configurado.
+## Plano de execução (2 entregas)
 
-### Considerações de segurança
+### Entrega 1 — Infra + tokens (1h)
 
-- Mensagem genérica no passo 1 (não confirma se e-mail existe)
-- Rate limiting: o Supabase já limita `resetPasswordForEmail` por padrão; tratamos o erro `over_email_send_rate_limit` com mensagem amigável
-- Código expira em ~1h (config padrão Supabase)
-- Validação client + server da senha (mínimo 8 chars + 1 número)
-- Após sucesso, log de auditoria `password_reset` via `logAuditEvent`
+1. **Theme provider** (`src/lib/theme.tsx`)
+   - Context com `theme: 'light' | 'dark' | 'system'`
+   - Persistência em `localStorage` (`yuna-theme`)
+   - Aplica/remove classe `dark` no `<html>`
+   - Respeita `prefers-color-scheme` quando `system`
+   - Atualiza meta `theme-color` dinamicamente (`#FCDFC9` claro / `#1a0710` escuro)
+   - Wrap em `__root.tsx` dentro do `AuthProvider`
 
-### Decisões que preciso confirmar
+2. **Reescrever o bloco `.dark` em `src/styles.css`** com a paleta vinho:
+   - `--background`: `oklch` equivalente a `#1a0710`
+   - `--surface`, `--card`, `--popover`: tons de `#2a0a18`
+   - `--surface-muted`: vinho um pouco mais claro
+   - `--foreground`: `#F5E8EC` (rosa muito claro, não branco puro)
+   - `--muted-foreground`: rosa dessaturado
+   - `--primary`: manter pêssego `#FF8A3D` (boa legibilidade em vinho)
+   - `--secondary`: rosa `#F47299`
+   - `--accent`: vinho médio
+   - `--border`: `rgba(255,255,255,0.08)`
+   - `--ring`: rosa `#F47299`
 
-1. **Template de e-mail:** Opção A (editar no painel Supabase, rápido) ou Opção B (scaffold branded completo)?
-2. **Texto da página inicial:** mantenho "Recuperar senha" ou prefere "Já comprei, quero acessar" (mais alinhado com o contexto de quem comprou e ainda não entrou)?
-3. **Para usuários que **nunca** fizeram login** (compraram mas não acessaram): este fluxo funciona igual? Sim, desde que o e-mail da compra já tenha sido cadastrado no Supabase Auth no momento da venda. Se o cadastro é feito só na primeira entrada, precisamos definir esse outro fluxo também.
+3. **Adicionar utilitários dark-aware no `styles.css`**:
+   - `.mobile-shell` ganha variante dark com o gradiente `bg-hero-wine`
+   - `.bg-screen` idem
+   - `.glass`, `.glass-nav` ganham fallback dark (`rgba(255,255,255,0.04)` + border clara)
+   - Trazer `.glass-dark`, `.text-gradient-pink`, `.bg-cta-pink` da landing
+
+4. **Toggle em `/settings`** (já existe a rota)
+   - Card "Aparência" com 3 opções: Claro / Escuro / Sistema
+   - Ícones Sun/Moon/Monitor
+
+### Entrega 2 — QA tela a tela (1h)
+
+Passar por: home, day/$dayId, plus, shop, profile, community, settings, auth, recuperar-senha, legais, admin/moderation.
+
+Ajustes esperados:
+- `BottomNav`: `border-black/[0.06]` → token; sombra preta → glow rosa sutil
+- `Card`: já usa tokens, só validar contraste
+- Componentes com `text-white`, `bg-black/X` hardcoded → trocar por tokens
+- Thumbs do Cloudinary: validar se ficam ok em fundo vinho (provavelmente sim, já são fotos com fundo claro contrastante)
+- `AudioModulePlayer`: validar player no dark
+- `LegalGate` overlay: validar legibilidade
+
+## Riscos / decisões pendentes
+
+1. **Fotos**: as miniaturas de dias/módulos foram pensadas pra fundo claro. No vinho elas viram "ilhas brancas" — pode ficar elegante (efeito "polaroid sobre veludo") ou destoar. Decidir no QA: se destoar, aplicamos um leve overlay ou borda rosa pra integrar.
+2. **Default**: o app abre em qual modo na primeira visita? Sugiro `system` (respeita o OS do usuário).
+3. **Plus/Shop**: essas telas têm mais "venda" e podem usar `text-gradient-pink` + `bg-cta-pink` direto, ficando mais próximas da landing. Vale o reforço visual.
+
+## Resumo
+
+Dificuldade real: **baixa** (~2h total). A escolha estética é forte porque reaproveita um sistema já validado na landing — o usuário vê coerência entre a página de vendas e o app. É upgrade de identidade, não só "modo escuro".

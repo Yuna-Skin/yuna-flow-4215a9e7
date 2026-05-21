@@ -1,7 +1,8 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { ChevronRight, ArrowLeft, Shield, FileText, Cookie, Lock, Info, Receipt } from "lucide-react";
+import { ChevronRight, ArrowLeft, Shield, FileText, Cookie, Lock, Info, Receipt, Sun, Moon, Monitor } from "lucide-react";
 import { RouteError } from "@/components/RouteError";
 import { RouteNotFound } from "@/components/RouteNotFound";
+import { useTheme, type Theme } from "@/lib/theme";
 
 export const Route = createFileRoute("/_authenticated/settings")({
   errorComponent: RouteError,
@@ -34,6 +35,15 @@ function SettingsPage() {
       </p>
 
       <section className="mt-8">
+        <p className="px-1 text-xs uppercase tracking-widest text-muted-foreground">
+          Aparência
+        </p>
+        <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card p-2">
+          <AppearanceToggle />
+        </div>
+      </section>
+
+      <section className="mt-6">
         <p className="px-1 text-xs uppercase tracking-widest text-muted-foreground">
           Privacidade
         </p>
@@ -118,6 +128,39 @@ function SettingsPage() {
           </Link>
         </div>
       </section>
+    </div>
+  );
+}
+
+function AppearanceToggle() {
+  const { theme, setTheme } = useTheme();
+  const options: { value: Theme; label: string; Icon: typeof Sun }[] = [
+    { value: "light", label: "Claro", Icon: Sun },
+    { value: "dark", label: "Escuro", Icon: Moon },
+    { value: "system", label: "Sistema", Icon: Monitor },
+  ];
+  return (
+    <div className="grid grid-cols-3 gap-1.5">
+      {options.map(({ value, label, Icon }) => {
+        const active = theme === value;
+        return (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setTheme(value)}
+            className={
+              "flex flex-col items-center justify-center gap-1.5 rounded-xl px-3 py-3 text-xs font-medium transition-all " +
+              (active
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground")
+            }
+            aria-pressed={active}
+          >
+            <Icon className="h-4 w-4" />
+            {label}
+          </button>
+        );
+      })}
     </div>
   );
 }

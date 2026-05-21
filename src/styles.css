@@ -95,32 +95,45 @@
 }
 
 .dark {
-  --background: oklch(0.16 0.01 40);
-  --foreground: oklch(0.96 0.005 60);
-  --surface: oklch(0.22 0.01 40);
-  --surface-soft: oklch(0.22 0.01 40 / 0.72);
-  --surface-muted: oklch(0.24 0.01 40);
-  --card: oklch(0.22 0.01 40 / 0.72);
-  --card-foreground: oklch(0.96 0.005 60);
-  --popover: oklch(0.22 0.01 40);
-  --popover-foreground: oklch(0.96 0.005 60);
-  --primary: oklch(0.78 0.15 50);
-  --primary-foreground: oklch(0.15 0.01 40);
-  --secondary: oklch(0.40 0.06 350);
-  --secondary-foreground: oklch(0.96 0.005 60);
-  --muted: oklch(0.26 0.01 40);
-  --muted-foreground: oklch(0.72 0.01 60);
-  --accent: oklch(0.34 0.04 50);
-  --accent-foreground: oklch(0.96 0.005 60);
+  /* Wine luxo — inspirado na hero da landing */
+  --background: oklch(0.16 0.05 12);              /* #1a0710 */
+  --foreground: oklch(0.95 0.02 350);             /* rosa muito claro */
+
+  --surface: oklch(0.21 0.06 12);                 /* #2a0a18 */
+  --surface-soft: oklch(0.21 0.06 12 / 0.72);
+  --surface-muted: oklch(0.26 0.06 12);
+
+  --card: oklch(0.21 0.06 12 / 0.72);
+  --card-foreground: oklch(0.95 0.02 350);
+
+  --popover: oklch(0.21 0.06 12);
+  --popover-foreground: oklch(0.95 0.02 350);
+
+  /* Pêssego mantém como primary (boa legibilidade no vinho) */
+  --primary: oklch(0.78 0.16 50);
+  --primary-foreground: oklch(0.16 0.05 12);
+
+  /* Rosa #F47299 como secondary */
+  --secondary: oklch(0.72 0.17 0);
+  --secondary-foreground: oklch(0.16 0.05 12);
+
+  --muted: oklch(0.26 0.06 12);
+  --muted-foreground: oklch(0.78 0.04 350);
+
+  --accent: oklch(0.34 0.10 12);                  /* vinho médio */
+  --accent-foreground: oklch(0.95 0.02 350);
+
   --destructive: oklch(0.68 0.17 25);
   --destructive-foreground: oklch(0.99 0 0);
+
   --success: oklch(0.78 0.13 145);
   --warning: oklch(0.78 0.14 70);
   --info: oklch(0.76 0.10 260);
   --warm: oklch(0.78 0.10 60);
+
   --border: oklch(1 0 0 / 0.10);
-  --input: oklch(1 0 0 / 0.12);
-  --ring: oklch(0.78 0.15 50);
+  --input: oklch(1 0 0 / 0.08);
+  --ring: oklch(0.72 0.17 0);
 }
 
 @layer base {
@@ -164,26 +177,80 @@
       radial-gradient(100% 70% at 0% 100%, #FADBD8 0%, transparent 60%),
       #FFF9F5;
   }
+  :is(.dark) .bg-screen {
+    background:
+      radial-gradient(60% 50% at 80% 10%, rgba(244, 114, 162, 0.35) 0%, transparent 60%),
+      radial-gradient(70% 60% at 20% 90%, rgba(120, 20, 50, 0.6) 0%, transparent 65%),
+      linear-gradient(180deg, #1a0710 0%, #2a0a18 50%, #0c0306 100%);
+  }
   .bg-primary-soft {
     background: linear-gradient(135deg, #FAD0C4 0%, #FFD1A8 50%, #FFE5D0 100%);
+  }
+  :is(.dark) .bg-primary-soft {
+    background: linear-gradient(135deg, #5a1a2e 0%, #3a0f1c 60%, #2a0a18 100%);
   }
   .bg-secondary-soft {
     background: linear-gradient(135deg, #FBC2EB 0%, #FEC5A3 55%, #FFD8C2 100%);
   }
+  :is(.dark) .bg-secondary-soft {
+    background: linear-gradient(135deg, #4a1530 0%, #3a1024 55%, #2a0a18 100%);
+  }
   .bg-cta-dark {
     background: linear-gradient(180deg, #2A2A2A 0%, #000000 100%);
+  }
+  .bg-cta-pink {
+    background: linear-gradient(180deg, #FF4D7E 0%, #E63971 50%, #C71E5C 100%);
+    box-shadow: 0 14px 40px -10px rgba(231, 57, 113, 0.55), inset 0 1px 0 rgba(255,255,255,0.25);
+  }
+  .bg-hero-wine {
+    background:
+      radial-gradient(60% 50% at 80% 10%, rgba(244, 114, 162, 0.35) 0%, transparent 60%),
+      radial-gradient(70% 60% at 20% 90%, rgba(120, 20, 50, 0.6) 0%, transparent 65%),
+      linear-gradient(180deg, #1a0710 0%, #2a0a18 50%, #0c0306 100%);
   }
   .bg-progress-accent {
     background: linear-gradient(180deg, #FFB36B 0%, #FF8A3D 100%);
   }
+  .text-gradient-pink {
+    background: linear-gradient(180deg, #FFB3C8 0%, #F47299 55%, #D9295E 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-warm {
+    background: linear-gradient(135deg, #FF8A3D 0%, #F7AFC8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
   .glass {
     background: rgba(255, 255, 255, 0.92);
+  }
+  :is(.dark) .glass {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
   }
   .glass-strong {
     background: rgba(255, 255, 255, 0.96);
   }
+  :is(.dark) .glass-strong {
+    background: rgba(42, 10, 24, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+  }
   .glass-nav {
     background: rgba(255, 255, 255, 0.94);
+  }
+  :is(.dark) .glass-nav {
+    background: rgba(26, 7, 16, 0.88);
+    border-color: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(14px);
+  }
+  .glass-dark {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
   }
 }
 
@@ -200,6 +267,14 @@
     radial-gradient(100% 70% at 0% 100%, #FADBD8 0%, transparent 60%),
     #FFF9F5;
   box-shadow: 0 0 60px rgba(0, 0, 0, 0.04);
+}
+
+:is(.dark) .mobile-shell {
+  background:
+    radial-gradient(60% 50% at 80% 10%, rgba(244, 114, 162, 0.35) 0%, transparent 60%),
+    radial-gradient(70% 60% at 20% 90%, rgba(120, 20, 50, 0.6) 0%, transparent 65%),
+    linear-gradient(180deg, #1a0710 0%, #2a0a18 50%, #0c0306 100%);
+  box-shadow: 0 0 60px rgba(244, 114, 162, 0.08);
 }
 
 .app-shell {
