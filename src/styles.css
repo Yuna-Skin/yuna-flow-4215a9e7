@@ -271,10 +271,10 @@
 
 :is(.dark) .mobile-shell {
   background:
-    radial-gradient(60% 50% at 80% 10%, rgba(244, 114, 162, 0.35) 0%, transparent 60%),
-    radial-gradient(70% 60% at 20% 90%, rgba(120, 20, 50, 0.6) 0%, transparent 65%),
-    linear-gradient(180deg, #1a0710 0%, #2a0a18 50%, #0c0306 100%);
-  box-shadow: 0 0 60px rgba(244, 114, 162, 0.08);
+    radial-gradient(80% 60% at 100% 0%, rgba(243, 155, 92, 0.06) 0%, transparent 60%),
+    radial-gradient(70% 50% at 0% 100%, rgba(232, 154, 174, 0.04) 0%, transparent 65%),
+    #0F0B0D;
+  box-shadow: 0 0 60px rgba(243, 155, 92, 0.04);
 }
 
 .app-shell {
