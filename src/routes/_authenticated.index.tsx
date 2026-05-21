@@ -299,7 +299,7 @@ function HomePage() {
                   to="/day/$dayId"
                   params={{ dayId: d.id }}
                   aria-label={`Dia ${d.day_number} — descanso`}
-                  className="flex aspect-square w-full items-center justify-center rounded-full border border-dashed border-black/10 bg-white/40 text-muted-foreground/70 transition-all hover:bg-white/70"
+                  className="flex aspect-square w-full items-center justify-center rounded-full border border-dashed border-black/10 bg-white/40 text-background/80 transition-all hover:bg-white/70"
                 >
                   <Moon className="h-3.5 w-3.5" strokeWidth={2} />
                 </Link>
