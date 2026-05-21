@@ -131,3 +131,36 @@ function SettingsPage() {
     </div>
   );
 }
+
+function AppearanceToggle() {
+  const { theme, setTheme } = useTheme();
+  const options: { value: Theme; label: string; Icon: typeof Sun }[] = [
+    { value: "light", label: "Claro", Icon: Sun },
+    { value: "dark", label: "Escuro", Icon: Moon },
+    { value: "system", label: "Sistema", Icon: Monitor },
+  ];
+  return (
+    <div className="grid grid-cols-3 gap-1.5">
+      {options.map(({ value, label, Icon }) => {
+        const active = theme === value;
+        return (
+          <button
+            key={value}
+            type="button"
+            onClick={() => setTheme(value)}
+            className={
+              "flex flex-col items-center justify-center gap-1.5 rounded-xl px-3 py-3 text-xs font-medium transition-all " +
+              (active
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground")
+            }
+            aria-pressed={active}
+          >
+            <Icon className="h-4 w-4" />
+            {label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
