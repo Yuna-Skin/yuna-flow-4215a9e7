@@ -7,7 +7,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Play, Pause, Check, Moon, Lock } from "lucide-react";
+import { Play, Pause, Check, Moon, Lock, Sun, Monitor } from "lucide-react";
+import { useTheme, type Theme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { getPlayableDayAudioUrl } from "@/lib/day-audio.functions";
 import { optimizeCloudinary } from "@/lib/cloudinary";
@@ -152,21 +153,24 @@ function HomePage() {
 
   return (
     <div className="px-4 pb-6 pt-8">
-      <Link to="/profile" className="flex items-center gap-3 rounded-2xl -mx-1 px-1 py-1 transition-colors active:bg-black/5">
-        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-primary to-warm shadow-sm">
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
-          ) : (
-            <span className="flex h-full w-full items-center justify-center text-lg font-display text-primary-foreground">
-              {name[0]?.toUpperCase()}
-            </span>
-          )}
-        </div>
-        <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Olá,</p>
-          <h1 className="mt-0.5 font-display text-[26px] leading-tight text-foreground">{name}</h1>
-        </div>
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link to="/profile" className="flex flex-1 items-center gap-3 rounded-2xl -mx-1 px-1 py-1 transition-colors active:bg-black/5">
+          <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-primary to-warm shadow-sm">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center text-lg font-display text-primary-foreground">
+                {name[0]?.toUpperCase()}
+              </span>
+            )}
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Olá,</p>
+            <h1 className="mt-0.5 font-display text-[26px] leading-tight text-foreground">{name}</h1>
+          </div>
+        </Link>
+        <ThemeToggleButton />
+      </div>
 
       <Card className="relative mt-6 h-[440px] overflow-hidden rounded-[40px] border-0 bg-black p-0 text-white shadow-2xl">
         {thumbUrl ? (
@@ -422,5 +426,23 @@ function HomePage() {
         </div>
       )}
     </div>
+  );
+}
+
+function ThemeToggleButton() {
+  const { theme, setTheme } = useTheme();
+  const order: Theme[] = ["light", "dark", "system"];
+  const next = order[(order.indexOf(theme) + 1) % order.length];
+  const Icon = theme === "light" ? Sun : theme === "dark" ? Moon : Monitor;
+  const label = theme === "light" ? "Tema claro" : theme === "dark" ? "Tema escuro" : "Tema do sistema";
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(next)}
+      aria-label={`${label}. Trocar tema.`}
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card text-foreground/80 shadow-sm transition-colors hover:text-foreground active:scale-95"
+    >
+      <Icon className="h-4 w-4" strokeWidth={1.75} />
+    </button>
   );
 }
