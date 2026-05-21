@@ -153,21 +153,24 @@ function HomePage() {
 
   return (
     <div className="px-4 pb-6 pt-8">
-      <Link to="/profile" className="flex items-center gap-3 rounded-2xl -mx-1 px-1 py-1 transition-colors active:bg-black/5">
-        <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-primary to-warm shadow-sm">
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
-          ) : (
-            <span className="flex h-full w-full items-center justify-center text-lg font-display text-primary-foreground">
-              {name[0]?.toUpperCase()}
-            </span>
-          )}
-        </div>
-        <div>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Olá,</p>
-          <h1 className="mt-0.5 font-display text-[26px] leading-tight text-foreground">{name}</h1>
-        </div>
-      </Link>
+      <div className="flex items-center justify-between gap-3">
+        <Link to="/profile" className="flex flex-1 items-center gap-3 rounded-2xl -mx-1 px-1 py-1 transition-colors active:bg-black/5">
+          <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-primary to-warm shadow-sm">
+            {avatarUrl ? (
+              <img src={avatarUrl} alt={name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+            ) : (
+              <span className="flex h-full w-full items-center justify-center text-lg font-display text-primary-foreground">
+                {name[0]?.toUpperCase()}
+              </span>
+            )}
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground">Olá,</p>
+            <h1 className="mt-0.5 font-display text-[26px] leading-tight text-foreground">{name}</h1>
+          </div>
+        </Link>
+        <ThemeToggleButton />
+      </div>
 
       <Card className="relative mt-6 h-[440px] overflow-hidden rounded-[40px] border-0 bg-black p-0 text-white shadow-2xl">
         {thumbUrl ? (
