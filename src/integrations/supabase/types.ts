@@ -19,6 +19,7 @@ export type Database = {
           created_at: string
           has_access: boolean
           source: string
+          ticto_order_id: string | null
           updated_at: string
           user_id: string
         }
@@ -26,6 +27,7 @@ export type Database = {
           created_at?: string
           has_access?: boolean
           source?: string
+          ticto_order_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -33,6 +35,7 @@ export type Database = {
           created_at?: string
           has_access?: boolean
           source?: string
+          ticto_order_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -422,6 +425,39 @@ export type Database = {
           },
         ]
       }
+      pending_purchases: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          payload: Json | null
+          product_id: string | null
+          status: string
+          ticto_order_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          payload?: Json | null
+          product_id?: string | null
+          status?: string
+          ticto_order_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          payload?: Json | null
+          product_id?: string | null
+          status?: string
+          ticto_order_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       post_likes: {
         Row: {
           created_at: string
@@ -493,6 +529,36 @@ export type Database = {
           id?: string
           is_active?: boolean
           title?: string
+        }
+        Relationships: []
+      }
+      ticto_webhook_events: {
+        Row: {
+          created_at: string
+          error: string | null
+          event_type: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          ticto_event_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event_type: string
+          id?: string
+          payload: Json
+          processed_at?: string | null
+          ticto_event_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          ticto_event_id?: string | null
         }
         Relationships: []
       }

@@ -1,81 +1,70 @@
-# Dark Mode "Wine Luxo" — aplicabilidade
+## Integração Ticto via Webhook
 
-## Veredito: 100% aplicável, e é a melhor escolha pro app
+### Visão geral
+Endpoint público no app recebe eventos da Ticto, valida assinatura, e libera/revoga acesso em `access_control` por email. Compras sem cadastro ficam pendentes e são liberadas automaticamente quando o usuário se cadastra com o mesmo email.
 
-A paleta vinho/rosa/pêssego que você usou na hero da landing é **a evolução natural** do light mode atual do app (que já é pêssego + rosa em fundo creme). Não é um dark genérico cinza — é o mesmo DNA da marca, escurecido. Mantém a alma "wellness feminino premium" sem virar um app frio de produtividade.
+### Mudanças no banco
 
-A base técnica também ajuda: o `src/styles.css` já tem o bloco `.dark` definido com todos os tokens semânticos, e os componentes usam tokens (`bg-background`, `text-foreground`, etc.). Só precisamos **trocar os valores do `.dark`** pela paleta da hero e ajustar alguns utilitários "crus".
+**Nova tabela `pending_purchases`** — guarda compras de emails que ainda não têm conta:
+- `email` (texto, indexado)
+- `status` (`active` | `refunded` | `chargeback` | `canceled`)
+- `ticto_order_id` (único, evita duplicar)
+- `product_id`, `payload` (jsonb com o evento bruto pra auditoria)
+- RLS: só admin lê/escreve
 
-## O que entra do design system da landing
+**Nova tabela `ticto_webhook_events`** — log de todo evento recebido (idempotência + debug):
+- `ticto_event_id` (único), `event_type`, `payload`, `processed_at`, `error`
+- RLS: só admin
 
-**Cores**
-- Background base: `#1a0710 → #2a0a18 → #0c0306` (vinho profundo)
-- Glow rosa nos cantos: `rgba(244, 114, 162, 0.35)` e `rgba(120, 20, 50, 0.6)`
-- Acentos: rosa `#F47299` / `#FFB3C8` + pêssego `#FF8A3D` (mantém o primary atual)
-- CTA dark: gradiente `#FF4D7E → #C71E5C` (substitui o `bg-cta-dark` preto)
-- Texto gradiente: `text-gradient-pink` pra títulos/destaques
+**Ajuste em `access_control`**:
+- Adicionar coluna `ticto_order_id` (texto, nullable) — referência pra revogar quando vier refund/chargeback
+- Manter `source` (já existe) — usar `'ticto'` quando vier de compra
 
-**Tipografia**
-- Manter Inter no app (não trocar pra Instrument Serif — a landing é venda, o app é uso diário; serif vira ruído em telas densas)
-- Opcional: Instrument Serif só em headlines grandes (ex: nome do dia, hero do Plus)
+**Ajuste em `handle_new_user` trigger**:
+- Quando um novo user se cadastra, checar `pending_purchases` por email e, se houver registro `active`, criar entrada em `access_control` com `has_access=true, source='ticto'` em vez do default
 
-**Visual**
-- `glass-dark`: `rgba(255,255,255,0.04)` + border `rgba(255,255,255,0.08)` + blur — substitui o `.glass` branco no dark
-- Aura/glow radial atrás de elementos heroicos (cards do Plus, foto do dia)
-- Border sutil claro em vez de sombras pretas (sombra preta some no dark)
+### Endpoint do webhook
 
-## Plano de execução (2 entregas)
+`src/routes/api/public/ticto-webhook.ts` (server route, POST):
 
-### Entrega 1 — Infra + tokens (1h)
+1. Lê body como texto cru
+2. Valida assinatura usando `TICTO_WEBHOOK_TOKEN` (HMAC ou token simples, depende do que a Ticto manda — confirmar no painel)
+3. Parseia payload com Zod
+4. Idempotência: se `ticto_event_id` já existe em `ticto_webhook_events`, retorna 200 sem reprocessar
+5. Roteia por `event_type`:
+   - `purchase_approved` / `subscription_renewed` → libera acesso
+   - `purchase_refunded` / `chargeback` / `subscription_canceled` → revoga acesso
+6. Pra liberar: busca user por email em `auth.users`; se existe, upsert em `access_control`; se não, upsert em `pending_purchases`
+7. Pra revogar: update em `access_control` (`has_access=false`) por `ticto_order_id`; também marca `pending_purchases` se aplicável
+8. Registra em `ticto_webhook_events` com `processed_at` (ou `error` se falhou)
+9. Sempre retorna 200 rápido (a Ticto reenvia se receber erro)
 
-1. **Theme provider** (`src/lib/theme.tsx`)
-   - Context com `theme: 'light' | 'dark' | 'system'`
-   - Persistência em `localStorage` (`yuna-theme`)
-   - Aplica/remove classe `dark` no `<html>`
-   - Respeita `prefers-color-scheme` quando `system`
-   - Atualiza meta `theme-color` dinamicamente (`#FCDFC9` claro / `#1a0710` escuro)
-   - Wrap em `__root.tsx` dentro do `AuthProvider`
+### Secret necessário
 
-2. **Reescrever o bloco `.dark` em `src/styles.css`** com a paleta vinho:
-   - `--background`: `oklch` equivalente a `#1a0710`
-   - `--surface`, `--card`, `--popover`: tons de `#2a0a18`
-   - `--surface-muted`: vinho um pouco mais claro
-   - `--foreground`: `#F5E8EC` (rosa muito claro, não branco puro)
-   - `--muted-foreground`: rosa dessaturado
-   - `--primary`: manter pêssego `#FF8A3D` (boa legibilidade em vinho)
-   - `--secondary`: rosa `#F47299`
-   - `--accent`: vinho médio
-   - `--border`: `rgba(255,255,255,0.08)`
-   - `--ring`: rosa `#F47299`
+`TICTO_WEBHOOK_TOKEN` — o token de segurança que a Ticto manda nos headers. Você pega no painel da Ticto ao configurar o webhook. Vou pedir via tool de secret quando chegar a hora.
 
-3. **Adicionar utilitários dark-aware no `styles.css`**:
-   - `.mobile-shell` ganha variante dark com o gradiente `bg-hero-wine`
-   - `.bg-screen` idem
-   - `.glass`, `.glass-nav` ganham fallback dark (`rgba(255,255,255,0.04)` + border clara)
-   - Trazer `.glass-dark`, `.text-gradient-pink`, `.bg-cta-pink` da landing
+### URL pra colar na Ticto
 
-4. **Toggle em `/settings`** (já existe a rota)
-   - Card "Aparência" com 3 opções: Claro / Escuro / Sistema
-   - Ícones Sun/Moon/Monitor
+```
+https://yuna-flow.lovable.app/api/public/ticto-webhook
+```
+(URL estável, sobrevive a renames)
 
-### Entrega 2 — QA tela a tela (1h)
+### Admin / observabilidade (opcional, fase 2)
 
-Passar por: home, day/$dayId, plus, shop, profile, community, settings, auth, recuperar-senha, legais, admin/moderation.
+- Página `/admin/purchases` lista últimos eventos de `ticto_webhook_events` e `pending_purchases` (pra você ver se algo falhou)
+- Botão "reprocessar" num evento com erro
 
-Ajustes esperados:
-- `BottomNav`: `border-black/[0.06]` → token; sombra preta → glow rosa sutil
-- `Card`: já usa tokens, só validar contraste
-- Componentes com `text-white`, `bg-black/X` hardcoded → trocar por tokens
-- Thumbs do Cloudinary: validar se ficam ok em fundo vinho (provavelmente sim, já são fotos com fundo claro contrastante)
-- `AudioModulePlayer`: validar player no dark
-- `LegalGate` overlay: validar legibilidade
+### Ordem de execução
 
-## Riscos / decisões pendentes
+1. Migration: criar `pending_purchases`, `ticto_webhook_events`, adicionar `ticto_order_id` em `access_control`, atualizar trigger `handle_new_user`
+2. Criar o endpoint `src/routes/api/public/ticto-webhook.ts` com validação Zod + assinatura + roteamento de eventos
+3. Pedir o secret `TICTO_WEBHOOK_TOKEN`
+4. Te passar a URL pra colar no painel da Ticto + instrução de mandar um evento de teste
+5. (Fase 2, se quiser) página de admin
 
-1. **Fotos**: as miniaturas de dias/módulos foram pensadas pra fundo claro. No vinho elas viram "ilhas brancas" — pode ficar elegante (efeito "polaroid sobre veludo") ou destoar. Decidir no QA: se destoar, aplicamos um leve overlay ou borda rosa pra integrar.
-2. **Default**: o app abre em qual modo na primeira visita? Sugiro `system` (respeita o OS do usuário).
-3. **Plus/Shop**: essas telas têm mais "venda" e podem usar `text-gradient-pink` + `bg-cta-pink` direto, ficando mais próximas da landing. Vale o reforço visual.
+### Pontos que preciso confirmar com você antes/durante
 
-## Resumo
-
-Dificuldade real: **baixa** (~2h total). A escolha estética é forte porque reaproveita um sistema já validado na landing — o usuário vê coerência entre a página de vendas e o app. É upgrade de identidade, não só "modo escuro".
+- **Nome exato dos eventos da Ticto** que você quer tratar (purchase_approved, refund, chargeback, subscription_canceled?). Posso assumir os mais comuns e você ajusta depois.
+- **Como a Ticto assina o webhook** — alguns gateways mandam HMAC no header `x-signature`, outros mandam um token fixo no body. Vou precisar dar uma olhada no formato real do payload deles. Se você tiver o link da doc da Ticto sobre webhook, melhor ainda.
+- **Tem mais de um produto?** Se sim, faz sentido guardar qual produto foi comprado e diferenciar acesso (ex: produto X → acesso ao programa Y). Por ora vou assumir "acesso geral on/off" como hoje.
