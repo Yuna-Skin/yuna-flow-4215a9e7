@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { BottomNav } from "@/components/BottomNav";
 import { LegalGate } from "@/components/LegalGate";
+import { PaymentGate } from "@/components/PaymentGate";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -57,12 +58,14 @@ function AuthenticatedLayout() {
 
   return (
     <LegalGate>
-      <div className="mobile-shell app-shell">
-        <main ref={mainRef} className="app-shell-main">
-          <Outlet />
-        </main>
-        <BottomNav />
-      </div>
+      <PaymentGate>
+        <div className="mobile-shell app-shell">
+          <main ref={mainRef} className="app-shell-main">
+            <Outlet />
+          </main>
+          <BottomNav />
+        </div>
+      </PaymentGate>
     </LegalGate>
   );
 }
