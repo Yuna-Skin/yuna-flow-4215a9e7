@@ -23,6 +23,7 @@ import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated.profile'
 import { Route as AuthenticatedPlusRouteImport } from './routes/_authenticated.plus'
 import { Route as AuthenticatedCommunityRouteImport } from './routes/_authenticated.community'
+import { Route as ApiPublicTictoWebhookRouteImport } from './routes/api/public/ticto-webhook'
 import { Route as AuthenticatedSettingsPrivacyRouteImport } from './routes/_authenticated.settings.privacy'
 import { Route as AuthenticatedDayDayIdRouteImport } from './routes/_authenticated.day.$dayId'
 import { Route as AuthenticatedAdminModerationRouteImport } from './routes/_authenticated.admin.moderation'
@@ -96,6 +97,11 @@ const AuthenticatedCommunityRoute = AuthenticatedCommunityRouteImport.update({
   path: '/community',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const ApiPublicTictoWebhookRoute = ApiPublicTictoWebhookRouteImport.update({
+  id: '/api/public/ticto-webhook',
+  path: '/api/public/ticto-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedSettingsPrivacyRoute =
   AuthenticatedSettingsPrivacyRouteImport.update({
     id: '/privacy',
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/admin/moderation': typeof AuthenticatedAdminModerationRoute
   '/day/$dayId': typeof AuthenticatedDayDayIdRoute
   '/settings/privacy': typeof AuthenticatedSettingsPrivacyRoute
+  '/api/public/ticto-webhook': typeof ApiPublicTictoWebhookRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/admin/moderation': typeof AuthenticatedAdminModerationRoute
   '/day/$dayId': typeof AuthenticatedDayDayIdRoute
   '/settings/privacy': typeof AuthenticatedSettingsPrivacyRoute
+  '/api/public/ticto-webhook': typeof ApiPublicTictoWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/moderation': typeof AuthenticatedAdminModerationRoute
   '/_authenticated/day/$dayId': typeof AuthenticatedDayDayIdRoute
   '/_authenticated/settings/privacy': typeof AuthenticatedSettingsPrivacyRoute
+  '/api/public/ticto-webhook': typeof ApiPublicTictoWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/admin/moderation'
     | '/day/$dayId'
     | '/settings/privacy'
+    | '/api/public/ticto-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/admin/moderation'
     | '/day/$dayId'
     | '/settings/privacy'
+    | '/api/public/ticto-webhook'
   id:
     | '__root__'
     | '/_authenticated'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/moderation'
     | '/_authenticated/day/$dayId'
     | '/_authenticated/settings/privacy'
+    | '/api/public/ticto-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -237,6 +249,7 @@ export interface RootRouteChildren {
   ReembolsoRoute: typeof ReembolsoRoute
   SobreRoute: typeof SobreRoute
   TermosDeUsoRoute: typeof TermosDeUsoRoute
+  ApiPublicTictoWebhookRoute: typeof ApiPublicTictoWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -339,6 +352,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommunityRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/public/ticto-webhook': {
+      id: '/api/public/ticto-webhook'
+      path: '/api/public/ticto-webhook'
+      fullPath: '/api/public/ticto-webhook'
+      preLoaderRoute: typeof ApiPublicTictoWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/settings/privacy': {
       id: '/_authenticated/settings/privacy'
       path: '/privacy'
@@ -411,17 +431,8 @@ const rootRouteChildren: RootRouteChildren = {
   ReembolsoRoute: ReembolsoRoute,
   SobreRoute: SobreRoute,
   TermosDeUsoRoute: TermosDeUsoRoute,
+  ApiPublicTictoWebhookRoute: ApiPublicTictoWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
