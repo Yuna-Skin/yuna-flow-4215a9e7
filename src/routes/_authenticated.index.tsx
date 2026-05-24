@@ -299,7 +299,7 @@ function HomePage() {
                   to="/day/$dayId"
                   params={{ dayId: d.id }}
                   aria-label={`Dia ${d.day_number} — descanso`}
-                  className="flex aspect-square w-full items-center justify-center rounded-full border border-dashed border-black/10 bg-white/40 text-background/80 transition-all hover:bg-white/70"
+                  className="flex aspect-square w-full items-center justify-center rounded-full border border-dashed border-black/10 bg-white/40 text-background/80 transition-all hover:bg-white/70 dark:border-white/15 dark:bg-white/5 dark:text-white/70 dark:hover:bg-white/10"
                 >
                   <Moon className="h-3.5 w-3.5" strokeWidth={2} />
                 </Link>
@@ -316,7 +316,7 @@ function HomePage() {
                     ? "bg-progress-accent text-white shadow-sm"
                     : isCurrent
                       ? "glass border-2 border-primary text-foreground"
-                      : "bg-white/60 text-background border border-black/[0.04] hover:bg-white",
+                      : "bg-white/60 text-background border border-black/[0.04] hover:bg-white dark:bg-white/10 dark:text-white dark:border-white/10 dark:hover:bg-white/15",
                 )}
               >
                 {done ? <Check className="h-4 w-4" strokeWidth={2.5} /> : d.day_number}
