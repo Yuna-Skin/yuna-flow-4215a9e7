@@ -41,7 +41,7 @@ function SobrePage() {
       </Link>
 
       <header className="mt-8">
-        <Logo size={64} />
+        <Logo size={40} />
         <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.22em] text-primary">
           Yuna Skin
         </p>

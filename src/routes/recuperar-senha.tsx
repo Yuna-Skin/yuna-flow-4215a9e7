@@ -147,7 +147,7 @@ function RecoverPasswordPage() {
   return (
     <div className="mobile-shell flex min-h-screen flex-col justify-center px-6 py-10">
       <div className="flex flex-col items-center text-center">
-        <Logo size={96} priority />
+        <Logo size={48} priority />
         <h1 className="mt-4 text-xl font-medium">Recuperar senha</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {step === "email" && "Informe o e-mail usado na sua compra."}
