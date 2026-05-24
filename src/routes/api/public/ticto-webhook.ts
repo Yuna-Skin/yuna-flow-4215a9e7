@@ -209,7 +209,12 @@ export const Route = createFileRoute('/api/public/ticto-webhook')({
         const bodyToken = parsed?.token ?? parsed?.hottok ?? null;
         const providedToken = headerToken ?? queryToken ?? bodyToken;
 
-        if (providedToken !== expectedToken) {
+        const providedBuf = Buffer.from(String(providedToken ?? ''), 'utf8');
+        const expectedBuf = Buffer.from(expectedToken, 'utf8');
+        const isValid =
+          providedBuf.length === expectedBuf.length &&
+          timingSafeEqual(providedBuf, expectedBuf);
+        if (!isValid) {
           return new Response('Unauthorized', { status: 401 });
         }
 
