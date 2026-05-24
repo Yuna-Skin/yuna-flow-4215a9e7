@@ -315,7 +315,7 @@ function HomePage() {
                   done
                     ? "bg-progress-accent text-white shadow-sm"
                     : isCurrent
-                      ? "glass border-2 border-primary text-foreground"
+                      ? "bg-background border-2 border-progress-accent text-foreground shadow-sm"
                       : "bg-foreground/[0.06] text-foreground border border-foreground/15 hover:bg-foreground/10 dark:bg-white/10 dark:text-white dark:border-white/10 dark:hover:bg-white/15",
                 )}
               >
