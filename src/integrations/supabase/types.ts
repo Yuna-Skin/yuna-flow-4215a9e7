@@ -430,7 +430,10 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          name: string | null
           payload: Json | null
+          phone: string | null
+          prefill_token: string | null
           product_id: string | null
           status: string
           ticto_order_id: string
@@ -440,7 +443,10 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
+          name?: string | null
           payload?: Json | null
+          phone?: string | null
+          prefill_token?: string | null
           product_id?: string | null
           status?: string
           ticto_order_id: string
@@ -450,7 +456,10 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
+          name?: string | null
           payload?: Json | null
+          phone?: string | null
+          prefill_token?: string | null
           product_id?: string | null
           status?: string
           ticto_order_id?: string
