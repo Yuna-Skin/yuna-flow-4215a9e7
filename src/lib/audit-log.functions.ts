@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader, getRequestIP } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { createSupabaseServerClient } from "@/integrations/supabase/server-client";
 
 // Eventos jurídicos rastreados
 const eventTypes = [
@@ -17,7 +18,6 @@ const eventTypes = [
 ] as const;
 
 const logInput = z.object({
-  user_id: z.string().uuid().nullable().optional(),
   event_type: z.enum(eventTypes),
   terms_version: z.string().max(20).optional(),
   privacy_version: z.string().max(20).optional(),
@@ -27,8 +27,10 @@ const logInput = z.object({
 
 /**
  * Registra evento jurídico no log de auditoria.
- * Aceita user_id opcional (para eventos pré-autenticação como login falho).
- * Insere via service role — usuárias não conseguem alterar/apagar logs.
+ * O user_id é SEMPRE derivado da sessão autenticada no servidor — nunca
+ * aceito do cliente — para impedir forja de entradas atribuídas a outras
+ * usuárias. Eventos sem sessão (ex.: tentativa de login falha) gravam
+ * user_id = null.
  */
 export const logAuditEvent = createServerFn({ method: "POST" })
   .inputValidator((input) => logInput.parse(input))
@@ -36,9 +38,18 @@ export const logAuditEvent = createServerFn({ method: "POST" })
     const ip = getRequestIP({ xForwardedFor: true }) ?? null;
     const userAgent = getRequestHeader("user-agent") ?? null;
 
+    let userId: string | null = null;
+    try {
+      const supabase = createSupabaseServerClient();
+      const { data: userData } = await supabase.auth.getUser();
+      userId = userData?.user?.id ?? null;
+    } catch {
+      userId = null;
+    }
+
     try {
       const { error } = await supabaseAdmin.from("legal_audit_logs").insert({
-        user_id: data.user_id ?? null,
+        user_id: userId,
         event_type: data.event_type,
         ip_address: ip,
         user_agent: userAgent,
@@ -54,7 +65,6 @@ export const logAuditEvent = createServerFn({ method: "POST" })
       }
       return { ok: true };
     } catch (e) {
-      // Service role key ausente em dev sandbox ou erro de rede — não quebra o fluxo do usuário.
       console.warn("[audit-log] skipped:", e instanceof Error ? e.message : String(e));
       return { ok: false };
     }
