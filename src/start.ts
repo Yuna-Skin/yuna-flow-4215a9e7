@@ -1,4 +1,6 @@
 import { createStart } from "@tanstack/react-start";
+import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 
-// Cookies enviam a sessão automaticamente em toda request — sem attach manual.
-export const startInstance = createStart(() => ({}));
+export const startInstance = createStart(() => ({
+  functionMiddleware: [attachSupabaseAuth],
+}));
