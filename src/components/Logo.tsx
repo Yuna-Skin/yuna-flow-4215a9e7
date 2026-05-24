@@ -5,10 +5,10 @@ interface LogoProps {
   priority?: boolean;
 }
 
-export function Logo({ size = 72, className, alt = "YunaSkin" }: LogoProps) {
+export function Logo({ size = 32, className, alt = "YunaSkin" }: LogoProps) {
   return (
     <span
-      className={`inline-block leading-none text-4xl ${className || ""}`}
+      className={`inline-block leading-none ${className || ""}`}
       style={{ fontFamily: "'Instrument Serif', serif", fontSize: size }}
       aria-label={alt}
     >
