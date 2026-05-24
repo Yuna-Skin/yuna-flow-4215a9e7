@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router';
+import { timingSafeEqual } from 'node:crypto';
 import { supabaseAdmin } from '@/integrations/supabase/client.server';
 
 // Eventos da Ticto que liberam acesso
