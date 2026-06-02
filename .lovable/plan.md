@@ -1,70 +1,50 @@
-## Integração Ticto via Webhook
+## Objetivo
 
-### Visão geral
-Endpoint público no app recebe eventos da Ticto, valida assinatura, e libera/revoga acesso em `access_control` por email. Compras sem cadastro ficam pendentes e são liberadas automaticamente quando o usuário se cadastra com o mesmo email.
+Adicionar uma pessoa ao app definindo email + senha manualmente (sem ela ter comprado pela Ticto), e garantir que ela tenha acesso liberado ao conteúdo.
 
-### Mudanças no banco
+## Por que não precisa de código
 
-**Nova tabela `pending_purchases`** — guarda compras de emails que ainda não têm conta:
-- `email` (texto, indexado)
-- `status` (`active` | `refunded` | `chargeback` | `canceled`)
-- `ticto_order_id` (único, evita duplicar)
-- `product_id`, `payload` (jsonb com o evento bruto pra auditoria)
-- RLS: só admin lê/escreve
+O Supabase já oferece tudo nativamente:
+- **Authentication → Users → "Add user"** cria a conta com email + senha que você definir.
+- O trigger `handle_new_user` que já existe no banco cria automaticamente o `profile` e o `user_streak`.
+- Só falta garantir o registro em `access_control` com `has_access = true`.
 
-**Nova tabela `ticto_webhook_events`** — log de todo evento recebido (idempotência + debug):
-- `ticto_event_id` (único), `event_type`, `payload`, `processed_at`, `error`
-- RLS: só admin
+## Passo a passo (você executa)
 
-**Ajuste em `access_control`**:
-- Adicionar coluna `ticto_order_id` (texto, nullable) — referência pra revogar quando vier refund/chargeback
-- Manter `source` (já existe) — usar `'ticto'` quando vier de compra
+### 1. Criar a usuária
 
-**Ajuste em `handle_new_user` trigger**:
-- Quando um novo user se cadastra, checar `pending_purchases` por email e, se houver registro `active`, criar entrada em `access_control` com `has_access=true, source='ticto'` em vez do default
+1. Abrir **Authentication → Users** no painel do Supabase.
+2. Clicar em **"Add user" → "Create new user"**.
+3. Preencher:
+   - **Email**: o email da pessoa
+   - **Password**: a senha que você quer definir (mín. 6 caracteres)
+   - **Auto Confirm User**: ✅ marcar (pra ela não precisar confirmar email)
+4. Clicar em **Create user**.
 
-### Endpoint do webhook
+Nesse momento o trigger `handle_new_user` roda e:
+- Cria o `profile` dela
+- Tenta achar uma `pending_purchase` com o mesmo email
+  - Se achar (compra Ticto pendente) → libera acesso automático ✅ fim
+  - Se não achar → cria `access_control` com `has_access = false` → precisa do passo 2
 
-`src/routes/api/public/ticto-webhook.ts` (server route, POST):
+### 2. Liberar acesso (se ela não tem compra Ticto)
 
-1. Lê body como texto cru
-2. Valida assinatura usando `TICTO_WEBHOOK_TOKEN` (HMAC ou token simples, depende do que a Ticto manda — confirmar no painel)
-3. Parseia payload com Zod
-4. Idempotência: se `ticto_event_id` já existe em `ticto_webhook_events`, retorna 200 sem reprocessar
-5. Roteia por `event_type`:
-   - `purchase_approved` / `subscription_renewed` → libera acesso
-   - `purchase_refunded` / `chargeback` / `subscription_canceled` → revoga acesso
-6. Pra liberar: busca user por email em `auth.users`; se existe, upsert em `access_control`; se não, upsert em `pending_purchases`
-7. Pra revogar: update em `access_control` (`has_access=false`) por `ticto_order_id`; também marca `pending_purchases` se aplicável
-8. Registra em `ticto_webhook_events` com `processed_at` (ou `error` se falhou)
-9. Sempre retorna 200 rápido (a Ticto reenvia se receber erro)
+Vou rodar um `UPDATE` em `access_control` marcando `has_access = true` e `source = 'manual'` pra essa usuária. Você só me passa o email depois que criar a conta, e eu rodo a query.
 
-### Secret necessário
+### 3. Entregar pra ela
 
-`TICTO_WEBHOOK_TOKEN` — o token de segurança que a Ticto manda nos headers. Você pega no painel da Ticto ao configurar o webhook. Vou pedir via tool de secret quando chegar a hora.
+Você manda pra pessoa:
+- URL: `https://app.yunaskin.com.br/auth`
+- Email + senha que você criou
 
-### URL pra colar na Ticto
+Ela entra normalmente pelo fluxo de login que já existe.
 
-```
-https://yuna-flow.lovable.app/api/public/ticto-webhook
-```
-(URL estável, sobrevive a renames)
+## O que NÃO muda
 
-### Admin / observabilidade (opcional, fase 2)
+- Nenhum código do app é alterado.
+- Nenhuma tabela nova, nenhuma rota nova.
+- O fluxo Ticto continua funcionando normalmente pra todo mundo que comprou.
 
-- Página `/admin/purchases` lista últimos eventos de `ticto_webhook_events` e `pending_purchases` (pra você ver se algo falhou)
-- Botão "reprocessar" num evento com erro
+## Próximo passo
 
-### Ordem de execução
-
-1. Migration: criar `pending_purchases`, `ticto_webhook_events`, adicionar `ticto_order_id` em `access_control`, atualizar trigger `handle_new_user`
-2. Criar o endpoint `src/routes/api/public/ticto-webhook.ts` com validação Zod + assinatura + roteamento de eventos
-3. Pedir o secret `TICTO_WEBHOOK_TOKEN`
-4. Te passar a URL pra colar no painel da Ticto + instrução de mandar um evento de teste
-5. (Fase 2, se quiser) página de admin
-
-### Pontos que preciso confirmar com você antes/durante
-
-- **Nome exato dos eventos da Ticto** que você quer tratar (purchase_approved, refund, chargeback, subscription_canceled?). Posso assumir os mais comuns e você ajusta depois.
-- **Como a Ticto assina o webhook** — alguns gateways mandam HMAC no header `x-signature`, outros mandam um token fixo no body. Vou precisar dar uma olhada no formato real do payload deles. Se você tiver o link da doc da Ticto sobre webhook, melhor ainda.
-- **Tem mais de um produto?** Se sim, faz sentido guardar qual produto foi comprado e diferenciar acesso (ex: produto X → acesso ao programa Y). Por ora vou assumir "acesso geral on/off" como hoje.
+Quando você aprovar este plano, eu te aviso pra você criar a conta no painel, e depois disso me passa o email da pessoa pra eu rodar o `UPDATE` em `access_control` liberando o acesso.
