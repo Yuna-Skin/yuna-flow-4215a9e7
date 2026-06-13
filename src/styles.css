@@ -297,3 +297,21 @@
 .app-shell-main::-webkit-scrollbar {
   display: none;
 }
+
+/* iPad / desktop (≥768px) — camada aditiva: NÃO altera nada abaixo desse breakpoint.
+   Remove o frame mobile centralizado, transforma o shell em grid sidebar+conteúdo,
+   e remove o padding-bottom reservado pro BottomNav (que fica hidden em md:). */
+@media (min-width: 768px) {
+  .mobile-shell {
+    max-width: none;
+    box-shadow: none;
+  }
+  .app-shell {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-rows: 1fr;
+  }
+  .app-shell-main {
+    padding-bottom: 2rem;
+  }
+}
