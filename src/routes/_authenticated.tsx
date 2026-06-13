@@ -1,11 +1,12 @@
 import { createFileRoute, Outlet, redirect, useLocation, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { BottomNav } from "@/components/BottomNav";
 import { SideNav } from "@/components/SideNav";
 import { LegalGate } from "@/components/LegalGate";
 import { PaymentGate } from "@/components/PaymentGate";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async () => {
