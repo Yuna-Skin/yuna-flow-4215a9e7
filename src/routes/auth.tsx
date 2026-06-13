@@ -72,58 +72,60 @@ function AuthPage() {
   };
 
   return (
-    <div className="mobile-shell flex min-h-screen flex-col justify-center px-6 py-10 md:!max-w-md md:mx-auto">
-      <div className="flex flex-col items-center text-center">
-        <Logo size={48} priority />
-        <p className="mt-4 text-sm text-muted-foreground">
-          Sua rotina de beleza natural.<br />Poucos minutos por dia.
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="mt-10 space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="email">E-mail</Label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="voce@email.com"
-            className="h-12 rounded-xl"
-            autoComplete="email"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="password">Senha</Label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            placeholder="Sua senha"
-            className="h-12 rounded-xl"
-            autoComplete="current-password"
-          />
+    <div className="mobile-shell flex min-h-screen flex-col justify-center px-6 py-10">
+      <div className="mx-auto w-full md:max-w-md">
+        <div className="flex flex-col items-center text-center">
+          <Logo size={48} priority />
+          <p className="mt-4 text-sm text-muted-foreground">
+            Sua rotina de beleza natural.<br />Poucos minutos por dia.
+          </p>
         </div>
 
-        <Button
-          type="submit"
-          disabled={busy}
-          className="h-12 w-full rounded-full text-base"
+        <form onSubmit={handleSubmit} className="mt-10 space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="email">E-mail</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="voce@email.com"
+              className="h-12 rounded-xl"
+              autoComplete="email"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Senha</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              placeholder="Sua senha"
+              className="h-12 rounded-xl"
+              autoComplete="current-password"
+            />
+          </div>
+
+          <Button
+            type="submit"
+            disabled={busy}
+            className="h-12 w-full rounded-full text-base"
+          >
+            {busy ? "Aguarde..." : "Entrar"}
+          </Button>
+        </form>
+
+        <Link
+          to="/recuperar-senha"
+          className="mt-6 block text-center text-sm text-muted-foreground hover:text-foreground"
         >
-          {busy ? "Aguarde..." : "Entrar"}
-        </Button>
-      </form>
-
-      <Link
-        to="/recuperar-senha"
-        className="mt-6 text-center text-sm text-muted-foreground hover:text-foreground"
-      >
-        Esqueceu a senha? <span className="font-medium text-primary">Recuperar agora</span>
-      </Link>
+          Esqueceu a senha? <span className="font-medium text-primary">Recuperar agora</span>
+        </Link>
+      </div>
     </div>
   );
 }
