@@ -1,11 +1,12 @@
 import { createFileRoute, Outlet, redirect, useLocation, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { BottomNav } from "@/components/BottomNav";
 import { SideNav } from "@/components/SideNav";
 import { LegalGate } from "@/components/LegalGate";
 import { PaymentGate } from "@/components/PaymentGate";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async () => {
@@ -24,6 +25,10 @@ function AuthenticatedLayout() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const mainRef = useRef<HTMLElement>(null);
+  const [sideNavCollapsed, setSideNavCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem("yuna:sidebar-collapsed") === "1";
+  });
 
   useEffect(() => {
     if (!loading && !session) {
@@ -60,8 +65,17 @@ function AuthenticatedLayout() {
   return (
     <LegalGate>
       <PaymentGate>
-        <div className="mobile-shell app-shell">
-          <SideNav />
+        <div className={cn("mobile-shell app-shell", sideNavCollapsed && "app-shell--nav-collapsed")}>
+          <SideNav
+            collapsed={sideNavCollapsed}
+            onToggle={() => {
+              setSideNavCollapsed((c) => {
+                const next = !c;
+                window.localStorage.setItem("yuna:sidebar-collapsed", next ? "1" : "0");
+                return next;
+              });
+            }}
+          />
           <main ref={mainRef} className="app-shell-main">
             <Outlet />
           </main>
