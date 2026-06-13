@@ -61,10 +61,13 @@ function AuthenticatedLayout() {
     <LegalGate>
       <PaymentGate>
         <div className="mobile-shell app-shell">
+          <SideNav />
           <main ref={mainRef} className="app-shell-main">
             <Outlet />
           </main>
-          <BottomNav />
+          <div className="md:hidden">
+            <BottomNav />
+          </div>
         </div>
       </PaymentGate>
     </LegalGate>
