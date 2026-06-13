@@ -20,7 +20,7 @@ function SettingsPage() {
   }
 
   return (
-    <div className="px-5 pb-6 pt-8">
+    <div className="px-5 pb-6 pt-8 md:mx-auto md:max-w-2xl md:px-8 md:pt-12">
       <Link
         to="/profile"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
