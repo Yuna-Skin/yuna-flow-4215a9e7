@@ -87,7 +87,7 @@ function CommunityPage() {
   };
 
   return (
-    <div className="px-5 pb-6 pt-8">
+    <div className="px-5 pb-6 pt-8 md:mx-auto md:max-w-2xl md:px-8 md:pt-12">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl text-foreground">Comunidade</h1>

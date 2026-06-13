@@ -258,7 +258,7 @@ function DayPage() {
   }
 
   return (
-    <div className="pb-32">
+    <div className="pb-32 md:mx-auto md:max-w-3xl md:pb-12">
       <div className="relative">
         <AudioModulePlayer
           audioUrl={day.audio_url ?? null}

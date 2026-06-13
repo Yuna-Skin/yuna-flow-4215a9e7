@@ -66,7 +66,7 @@ const KIND_META: Record<BonusKind, { label: string; icon: typeof BookOpen; tone:
 
 function PlusPage() {
   return (
-    <div className="px-5 pb-10 pt-8">
+    <div className="px-5 pb-10 pt-8 md:mx-auto md:max-w-5xl md:px-8 md:pt-12">
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
         <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary">
@@ -80,7 +80,7 @@ function PlusPage() {
         Bônus exclusivos pra aprofundar sua jornada, ebooks, áudios e guias.
       </p>
 
-      <section className="mt-8 space-y-3">
+      <section className="mt-8 space-y-3 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
         {BONUSES.map((b) => {
           const meta = KIND_META[b.kind];
           const Icon = meta.icon;

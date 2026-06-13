@@ -152,7 +152,7 @@ function HomePage() {
   };
 
   return (
-    <div className="px-4 pb-6 pt-8">
+    <div className="px-4 pb-6 pt-8 md:mx-auto md:max-w-3xl md:px-8 md:pt-12">
       <div className="flex items-center justify-between gap-3">
         <Link to="/profile" className="flex flex-1 items-center gap-3 rounded-2xl -mx-1 px-1 py-1 transition-colors active:bg-black/5">
           <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-primary to-warm shadow-sm">

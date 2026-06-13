@@ -131,7 +131,7 @@ function ProfilePage() {
   }
 
   return (
-    <div className="px-5 pb-6 pt-8">
+    <div className="px-5 pb-6 pt-8 md:mx-auto md:max-w-2xl md:px-8 md:pt-12">
       <h1 className="font-display text-3xl text-foreground">Perfil</h1>
 
       <div className="mt-6 flex flex-col items-center text-center">

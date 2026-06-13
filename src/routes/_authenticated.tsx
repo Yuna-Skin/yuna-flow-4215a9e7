@@ -2,6 +2,7 @@ import { createFileRoute, Outlet, redirect, useLocation, useNavigate } from "@ta
 import { useEffect, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import { BottomNav } from "@/components/BottomNav";
+import { SideNav } from "@/components/SideNav";
 import { LegalGate } from "@/components/LegalGate";
 import { PaymentGate } from "@/components/PaymentGate";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,10 +61,13 @@ function AuthenticatedLayout() {
     <LegalGate>
       <PaymentGate>
         <div className="mobile-shell app-shell">
+          <SideNav />
           <main ref={mainRef} className="app-shell-main">
             <Outlet />
           </main>
-          <BottomNav />
+          <div className="md:hidden">
+            <BottomNav />
+          </div>
         </div>
       </PaymentGate>
     </LegalGate>
